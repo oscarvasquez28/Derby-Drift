@@ -1,5 +1,5 @@
 
-# Gráficas computaciones para web II
+# Gráficas computaciones para web I
 
 ...
 
