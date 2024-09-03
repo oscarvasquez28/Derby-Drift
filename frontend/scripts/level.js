@@ -62,6 +62,11 @@ export default class Level {
       this.levelCamera.position.y = playerPosition.y + 5;
       this.levelCamera.position.z = playerPosition.z + 10;
     }
+    
+    this.players.forEach(player => {
+      player.update();
+    });
+
   }
 
   updatePlayers(updatedPlayers) {
