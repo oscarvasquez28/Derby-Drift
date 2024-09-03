@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import NameTag from './nametag.js'
-import ObjModel from "./model.js";
 
 export default class Player{
 

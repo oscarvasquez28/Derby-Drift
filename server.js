@@ -129,7 +129,7 @@ io.on('connection', (socket) => {
       console.log('Player\'s new X: ' + players[data.id].position.x);
       console.log('Player\'s new Y: ' + players[data.id].position.y);
       console.log('Player\'s new Z: ' + players[data.id].position.z);
-    }else{
+    } else{
       console.error('The player that submitted the input does not exist!');
     }
 
