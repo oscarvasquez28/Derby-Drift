@@ -1,6 +1,6 @@
 
 export default class Connection{
-    
+
     static #socket = null;
 
     static getConnection(){

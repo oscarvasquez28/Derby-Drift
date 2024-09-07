@@ -75,10 +75,10 @@ world.defaultContactMaterial.contactEquationRegularizationTime = 4;
 function createPlayerBody(player) {
     const shape = new cannon.Box(new cannon.Vec3(1, 1, 1));
     // const shape = new cannon.Sphere(1);
-    const body = new cannon.Body({ 
-      mass: 1, 
-      shape: shape, 
-      linearDamping: 0.9, 
+    const body = new cannon.Body({
+      mass: 1,
+      shape: shape,
+      linearDamping: 0.9,
       angularDamping: 0.9,
       position: new cannon.Vec3(player.position.x, player.position.y, player.position.z)
     });
@@ -109,12 +109,12 @@ io.on('connection', (socket) => {
   world.addBody(cannonPlayerBody[socket.id].body);
 
   io.emit(
-    'newPlayer', 
+    'newPlayer',
     players[socket.id],
   )
 
   socket.emit(
-    'currentPlayers', 
+    'currentPlayers',
     players,
   )
 
@@ -132,7 +132,7 @@ io.on('connection', (socket) => {
       if (data.inputs.right) playerBody.body.velocity.x < PLAYER_MAX_SPEED ? force.x = PLAYER_ACCELERATION : playerBody.body.velocity.x = PLAYER_MAX_SPEED;
       if (data.inputs.jump && playerBody.body.velocity.y <= 0.1 && playerBody.body.position.y <= 2) playerBody.body.applyImpulse(jumpImpulse, forcePosition);
       playerBody.body.applyForce(force, forcePosition);
-      
+
 
       console.log('Player ' + data.id + ' moved');
       console.log('Player\'s new X: ' + players[data.id].position.x);
@@ -142,8 +142,8 @@ io.on('connection', (socket) => {
       console.error('The player that submitted the input does not exist!');
     }
 
-      
-  
+
+
   })
 
 });
