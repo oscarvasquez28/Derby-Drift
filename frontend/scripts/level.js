@@ -1,6 +1,6 @@
 import World from "./world.js"
 import Player from "./player.js"
-import Input from "./input.js"
+import ClientPlayer from "./clientPlayer.js"
 import Connection from "../connection.js"
 import ObjModel from "./model.js"
 
@@ -126,9 +126,10 @@ export default class Level {
   }
 
   #setClientPlayer() {
-    this.clientPlayer = this.players.find(obj => obj.id === this.socket.id);
-    this.playerInput = new Input(this.clientPlayer, this.socket);
-    this.playerInput.initInputSystem();
+    const clientPlayer = this.players.find(obj => obj.id === this.socket.id);
+    if (clientPlayer) {
+      this.clientPlayer = new ClientPlayer(clientPlayer);
+    }
   }
 
   #setUpSocketEvents(){    
