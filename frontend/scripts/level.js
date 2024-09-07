@@ -20,21 +20,29 @@ export default class Level {
     this.clientPlayer = null;
   }
 
-  initLevel() {
+  async initLevel() {
     this.world.initWorld();
-
+  
     this.levelCamera = this.world.camera;
-
+  
     this.levelScene = this.world.scene;
-
+  
     this.levelRenderer = this.world.renderer;
-
+  
     this.#setUpSocketEvents();
+  
+    // Inicializar con valores por defecto
+    // this.dobeto = new ObjModel(this.levelScene, 'models/PORFAVOR.obj', 'models/PORFAVOR.mtl');
 
-    const dobeto = new ObjModel(this.levelScene, 'models/PORFAVOR.obj', 'models/PORFAVOR.mtl'); 
-
-    this.models.push(dobeto);
-
+    // Inicializar con rotación y posición en personalizadas
+    this.dobeto = new ObjModel(this.levelScene, 'models/PORFAVOR.obj', 'models/PORFAVOR.mtl', false);
+    await this.dobeto.initModel().then((mesh) => {
+      mesh.position.y = 15;
+      mesh.position.x = 0;
+      mesh.position.z = 0;
+    });
+    
+    this.models.push(this.dobeto);
   }
 
   begin() {
@@ -62,6 +70,17 @@ export default class Level {
       this.levelCamera.position.y = playerPosition.y + 5;
       this.levelCamera.position.z = playerPosition.z + 10;
     }
+
+    // Manejar modelos
+    if (this.dobeto.isLoaded()){
+      this.dobeto.mesh.rotation.y += 0.01;
+      this.dobeto.mesh.position.y += 0.01;
+    }
+    
+    this.players.forEach(player => {
+      player.update();
+    });
+
   }
 
   updatePlayers(updatedPlayers) {

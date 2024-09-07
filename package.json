@@ -11,7 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cannon": "^0.6.2",
+    "cannon-es": "^0.20.0",
+    "canvas": "^2.11.2",
     "express": "^4.19.2",
     "socket.io": "^4.7.5",
     "socketio": "^1.0.0",
