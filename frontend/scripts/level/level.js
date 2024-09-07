@@ -1,7 +1,7 @@
 import World from "./world.js"
-import Player from "./player.js"
-import ClientPlayer from "./clientPlayer.js"
-import Connection from "../connection.js"
+import Player from "../player/player.js"
+import ClientPlayer from "../player/clientPlayer.js"
+import Connection from "../../connection.js"
 import ObjModel from "./model.js"
 
 const FPS = 60;

@@ -1,4 +1,4 @@
-import Connection from "../connection.js";
+import Connection from "../../connection.js";
 
 export default class InputSystem {
     socket = Connection.getConnection();

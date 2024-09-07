@@ -1,6 +1,6 @@
 import Player from './player.js';
 import Input from './input.js';
-import Connection from '../connection.js';
+import Connection from '../../connection.js';
 
 export default class ClientPlayer {
 
