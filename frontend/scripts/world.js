@@ -59,16 +59,69 @@ export default class World {
     scene.add(light);
     
     // Inicializamos la geometría del suelo, en este caso empezamos con un plano
-    const floorGeometry = new THREE.PlaneGeometry(130, 130);
-    const floorMaterial = new THREE.MeshStandardMaterial({ color: FLOOR_COLOR, side: THREE.DoubleSide });
-    const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
+    function loadHeightmapTexture(filePath, onLoad) {
+      const loader = new THREE.TextureLoader();
+      loader.load(filePath, (texture) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = texture.image.width;
+        canvas.height = texture.image.height;
+        const context = canvas.getContext('2d');
+        context.drawImage(texture.image, 0, 0);
     
-    // Rotamos el plano para que esté alineado al horizonte
-    floorMesh.position.set(0, 0.5, 0)
-    floorMesh.rotateX(Math.PI / 2);
-    floorMesh.receiveShadow = true;
+        const imageData = context.getImageData(0, 0, texture.image.width, texture.image.height);
+        const data = imageData.data;
+        const heightData = [];
     
-    scene.add(floorMesh);
+        for (let i = 0; i < texture.image.height; i++) {
+          const row = [];
+          for (let j = 0; j < texture.image.width; j++) {
+            const index = (i * texture.image.width + j) * 4;
+            const height = data[index] / 255; // Normalizamos la altura a [0, 1]
+            row.push(height);
+          }
+          heightData.push(row);
+        }
+    
+        onLoad(heightData, texture.image.width, texture.image.height);
+      });
+    }
+    
+    // Función para modificar la geometría del plano basado en los datos de altura
+    function applyHeightmapToGeometry(geometry, heightData, width, height) {
+      const vertices = geometry.attributes.position.array;
+      const widthSegments = geometry.parameters.widthSegments;
+      const heightSegments = geometry.parameters.heightSegments;
+    
+      for (let i = 0; i <= heightSegments; i++) {
+        for (let j = 0; j <= widthSegments; j++) {
+          const vertexIndex = (i * (widthSegments + 1) + j) * 3;
+          const x = j / widthSegments * (width - 1);
+          const y = i / heightSegments * (height - 1);
+          const heightValue = heightData[Math.floor(y)][Math.floor(x)];
+          vertices[vertexIndex + 2] = heightValue * 10; // Escalamos la altura según sea necesario
+        }
+      }
+    
+      geometry.attributes.position.needsUpdate = true;
+      geometry.computeVertexNormals();
+    }
+    
+    // Cargamos la textura del mapa de altura y la aplicamos a la geometría del suelo
+    loadHeightmapTexture('textures/heightmap.jpg', (heightData, width, height) => {
+      const floorGeometry = new THREE.PlaneGeometry(255, 255, width - 1, height - 1);
+      applyHeightmapToGeometry(floorGeometry, heightData, width, height);
+    
+      const floorMaterial = new THREE.MeshStandardMaterial({ color: FLOOR_COLOR });
+      const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
+    
+      // Rotamos el plano para alinearlo con el horizonte
+      floorMesh.position.set(0, 0, 0);
+      floorMesh.rotateX(-Math.PI / 2);
+      floorMesh.rotateZ(Math.PI / 2);
+      floorMesh.receiveShadow = true;
+    
+      scene.add(floorMesh);
+    });
     
     // Manejamos el cambio del tamaño de la ventana
     window.addEventListener('resize', () => {

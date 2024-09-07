@@ -1,17 +1,21 @@
 import * as THREE from 'three'
-import ObjModel from "./model.js";
+import NameTag from './nametag.js'
 
 export default class Player{
 
-    name = "Incógnito";
-    color = 0x000000;
-    id = -1;
     #position = {x: 0, y: 0, z:0};
     #rotation = {x: 0, y: 0, z:0};
-    mesh = null;
 
     constructor(scene){
+
+        this.name = "Incógnito";
+        this.color = 0x000000;
+        this.id = -1;
+        this.mesh = null;
+        
         this.scene = scene;
+
+        this.nametag = new NameTag(this, scene);
     }
 
     initPlayerFromJSON(data){
@@ -52,6 +56,7 @@ export default class Player{
             this.mesh.rotation.set(this.#rotation.x, this.#rotation.y, this.#rotation.z);
 
             this.scene.add(this.mesh);
+
             return true;
 
         } catch (error) {
@@ -107,6 +112,11 @@ export default class Player{
         }
 
     }
+    
+    update(){
+        if(this.nametag)
+            this.nametag.update();
+    }
 
     setPlayerPosition(newPos = {x: 0, y: 0, z: 0}){
         this.#position = newPos;
@@ -119,6 +129,7 @@ export default class Player{
 
     removePlayer(){
         this.scene.remove(this.mesh);
+        this.nametag.remove();
     }
 
 }

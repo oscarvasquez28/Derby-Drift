@@ -2,32 +2,44 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 
 export default class ObjModel {
-
-    constructor(scene, objPath, mtlPath) {
-        this.mesh = null;
-
-        const mtlLoader = new MTLLoader();
-        mtlLoader.load(mtlPath, (materials) => {
-            materials.preload();
-
-            const objLoader = new OBJLoader();
-            objLoader.setMaterials(materials);
-            objLoader.load(
-                objPath,
-                (object) => {
-                    this.mesh = object;
-                    object.rotateY(Math.PI)
-                    object.position.set(0, 5, -15)
-                    scene.add(object);
-                },
-                (xhr) => {
-                    // console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-                },
-                (error) => {
-                    // console.error('An error happened', error);
-                }
-            );
-        });
-        console.log(this.mesh)
+    constructor(scene, objPath, mtlPath, selfInit = true) {
+        this.scene = scene;
+        this.objPath = objPath;
+        this.mtlPath = mtlPath;
+        if (selfInit) {
+            this.initModel();
+        }
     }
+
+    initModel() {
+        const objLoader = new OBJLoader();
+        const mtlLoader = new MTLLoader();
+
+        if(this.mesh) {
+            this.scene.remove(this.mesh);
+        }
+
+        return new Promise((resolve, reject) => {
+            mtlLoader.load(this.mtlPath, (materials) => {
+                materials.preload();
+                objLoader.setMaterials(materials);
+                objLoader.load(this.objPath, (object) => {
+                    this.scene.add(object);
+                    this.mesh = object;
+                    resolve(object);
+                }, undefined, reject);
+            });
+        });
+    }
+
+    isLoaded() {
+        return this.mesh !== undefined;
+    }
+
+    destroy() {
+        if (this.mesh) {
+            this.scene.remove(this.mesh);
+        }
+    }
+
 }
