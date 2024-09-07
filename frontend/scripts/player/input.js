@@ -21,6 +21,17 @@ export default class InputSystem {
             this.pressedKeys.delete(event.key);
             this.updateInput(player, socket);
         });
+
+        // Handle gamepad inputs
+        window.addEventListener('gamepadconnected', (event) => {
+            console.log('Gamepad connected:', event.gamepad);
+            this.pollGamepad(player, socket);
+        });
+    
+        window.addEventListener('gamepaddisconnected', (event) => {
+            console.log('Gamepad disconnected:', event.gamepad);
+        });
+
     }
 
     updateInput(player, socket) {
@@ -40,4 +51,35 @@ export default class InputSystem {
         console.log(inputInfo.inputs);
         socket.emit('input', inputInfo);
     }
+
+    pollGamepad(player, socket) {
+        const gamepadIndex = 0; // Assuming the first gamepad
+    
+        const poll = () => {
+            const gamepad = navigator.getGamepads()[gamepadIndex];
+            if (gamepad) {
+                const inputInfo = {
+                    id: player.id,
+                    type: 'gamepad',
+                    lookat: { x: 0, y: 0, z: 0 },
+                    inputs: {
+                        up: gamepad.buttons[12].pressed, // D-pad up
+                        down: gamepad.buttons[13].pressed, // D-pad down
+                        left: gamepad.buttons[14].pressed, // D-pad left
+                        right: gamepad.buttons[15].pressed, // D-pad right
+                        jump: gamepad.buttons[0].pressed, // A button
+                        axes: gamepad.axes, // Joystick axes
+                    }
+                };
+    
+                console.log(inputInfo.inputs);
+                socket.emit('input', inputInfo);
+            }
+    
+            requestAnimationFrame(poll);
+        };
+    
+        poll();
+    }
+
 }
