@@ -26,6 +26,8 @@ export default class InputSystem {
     updateInput(player, socket) {
         const inputInfo = {
             id: player.id,
+            type: 'keyboard',
+            lookat: { x: 0, y: 0, z: 0 },
             inputs: {
                 up: this.pressedKeys.has('ArrowUp') || this.pressedKeys.has('w'),
                 down: this.pressedKeys.has('ArrowDown') || this.pressedKeys.has('s'),

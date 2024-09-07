@@ -82,6 +82,15 @@ function createPlayerBody(player) {
       angularDamping: 0.9,
       position: new cannon.Vec3(player.position.x, player.position.y, player.position.z)
     });
+
+    body.isTouchingFloor = false;
+  
+    body.addEventListener('collide', (event) => {
+      if (event.body.id === 0) {
+        body.isTouchingFloor = true;
+      }
+    });
+
     return body;
 }
 
@@ -120,31 +129,7 @@ io.on('connection', (socket) => {
   )
 
   socket.on('input', (data) => {
-
-    const playerBody = cannonPlayerBody[data.id];
-    const force = new cannon.Vec3();
-    const forcePosition = new cannon.Vec3(0, 0, 0);
-    const jumpImpulse = new cannon.Vec3(0, PLAYER_JUMP_HEIGHT, 0);
-
-    if (playerBody?.body){
-      if (data.inputs.up) playerBody.body.velocity.z > -PLAYER_MAX_SPEED ? force.z = -PLAYER_ACCELERATION : playerBody.body.velocity.z = -PLAYER_MAX_SPEED;
-      if (data.inputs.down) playerBody.body.velocity.z < PLAYER_MAX_SPEED ? force.z = PLAYER_ACCELERATION : playerBody.body.velocity.z = PLAYER_MAX_SPEED;
-      if (data.inputs.left) playerBody.body.velocity.x > -PLAYER_MAX_SPEED ? force.x = -PLAYER_ACCELERATION : playerBody.body.velocity.x = -PLAYER_MAX_SPEED;
-      if (data.inputs.right) playerBody.body.velocity.x < PLAYER_MAX_SPEED ? force.x = PLAYER_ACCELERATION : playerBody.body.velocity.x = PLAYER_MAX_SPEED;
-      if (data.inputs.jump && playerBody.body.velocity.y <= 0.1 && playerBody.body.position.y <= 2) playerBody.body.applyImpulse(jumpImpulse, forcePosition);
-      playerBody.body.applyForce(force, forcePosition);
-      
-
-      console.log('Player ' + data.id + ' moved');
-      console.log('Player\'s new X: ' + players[data.id].position.x);
-      console.log('Player\'s new Y: ' + players[data.id].position.y);
-      console.log('Player\'s new Z: ' + players[data.id].position.z);
-    } else{
-      console.error('The player that submitted the input does not exist!');
-    }
-
-      
-  
+    runInputsFromJSON(data);  
   })
 
 });
@@ -214,7 +199,8 @@ async function createComplexFloor(world) {
 
   floor.position.set(-sideSize / 2, 0, sideSize / 2); // Centrar el terreno
   floor.quaternion.setFromEuler(-Math.PI / 2, 0, 0); // Rotar el suelo -90 grados en el eje X
-
+  world.bodies.at(0)?.pop();
+  floor.id = 0;
   // Agregar el cuerpo del suelo al mundo
   world.addBody(floor);
 }
@@ -236,6 +222,48 @@ function updatePhysics(world) {
 
 const floor = createComplexFloor(world);
 updatePhysics(world);
+
+function getDirectionFromKeyboardInput(inputs) {
+  const direction = new cannon.Vec3();
+  if (inputs.up) direction.z += -1;
+  if (inputs.down) direction.z += 1;
+  if (inputs.left) direction.x += -1;
+  if (inputs.right) direction.x += 1;
+  return direction;
+}
+
+function getDirectionFromGamepadInput(inputs) {
+  const direction = new cannon.Vec3();
+  if (inputs.axes[1] < -0.1) direction.z += -1;
+  if (inputs.axes[1] > 0.1) direction.z += 1;
+  if (inputs.axes[0] < -0.1) direction.x += -1;
+  if (inputs.axes[0] > 0.1) direction.x += 1;
+  return direction;
+}
+
+function runInputsFromJSON(data){
+
+  const body = cannonPlayerBody[data.id]?.body;
+  let direction = data.type === 'gamepad' ? getDirectionFromGamepadInput(data.inputs) : getDirectionFromKeyboardInput(data.inputs);
+  const force = new cannon.Vec3();
+  const forcePosition = new cannon.Vec3(0, 0, 0);
+  const jumpImpulse = new cannon.Vec3(0, PLAYER_JUMP_HEIGHT, 0);
+
+  if (body){
+    if (direction.z < 0) body.velocity.z > -PLAYER_MAX_SPEED ? force.z += -PLAYER_ACCELERATION : body.velocity.z = -PLAYER_MAX_SPEED;
+    else if (direction.z > 0) body.velocity.z < PLAYER_MAX_SPEED ? force.z += PLAYER_ACCELERATION : body.velocity.z = PLAYER_MAX_SPEED;
+    if (direction.x < 0) body.velocity.x > -PLAYER_MAX_SPEED ? force.x += -PLAYER_ACCELERATION : body.velocity.x = -PLAYER_MAX_SPEED;
+    else if (direction.x > 0) body.velocity.x < PLAYER_MAX_SPEED ? force.x += PLAYER_ACCELERATION : body.velocity.x = PLAYER_MAX_SPEED;
+    if (data.inputs.jump && body.isTouchingFloor) {
+      body.applyImpulse(jumpImpulse, forcePosition);
+      body.isTouchingFloor = false;
+    }
+    body.applyForce(force, forcePosition);
+  } else{
+    console.error('The player that submitted the input does not exist!');
+  }
+
+}
 
 //Inciar servidor
 server.listen(3000, () => {
