@@ -91,6 +91,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('User ' + socket.id + ' disconnected');
     delete players[socket.id];
+    world.removeBody(cannonPlayerBody[socket.id].body);
     delete cannonPlayerBody[socket.id];
     io.emit('playerDisconnected', socket.id);
   });
