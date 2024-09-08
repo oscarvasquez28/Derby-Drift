@@ -1,4 +1,4 @@
-import Level from "./level.js"
+import Level from "./level/level.js"
 
 const level = new Level;
 
