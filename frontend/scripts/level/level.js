@@ -1,7 +1,7 @@
 import World from "./world.js"
-import Player from "./player.js"
-import Input from "./input.js"
-import Connection from "../connection.js"
+import Player from "../player/player.js"
+import ClientPlayer from "../player/clientPlayer.js"
+import Connection from "../../connection.js"
 import ObjModel from "./model.js"
 
 const FPS = 60;
@@ -10,27 +10,27 @@ export default class Level {
 
   constructor() {
     this.world = new World();
-  
+
     this.players = new Array().fill(0);
 
     this.models = new Array().fill(0);
-  
+
     this.socket = Connection.getConnection();
-  
+
     this.clientPlayer = null;
   }
 
   async initLevel() {
     this.world.initWorld();
-  
+
     this.levelCamera = this.world.camera;
-  
+
     this.levelScene = this.world.scene;
-  
+
     this.levelRenderer = this.world.renderer;
-  
+
     this.#setUpSocketEvents();
-  
+
     // Inicializar con valores por defecto
     // this.dobeto = new ObjModel(this.levelScene, 'models/PORFAVOR.obj', 'models/PORFAVOR.mtl');
 
@@ -41,7 +41,7 @@ export default class Level {
       mesh.position.x = 0;
       mesh.position.z = 0;
     });
-    
+
     this.models.push(this.dobeto);
   }
 
@@ -66,9 +66,9 @@ export default class Level {
 
     if (this.clientPlayer) {
       const playerPosition = this.clientPlayer.getPlayerPosition();
-      this.levelCamera.position.x = playerPosition.x;
-      this.levelCamera.position.y = playerPosition.y + 5;
-      this.levelCamera.position.z = playerPosition.z + 10;
+      const lookAtNorm = this.clientPlayer.getPlayerNormalizedLookAt();
+      this.levelCamera.position.set(playerPosition.x - (lookAtNorm.x * 2), playerPosition.y + 6, playerPosition.z - (lookAtNorm.z * 2));
+      this.levelCamera.lookAt(playerPosition.x, playerPosition.y, playerPosition.z );
     }
 
     // Manejar modelos
@@ -76,7 +76,7 @@ export default class Level {
       this.dobeto.mesh.rotation.y += 0.01;
       this.dobeto.mesh.position.y += 0.01;
     }
-    
+
     this.players.forEach(player => {
       player.update();
     });
@@ -88,7 +88,7 @@ export default class Level {
   }
 
   currentPlayers(currentPlayers) {
-    this.players = currentPlayers;
+    return this.players = currentPlayers;
   }
 
   addPlayer(newPlayer) {
@@ -126,12 +126,13 @@ export default class Level {
   }
 
   #setClientPlayer() {
-    this.clientPlayer = this.players.find(obj => obj.id === this.socket.id);
-    this.playerInput = new Input(this.clientPlayer, this.socket);
-    this.playerInput.initInputSystem();
+    const clientPlayer = this.players.find(obj => obj.id === this.socket.id);
+    if (clientPlayer) {
+      this.clientPlayer = new ClientPlayer(clientPlayer);
+    }
   }
 
-  #setUpSocketEvents(){    
+  #setUpSocketEvents(){
 
     const socket = this.socket;
 
@@ -154,9 +155,12 @@ export default class Level {
 
     socket.on('playerDisconnected', (id) => {
       console.log("Recieved message from server: playerDisconnected");
-      let disconnectedPlayer = this.players.find(obj => obj.id === id);
-      disconnectedPlayer?.removePlayer();
-      this.players = this.players.filter(obj => obj.id === disconnectedPlayer.id);
+      const disconnectedPlayer = this.players.find(obj => obj.id === id);
+      if (disconnectedPlayer) {
+        disconnectedPlayer.removePlayer();
+        this.players = this.players.filter(obj => obj.id !== disconnectedPlayer.id);
+        console.log("Player: " + disconnectedPlayer.name + " ID:" + disconnectedPlayer.id + " disconnected");
+      }
     });
 
     socket.on('update', (playersData) => {
@@ -164,7 +168,6 @@ export default class Level {
         const updatedPlayer = this.players.find(obj => obj.id === id);
         if (updatedPlayer) {
           updatedPlayer.updatePlayerFromJSON(playersData[id]);
-          // console.log("Recieved message from server: update\nUpdated player: " + id);
         }
         else {
           console.log("Recieved message from server: update\nPlayer " + id + " is not in the scene");
