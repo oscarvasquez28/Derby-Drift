@@ -6,7 +6,7 @@ const Server = require('socket.io').Server;
 const http = require('http');
 const cannon = require('cannon-es');
 const { createCanvas, loadImage } = require('canvas');
-const FPS = 60;
+const FPS = 144;
 
 const app = express();
 
@@ -60,8 +60,8 @@ app.get('/*.mtl', (req, res) => {
 // Inicializar las variables del mundo de juego
 let players = {};
 let cannonPlayerBody = {};
-const PLAYER_MAX_SPEED = 30;
-const PLAYER_WEGIHT = 5;
+const PLAYER_MAX_SPEED = 1000;
+const PLAYER_WEGIHT = 150;
 const PLAYER_WHEEL_WEGIHT = 1;
 const MAX_STEER_VALUE = Math.PI / 8;
 // const PLAYER_ACCELERATION = 500;
@@ -70,10 +70,19 @@ const MAX_STEER_VALUE = Math.PI / 8;
 // Inicializar mundo de cannon js
 const world = new cannon.World();
 world.broadphase = new cannon.NaiveBroadphase();
-world.gravity.set(0, -9.82, 0);
-// world.solver.iterations = 10;
-// world.defaultContactMaterial.contactEquationStiffness = 1e9;
-// world.defaultContactMaterial.contactEquationRegularizationTime = 4;
+world.gravity.set(0, -9.82 * 2, 0);
+world.defaultContactMaterial.friction = 0;
+
+var groundMaterial = new cannon.Material("groundMaterial");
+var wheelMaterial = new cannon.Material("wheelMaterial");
+var wheelGroundContactMaterial = new cannon.ContactMaterial(wheelMaterial, groundMaterial, {
+    friction: 0.3,
+    restitution: 0,
+    contactEquationStiffness: 1000
+});
+
+// We must add the contact materials to the world
+world.addContactMaterial(wheelGroundContactMaterial);
 
 function createPlayerCar(player) {
   const shape = new cannon.Box(new cannon.Vec3(4, 0.5, 2));
@@ -84,9 +93,11 @@ function createPlayerCar(player) {
     position: new cannon.Vec3(player.position.chassis.x, player.position.chassis.y, player.position.chassis.z)
   });
 
-  const vehicle = new cannon.RigidVehicle({ chassisBody: carBody });
+  carBody.angularVelocity.set(0, 0, 0.5);
 
-  addWheelsToVehicle(vehicle, -0.5);
+  const vehicle = new cannon.RaycastVehicle({ chassisBody: carBody, });
+
+  addWheelsToVehicle(vehicle, -1.0, 1);
 
   vehicle.addToWorld(world);
 
@@ -94,67 +105,48 @@ function createPlayerCar(player) {
     vehicle: vehicle,
     chassis: vehicle.chassisBody,
     wheels: {
-      frontLeft: vehicle.wheelBodies[0],
-      frontRight: vehicle.wheelBodies[1],
-      backLeft: vehicle.wheelBodies[2],
-      backRight: vehicle.wheelBodies[3]
+      frontLeft: vehicle.getWheelTransformWorld(0),
+      frontRight: vehicle.getWheelTransformWorld(1),
+      backLeft: vehicle.getWheelTransformWorld(2),
+      backRight: vehicle.getWheelTransformWorld(3),
     },
-    isTouchingFloor: false,
   }
-  vehicle.wheelBodies.forEach((wheel) => {
-    wheel.addEventListener('collide', (event) => {
-      if (event.body.id === 0) {
-        body.isTouchingFloor = true;
-      }
-    });
-  });
 
   return body;
 }
 
-function generateWheelBody(mass = 1, wheelShape = new cannon.Sphere(1), wheelMaterial = new cannon.Material('wheel')) {
+function addWheelsToVehicle(vehicle, wheelHeight = 0, wheelRadius = 0.5) {
 
-  const wheelBody = new cannon.Body({
-    mass,
-    material: wheelMaterial,
-  });
+  var options = {
+    radius: wheelRadius,
+    directionLocal: new cannon.Vec3(0, -1, 0),
+    suspensionStiffness: 30,
+    suspensionRestLength: 0.3,
+    frictionSlip: 5,
+    dampingRelaxation: 2.3,
+    dampingCompression: 4.4,
+    maxSuspensionForce: 100000,
+    rollInfluence:  0.01,
+    axleLocal: new cannon.Vec3(0, 0, 1),
+    chassisConnectionPointLocal: new cannon.Vec3(1, 1, 0),
+    maxSuspensionTravel: 9999,
+    customSlidingRotationalSpeed: -30,
+    useCustomSlidingRotationalSpeed: true
+  }
 
-  wheelBody.addShape(wheelShape);
-  wheelBody.angularDamping = 0.4;
+  options.chassisConnectionPointLocal.set(4, wheelHeight, 2);
+  vehicle.isFrontWheel = true;
+  vehicle.addWheel(options);
 
-  return wheelBody;
-}
+  options.chassisConnectionPointLocal.set(4, wheelHeight, -2);
+  vehicle.addWheel(options);
 
-function addWheelsToVehicle(vehicle, height = 0, axisWidth = 5, down = new cannon.Vec3(0, -1, 0)) {
+  options.chassisConnectionPointLocal.set(-4, wheelHeight, -2);
+  vehicle.isFrontWheel = false;
+  vehicle.addWheel(options);
 
-  vehicle.addWheel({
-    body: generateWheelBody(PLAYER_WHEEL_WEGIHT),
-    position: new cannon.Vec3(-2, height, axisWidth / 2),
-    axis: new cannon.Vec3(0, 0, 1),
-    direction: down,
-  });
-
-  vehicle.addWheel({
-    body: generateWheelBody(PLAYER_WHEEL_WEGIHT),
-    position: new cannon.Vec3(-2, height, -axisWidth / 2),
-    axis: new cannon.Vec3(0, 0, 1),
-    direction: down,
-  });
-
-  vehicle.addWheel({
-    body: generateWheelBody(PLAYER_WHEEL_WEGIHT),
-    position: new cannon.Vec3(2, height, axisWidth / 2),
-    axis: new cannon.Vec3(0, 0, 1),
-    direction: down,
-  });
-
-  vehicle.addWheel({
-    body: generateWheelBody(PLAYER_WHEEL_WEGIHT),
-    position: new cannon.Vec3(2, height, -axisWidth / 2),
-    axis: new cannon.Vec3(0, 0, 1),
-    direction: down,
-  });
-
+  options.chassisConnectionPointLocal.set(-4, wheelHeight, 2);
+  vehicle.addWheel(options);
 }
 
 // Manejar las conexiones de socket.io
@@ -341,14 +333,14 @@ function runInputsFromJSON(data) {
     else if (direction.z > 0) vehicle.setSteeringValue(MAX_STEER_VALUE, 0), vehicle.setSteeringValue(MAX_STEER_VALUE, 1);
     else vehicle.setSteeringValue(0, 0), vehicle.setSteeringValue(0, 1);
     if (direction.x < 0) {
-      vehicle.setWheelForce(-PLAYER_MAX_SPEED, 0);
-      vehicle.setWheelForce(-PLAYER_MAX_SPEED, 1);
+      vehicle.applyEngineForce(-PLAYER_MAX_SPEED, 0);
+      vehicle.applyEngineForce(-PLAYER_MAX_SPEED, 1);
     }
     else if (direction.x > 0) {
-      vehicle.setWheelForce(PLAYER_MAX_SPEED, 0);
-      vehicle.setWheelForce(PLAYER_MAX_SPEED, 1);
+      vehicle.applyEngineForce(PLAYER_MAX_SPEED, 0);
+      vehicle.applyEngineForce(PLAYER_MAX_SPEED, 1);
     }
-    else vehicle.setWheelForce(0, 0), vehicle.setWheelForce(0, 1);
+    else vehicle.applyEngineForce(0, 0), vehicle.applyEngineForce(0, 1);
   } else {
     console.error('The player that submitted the input does not exist!');
   }
