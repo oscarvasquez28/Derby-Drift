@@ -66,9 +66,9 @@ export default class Level {
 
     if (this.clientPlayer) {
       const playerPosition = this.clientPlayer.getPlayerPosition();
-      this.levelCamera.position.x = playerPosition.x;
-      this.levelCamera.position.y = playerPosition.y + 5;
-      this.levelCamera.position.z = playerPosition.z + 10;
+      const lookAtNorm = this.clientPlayer.getPlayerNormalizedLookAt();
+      this.levelCamera.position.set(playerPosition.x - (lookAtNorm.x * 2), playerPosition.y + 6, playerPosition.z - (lookAtNorm.z * 2));
+      this.levelCamera.lookAt(playerPosition.x, playerPosition.y, playerPosition.z );
     }
 
     // Manejar modelos
@@ -88,7 +88,7 @@ export default class Level {
   }
 
   currentPlayers(currentPlayers) {
-    this.players = currentPlayers;
+    return this.players = currentPlayers;
   }
 
   addPlayer(newPlayer) {
@@ -155,9 +155,12 @@ export default class Level {
 
     socket.on('playerDisconnected', (id) => {
       console.log("Recieved message from server: playerDisconnected");
-      let disconnectedPlayer = this.players.find(obj => obj.id === id);
-      disconnectedPlayer?.removePlayer();
-      this.players = this.players.filter(obj => obj.id === disconnectedPlayer.id);
+      const disconnectedPlayer = this.players.find(obj => obj.id === id);
+      if (disconnectedPlayer) {
+        disconnectedPlayer.removePlayer();
+        this.players = this.players.filter(obj => obj.id !== disconnectedPlayer.id);
+        console.log("Player: " + disconnectedPlayer.name + " ID:" + disconnectedPlayer.id + " disconnected");
+      }
     });
 
     socket.on('update', (playersData) => {

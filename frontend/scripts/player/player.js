@@ -1,61 +1,127 @@
 import * as THREE from 'three'
 import NameTag from './nametag.js'
 
-export default class Player{
+export default class Player {
 
-    #position = {x: 0, y: 0, z:0};
-    #rotation = {x: 0, y: 0, z:0};
+    #position = {
+        chassis: { x: 0, y: 0, z: 0 },
+        wheels: {
+            frontLeft: { x: 0, y: 0, z: 0 },
+            frontRight: { x: 0, y: 0, z: 0 },
+            backLeft: { x: 0, y: 0, z: 0 },
+            backRight: { x: 0, y: 0, z: 0 }
+        },
+    };
+    #rotation = {
+        chassis: { x: 0, y: 0, z: 0 },
+        wheels: {
+            frontLeft: { x: 0, y: 0, z: 0, w: 0 },
+            frontRight: { x: 0, y: 0, z: 0, w: 0 },
+            backLeft: { x: 0, y: 0, z: 0, w: 0 },
+            backRight: { x: 0, y: 0, z: 0, w: 0 }
+        },
+    };
 
-    constructor(scene){
+    lookAt = { x: 0, y: 0, z: 0 };
+    lookAtNormilized = { x: 0, y: 0, z: 0 };
+
+    constructor(scene) {
 
         this.name = "Incógnito";
         this.color = 0x000000;
         this.id = -1;
-        this.mesh = null;
-        
+        this.mesh = {};
         this.scene = scene;
 
         this.nametag = new NameTag(this, scene);
     }
 
-    initPlayerFromJSON(data){
+    initPlayerFromJSON(data) {
 
         try {
 
-            if(data.name)
+            if (data.name)
                 this.name = data.name;
 
-            if(data.color)
+            if (data.color)
                 this.color = data.color;
 
-            if(data.id)
+            if (data.id)
                 this.id = data.id;
             else
                 throw "Cannot initialize player with an undefined id";
 
-            if(data.position && typeof data.position === 'object')
-                this.#position = data.position;
-            if(data.rotation && typeof data.rotation === 'object')
-                this.#rotation = data.rotation;
+            if (data.position && typeof data.position === 'object') {
+                if (data.position.chassis && typeof data.position.chassis === 'object')
+                    this.#position.chassis = data.position.chassis;
+                if (data.position.wheels.frontLeft && typeof data.position.wheels.frontLeft === 'object')
+                    this.#position.wheels.frontLeft = data.position.wheels.frontLeft;
+                if (data.position.wheels.frontRight && typeof data.position.wheels.frontRight === 'object')
+                    this.#position.wheels.frontRight = data.position.wheels.frontRight;
+                if (data.position.wheels.backLeft && typeof data.position.wheels.backLeft === 'object')
+                    this.#position.wheels.backLeft = data.position.wheels.backLeft;
+                if (data.position.wheels.backRight && typeof data.position.wheels.backRight === 'object')
+                    this.#position.wheels.backRight = data.position.wheels.backRight;
+            }
+            if (data.rotation && typeof data.rotation === 'object') {
+                if (data.rotation.chassis && typeof data.rotation.chassis === 'object')
+                    this.#rotation.chassis = data.rotation.chassis;
+                if (data.rotation.wheels.frontLeft && typeof data.rotation.wheels.frontLeft === 'object')
+                    this.#rotation.wheels.frontLeft = data.rotation.wheels.frontLeft;
+                if (data.rotation.wheels.frontRight && typeof data.rotation.wheels.frontRight === 'object')
+                    this.#rotation.wheels.frontRight = data.rotation.wheels.frontRight;
+                if (data.rotation.wheels.backLeft && typeof data.rotation.wheels.backLeft === 'object')
+                    this.#rotation.wheels.backLeft = data.rotation.wheels.backLeft;
+                if (data.rotation.wheels.backRight && typeof data.rotation.wheels.backRight === 'object')
+                    this.#rotation.wheels.backRight = data.rotation.wheels.backRight;
+            }
+            console.log(this.#rotation);
 
-            // Si se proporciona un modelo será utilizado, de lo contrario se mostrará una caja por default
-            let mesh;
-            if(!data.mesh){
-                const geometry = new THREE.BoxGeometry();
+            // Si se proporciona un modelo será utilizado, de lo contrario se mostrará una vehículo básico por defecto
+            if (!data.mesh) {
+                const carGeometry = new THREE.BoxGeometry(8, 1, 4);
+                const wheelGeometry = new THREE.BoxGeometry(2, 2, 0.5);
                 const material = new THREE.MeshStandardMaterial({ color: this.color });
-                mesh = new THREE.Mesh(geometry, material);
-            }else{
-                mesh = data.mesh;
+                this.mesh.chassis = new THREE.Mesh(carGeometry, material);
+                this.mesh.chassis.castShadow = true;
+                this.mesh.chassis.recieveShadow = true;
+                this.mesh.wheels = {
+                    frontLeft: new THREE.Mesh(wheelGeometry, material),
+                    frontRight: new THREE.Mesh(wheelGeometry, material),
+                    backLeft: new THREE.Mesh(wheelGeometry, material),
+                    backRight: new THREE.Mesh(wheelGeometry, material)
+                };
+                this.mesh.wheels.frontLeft.castShadow = true;
+                this.mesh.wheels.frontLeft.recieveShadow = true;
+                this.mesh.wheels.frontLeft.rotation.isEuler = false;
+                this.mesh.wheels.frontRight.castShadow = true;
+                this.mesh.wheels.frontRight.recieveShadow = true;   
+                this.mesh.wheels.frontRight.rotation.isEuler = false;             
+                this.mesh.wheels.backLeft.castShadow = true;
+                this.mesh.wheels.backLeft.recieveShadow = true;
+                this.mesh.wheels.backLeft.rotation.isEuler = false;
+                this.mesh.wheels.backRight.castShadow = true;
+                this.mesh.wheels.backRight.recieveShadow = true;
+                this.mesh.wheels.backRight.rotation.isEuler = false;
+            } else {
             }
 
-            mesh.castShadow = true;
-            mesh.recieveShadow = true;
+            this.mesh.chassis.position.set(this.#position.chassis.x, this.#position.chassis.y, this.#position.chassis.z);
+            this.mesh.chassis.quaternion.copy(this.#rotation.chassis);
+            this.mesh.wheels.frontLeft.position.set(this.#position.wheels.frontLeft.x, this.#position.wheels.frontLeft.y, this.#position.wheels.frontLeft.z);
+            this.mesh.wheels.frontLeft.quaternion.copy(this.#rotation.wheels.frontLeft);
+            this.mesh.wheels.frontRight.position.set(this.#position.wheels.frontRight.x, this.#position.wheels.frontRight.y, this.#position.wheels.frontRight.z);
+            this.mesh.wheels.frontRight.quaternion.copy(this.#rotation.wheels.frontRight);
+            this.mesh.wheels.backLeft.position.set(this.#position.wheels.backLeft.x, this.#position.wheels.backLeft.y, this.#position.wheels.backLeft.z);
+            this.mesh.wheels.backLeft.quaternion.copy(this.#rotation.wheels.backLeft);
+            this.mesh.wheels.backRight.position.set(this.#position.wheels.backLeft.x, this.#position.wheels.backLeft.y, this.#position.wheels.backLeft.z);
+            this.mesh.wheels.backRight.quaternion.copy(this.#rotation.wheels.backRight);
 
-            this.mesh = mesh;
-            this.mesh.position.set(this.#position.x, this.#position.y, this.#position.z);
-            this.mesh.rotation.set(this.#rotation.x, this.#rotation.y, this.#rotation.z);
-
-            this.scene.add(this.mesh);
+            this.scene.add(this.mesh.chassis);
+            this.scene.add(this.mesh.wheels.frontLeft);
+            this.scene.add(this.mesh.wheels.frontRight);
+            this.scene.add(this.mesh.wheels.backLeft);
+            this.scene.add(this.mesh.wheels.backRight);
 
             return true;
 
@@ -75,9 +141,9 @@ export default class Player{
             const cube = new THREE.Mesh(geometry, material);
             cube.castShadow = true;
 
-            this.mesh = cube;
+            this.mesh.cube = cube;
 
-            this.scene.add(this.mesh);
+            this.scene.add(this.mesh.cube);
             return true;
 
         } catch (error) {
@@ -86,23 +152,51 @@ export default class Player{
         }
     }
 
-    updatePlayerFromJSON(data){
+    updatePlayerFromJSON(data) {
 
         try {
 
-            if(data.name)
+            if (data.name)
                 this.name = data.name;
 
-            if(data.color)
+            if (data.color)
                 this.color = data.color;
 
-            if(data.position && typeof data.position === 'object')
-                this.#position = data.position;
-            if(data.rotation && typeof data.rotation === 'object')
-                this.#rotation = data.rotation;
+            if (data.position && typeof data.position === 'object') {
+                if (data.position.chassis && typeof data.position.chassis === 'object')
+                    this.#position.chassis = data.position.chassis;
+                if (data.position.wheels.frontLeft && typeof data.position.wheels.frontLeft === 'object')
+                    this.#position.wheels.frontLeft = data.position.wheels.frontLeft;
+                if (data.position.wheels.frontRight && typeof data.position.wheels.frontRight === 'object')
+                    this.#position.wheels.frontRight = data.position.wheels.frontRight;
+                if (data.position.wheels.backLeft && typeof data.position.wheels.backLeft === 'object')
+                    this.#position.wheels.backLeft = data.position.wheels.backLeft;
+                if (data.position.wheels.backRight && typeof data.position.wheels.backRight === 'object')
+                    this.#position.wheels.backRight = data.position.wheels.backRight;
+            }
+            if (data.rotation && typeof data.rotation === 'object') {
+                if (data.rotation.chassis && typeof data.rotation.chassis === 'object')
+                    this.#rotation.chassis = data.rotation.chassis;
+                if (data.rotation.wheels.frontLeft && typeof data.rotation.wheels.frontLeft === 'object')
+                    this.#rotation.wheels.frontLeft = data.rotation.wheels.frontLeft;
+                if (data.rotation.wheels.frontRight && typeof data.rotation.wheels.frontRight === 'object')
+                    this.#rotation.wheels.frontRight = data.rotation.wheels.frontRight;
+                if (data.rotation.wheels.backLeft && typeof data.rotation.wheels.backLeft === 'object')
+                    this.#rotation.wheels.backLeft = data.rotation.wheels.backLeft;
+                if (data.rotation.wheels.backRight && typeof data.rotation.wheels.backRight === 'object')
+                    this.#rotation.wheels.backRight = data.rotation.wheels.backRight;
+            }
 
-            this.mesh.position.set(this.#position.x, this.#position.y, this.#position.z);
-            this.mesh.rotation.set(this.#rotation.x, this.#rotation.y, this.#rotation.z);
+            this.mesh.chassis.position.set(this.#position.chassis.x, this.#position.chassis.y, this.#position.chassis.z);
+            this.mesh.chassis.quaternion.copy(this.#rotation.chassis);
+            this.mesh.wheels.frontLeft.position.set(this.#position.wheels.frontLeft.x, this.#position.wheels.frontLeft.y, this.#position.wheels.frontLeft.z);
+            this.mesh.wheels.frontLeft.quaternion.copy(this.#rotation.wheels.frontLeft);
+            this.mesh.wheels.frontRight.position.set(this.#position.wheels.frontRight.x, this.#position.wheels.frontRight.y, this.#position.wheels.frontRight.z);
+            this.mesh.wheels.frontRight.quaternion.copy(this.#rotation.wheels.frontRight);
+            this.mesh.wheels.backLeft.position.set(this.#position.wheels.backLeft.x, this.#position.wheels.backLeft.y, this.#position.wheels.backLeft.z);
+            this.mesh.wheels.backLeft.quaternion.copy(this.#rotation.wheels.backLeft);
+            this.mesh.wheels.backRight.position.set(this.#position.wheels.backRight.x, this.#position.wheels.backRight.y, this.#position.wheels.backRight.z);
+            this.mesh.wheels.backRight.quaternion.copy(this.#rotation.wheels.backRight);
 
             return true;
 
@@ -112,24 +206,39 @@ export default class Player{
         }
 
     }
-    
-    update(){
-        if(this.nametag)
+
+    update() {
+        if (this.nametag)
             this.nametag.update();
+        this.#generateLookAt();
     }
 
-    setPlayerPosition(newPos = {x: 0, y: 0, z: 0}){
-        this.#position = newPos;
-        this.mesh.position.set(this.#position.x, this.#position.y, this.#position.z);
+    setPlayerPosition(newPos = { x: 0, y: 0, z: 0 }) {
+        this.#position.chassis = newPos;
+        this.mesh.chassis.position.set(newPos.x, newPos.y, newPos.z);
     }
 
-    getPlayerPosition(){
-        return this.#position;
+    getPlayerPosition() {
+        return new THREE.Vector3(this.#position.chassis.x, this.#position.chassis.y, this.#position.chassis.z);
     }
 
-    removePlayer(){
-        this.scene.remove(this.mesh);
+    removePlayer() {
+        this.scene.remove(this.mesh.chassis);
+        this.scene.remove(this.mesh.wheels.frontLeft);
+        this.scene.remove(this.mesh.wheels.frontRight);
+        this.scene.remove(this.mesh.wheels.backLeft);
+        this.scene.remove(this.mesh.wheels.backRight);
         this.nametag.remove();
+    }
+
+    #generateLookAt() {
+
+        this.lookAt = new THREE.Vector3(
+            (this.#position.wheels.frontLeft.x + this.#position.wheels.frontRight.x) / 2 - this.#position.chassis.x,
+            (this.#position.wheels.frontLeft.y + this.#position.wheels.frontRight.y) / 2 - this.#position.chassis.y,
+            (this.#position.wheels.frontLeft.z + this.#position.wheels.frontRight.z) / 2 - this.#position.chassis.z
+        );
+        this.lookAtNormilized = new THREE.Vector3().copy(this.lookAt).normalize().multiplyScalar(10);
     }
 
 }

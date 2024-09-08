@@ -12,10 +12,10 @@ const app = express();
 
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: {
-        origin: "*",
-        methods: "*",
-    },
+  cors: {
+    origin: "*",
+    methods: "*",
+  },
 });
 
 app.use(express.static(path.join(__dirname, 'frontend')));
@@ -60,38 +60,101 @@ app.get('/*.mtl', (req, res) => {
 // Inicializar las variables del mundo de juego
 let players = {};
 let cannonPlayerBody = {};
-const PLAYER_MAX_SPEED = 100;
-const PLAYER_ACCELERATION = 50;
-const PLAYER_JUMP_HEIGHT = 10;
+const PLAYER_MAX_SPEED = 30;
+const PLAYER_WEGIHT = 5;
+const PLAYER_WHEEL_WEGIHT = 1;
+const MAX_STEER_VALUE = Math.PI / 8;
+// const PLAYER_ACCELERATION = 500;
+// const PLAYER_JUMP_HEIGHT = 10;
 
 // Inicializar mundo de cannon js
 const world = new cannon.World();
 world.broadphase = new cannon.NaiveBroadphase();
 world.gravity.set(0, -9.82, 0);
-world.solver.iterations = 10;
-world.defaultContactMaterial.contactEquationStiffness = 1e9;
-world.defaultContactMaterial.contactEquationRegularizationTime = 4;
+// world.solver.iterations = 10;
+// world.defaultContactMaterial.contactEquationStiffness = 1e9;
+// world.defaultContactMaterial.contactEquationRegularizationTime = 4;
 
-function createPlayerBody(player) {
-    const shape = new cannon.Box(new cannon.Vec3(1, 1, 1));
-    // const shape = new cannon.Sphere(1);
-    const body = new cannon.Body({ 
-      mass: 1, 
-      shape: shape, 
-      linearDamping: 0.9, 
-      angularDamping: 0.9,
-      position: new cannon.Vec3(player.position.x, player.position.y, player.position.z)
-    });
+function createPlayerCar(player) {
+  const shape = new cannon.Box(new cannon.Vec3(4, 0.5, 2));
+  // const shape = new cannon.Sphere(1);
+  const carBody = new cannon.Body({
+    mass: PLAYER_WEGIHT,
+    shape: shape,
+    position: new cannon.Vec3(player.position.chassis.x, player.position.chassis.y, player.position.chassis.z)
+  });
 
-    body.isTouchingFloor = false;
-  
-    body.addEventListener('collide', (event) => {
+  const vehicle = new cannon.RigidVehicle({ chassisBody: carBody });
+
+  addWheelsToVehicle(vehicle, -0.5);
+
+  vehicle.addToWorld(world);
+
+  const body = {
+    vehicle: vehicle,
+    chassis: vehicle.chassisBody,
+    wheels: {
+      frontLeft: vehicle.wheelBodies[0],
+      frontRight: vehicle.wheelBodies[1],
+      backLeft: vehicle.wheelBodies[2],
+      backRight: vehicle.wheelBodies[3]
+    },
+    isTouchingFloor: false,
+  }
+  vehicle.wheelBodies.forEach((wheel) => {
+    wheel.addEventListener('collide', (event) => {
       if (event.body.id === 0) {
         body.isTouchingFloor = true;
       }
     });
+  });
 
-    return body;
+  return body;
+}
+
+function generateWheelBody(mass = 1, wheelShape = new cannon.Sphere(1), wheelMaterial = new cannon.Material('wheel')) {
+
+  const wheelBody = new cannon.Body({
+    mass,
+    material: wheelMaterial,
+  });
+
+  wheelBody.addShape(wheelShape);
+  wheelBody.angularDamping = 0.4;
+
+  return wheelBody;
+}
+
+function addWheelsToVehicle(vehicle, height = 0, axisWidth = 5, down = new cannon.Vec3(0, -1, 0)) {
+
+  vehicle.addWheel({
+    body: generateWheelBody(PLAYER_WHEEL_WEGIHT),
+    position: new cannon.Vec3(-2, height, axisWidth / 2),
+    axis: new cannon.Vec3(0, 0, 1),
+    direction: down,
+  });
+
+  vehicle.addWheel({
+    body: generateWheelBody(PLAYER_WHEEL_WEGIHT),
+    position: new cannon.Vec3(-2, height, -axisWidth / 2),
+    axis: new cannon.Vec3(0, 0, 1),
+    direction: down,
+  });
+
+  vehicle.addWheel({
+    body: generateWheelBody(PLAYER_WHEEL_WEGIHT),
+    position: new cannon.Vec3(2, height, axisWidth / 2),
+    axis: new cannon.Vec3(0, 0, 1),
+    direction: down,
+  });
+
+  vehicle.addWheel({
+    body: generateWheelBody(PLAYER_WHEEL_WEGIHT),
+    position: new cannon.Vec3(2, height, -axisWidth / 2),
+    axis: new cannon.Vec3(0, 0, 1),
+    direction: down,
+  });
+
 }
 
 // Manejar las conexiones de socket.io
@@ -100,36 +163,53 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('User ' + socket.id + ' disconnected');
     delete players[socket.id];
-    world.removeBody(cannonPlayerBody[socket.id].body);
+    cannonPlayerBody[socket.id].vehicle.vehicle.removeFromWorld(world);
     delete cannonPlayerBody[socket.id];
+    console.log(players);
     io.emit('playerDisconnected', socket.id);
   });
 
   players[socket.id] = {
     "name": 'tests',
     "color": 0xFFFFFF * Math.random(),
-    "id" : socket.id,
+    "id": socket.id,
     // "position":  {x: 20 * Math.random() - 10, y: 5 * Math.random() + 20, z: 5 * Math.random()} ,
-    "position":  {x: 0, y: 15, z: 0} ,
+    "position": {
+      chassis: { x: 0, y: 20, z: 0 },
+      wheels: {
+        frontLeft: { x: 0, y: 0, z: 0 },
+        frontRight: { x: 0, y: 0, z: 0 },
+        backLeft: { x: 0, y: 0, z: 0 },
+        backRight: { x: 0, y: 0, z: 0 }
+      }
+    },
+    "rotation": {
+      chassis: { x: 0, y: 0, z: 0, w: 0 },
+      wheels: {
+        frontLeft: { x: 0, y: 0, z: 0, w: 0 },
+        frontRight: { x: 0, y: 0, z: 0, w: 0 },
+        backLeft: { x: 0, y: 0, z: 0, w: 0 },
+        backRight: { x: 0, y: 0, z: 0, w: 0 },
+      }
+    }
   }
 
   cannonPlayerBody[socket.id] = {};
 
-  cannonPlayerBody[socket.id].body = createPlayerBody(players[socket.id]);
-  world.addBody(cannonPlayerBody[socket.id].body);
+  cannonPlayerBody[socket.id].vehicle = createPlayerCar(players[socket.id]);
 
   io.emit(
-    'newPlayer', 
+    'newPlayer',
     players[socket.id],
   )
 
   socket.emit(
-    'currentPlayers', 
+    'currentPlayers',
     players,
   )
 
   socket.on('input', (data) => {
-    runInputsFromJSON(data);  
+    runInputsFromJSON(data);
   })
 
 });
@@ -151,9 +231,9 @@ function quaternionToEuler(q) {
   const yaw = Math.atan2(t3, t4);
 
   return {
-      x: roll,
-      y: pitch,
-      z: yaw
+    x: roll,
+    y: pitch,
+    z: yaw
   };
 }
 
@@ -185,7 +265,7 @@ async function createComplexFloor(world) {
   const heightmapPath = './public/textures/heightmap.jpg'; // Reemplazar con la ruta de tu archivo de mapa de alturas
   const matrix = await loadHeightmapTexture(heightmapPath);
   const sideSize = 255; // Tamaño del lado
-  const elementSize = 1 *  sideSize / (matrix[0].length - 1); // Distancia entre puntos
+  const elementSize = 1 * sideSize / (matrix[0].length - 1); // Distancia entre puntos
 
   // Crear la forma del terreno
   const heightfieldShape = new cannon.Heightfield(matrix, {
@@ -208,15 +288,23 @@ async function createComplexFloor(world) {
 // Actualizar las físicas
 function updatePhysics(world) {
   setInterval(() => {
-      world.step(1 / FPS);// Avanzar el mundo de cannon js
+    world.step(1 / FPS);// Avanzar el mundo de cannon js
 
-      for (const id in players) {
-          const player = players[id];
-          player.position = cannonPlayerBody[player.id].body.position;
-          player.rotation = quaternionToEuler(cannonPlayerBody[player.id].body.quaternion);
-      }
+    for (const id in players) {
+      const player = players[id];
+      player.position.chassis = cannonPlayerBody[player.id].vehicle.chassis.position;
+      player.position.wheels.frontLeft = cannonPlayerBody[player.id].vehicle.wheels.frontLeft.position;
+      player.position.wheels.frontRight = cannonPlayerBody[player.id].vehicle.wheels.frontRight.position;
+      player.position.wheels.backLeft = cannonPlayerBody[player.id].vehicle.wheels.backLeft.position;
+      player.position.wheels.backRight = cannonPlayerBody[player.id].vehicle.wheels.backRight.position;
+      player.rotation.chassis = cannonPlayerBody[player.id].vehicle.chassis.quaternion;
+      player.rotation.wheels.frontLeft = cannonPlayerBody[player.id].vehicle.wheels.frontLeft.quaternion;
+      player.rotation.wheels.frontRight = cannonPlayerBody[player.id].vehicle.wheels.frontRight.quaternion;
+      player.rotation.wheels.backLeft = cannonPlayerBody[player.id].vehicle.wheels.backLeft.quaternion;
+      player.rotation.wheels.backRight = cannonPlayerBody[player.id].vehicle.wheels.backRight.quaternion;
+    }
 
-      io.emit('update', players);
+    io.emit('update', players);
   }, 1000 / FPS);
 }
 
@@ -225,10 +313,10 @@ updatePhysics(world);
 
 function getDirectionFromKeyboardInput(inputs) {
   const direction = new cannon.Vec3();
-  if (inputs.up) direction.z += -1;
-  if (inputs.down) direction.z += 1;
-  if (inputs.left) direction.x += -1;
-  if (inputs.right) direction.x += 1;
+  if (inputs.left) direction.z += 1;
+  if (inputs.right) direction.z += -1;
+  if (inputs.down) direction.x += -1;
+  if (inputs.up) direction.x += 1;
   return direction;
 }
 
@@ -241,31 +329,37 @@ function getDirectionFromGamepadInput(inputs) {
   return direction;
 }
 
-function runInputsFromJSON(data){
+function runInputsFromJSON(data) {
 
-  const body = cannonPlayerBody[data.id]?.body;
+  const vehicle = cannonPlayerBody[data.id]?.vehicle.vehicle;
   let direction = data.type === 'gamepad' ? getDirectionFromGamepadInput(data.inputs) : getDirectionFromKeyboardInput(data.inputs);
   const force = new cannon.Vec3();
   const forcePosition = new cannon.Vec3(0, 0, 0);
-  const jumpImpulse = new cannon.Vec3(0, PLAYER_JUMP_HEIGHT, 0);
+  // const jumpImpulse = new cannon.Vec3(0, PLAYER_JUMP_HEIGHT, 0);
 
-  if (body){
-    if (direction.z < 0) body.velocity.z > -PLAYER_MAX_SPEED ? force.z += -PLAYER_ACCELERATION : body.velocity.z = -PLAYER_MAX_SPEED;
-    else if (direction.z > 0) body.velocity.z < PLAYER_MAX_SPEED ? force.z += PLAYER_ACCELERATION : body.velocity.z = PLAYER_MAX_SPEED;
-    if (direction.x < 0) body.velocity.x > -PLAYER_MAX_SPEED ? force.x += -PLAYER_ACCELERATION : body.velocity.x = -PLAYER_MAX_SPEED;
-    else if (direction.x > 0) body.velocity.x < PLAYER_MAX_SPEED ? force.x += PLAYER_ACCELERATION : body.velocity.x = PLAYER_MAX_SPEED;
-    if (data.inputs.jump && body.isTouchingFloor) {
-      body.applyImpulse(jumpImpulse, forcePosition);
-      body.isTouchingFloor = false;
+  if (vehicle) {
+    if (direction.z < 0) vehicle.setSteeringValue(-MAX_STEER_VALUE, 0), vehicle.setSteeringValue(-MAX_STEER_VALUE, 1);
+    else if (direction.z > 0) vehicle.setSteeringValue(MAX_STEER_VALUE, 0), vehicle.setSteeringValue(MAX_STEER_VALUE, 1);
+    else vehicle.setSteeringValue(0, 0), vehicle.setSteeringValue(0, 1);
+    if (direction.x < 0) {
+      vehicle.setWheelForce(-PLAYER_MAX_SPEED, 0);
+      vehicle.setWheelForce(-PLAYER_MAX_SPEED, 1);
     }
-    body.applyForce(force, forcePosition);
-  } else{
+    else if (direction.x > 0) {
+      vehicle.setWheelForce(PLAYER_MAX_SPEED, 0);
+      vehicle.setWheelForce(PLAYER_MAX_SPEED, 1);
+    }
+    else vehicle.setWheelForce(0, 0), vehicle.setWheelForce(0, 1);
+  } else {
     console.error('The player that submitted the input does not exist!');
   }
 
 }
 
+const blue = '\x1b[34m'; // Código de color azul
+const reset = '\x1b[37m'; // Código para restablecer el color a blanco
+
 //Inciar servidor
 server.listen(3000, () => {
-  console.log('listening on *:3000');
+  console.log(`listening on ${blue}http://localhost:${PORT}${reset}`);
 });

@@ -14,6 +14,14 @@ export default class ClientPlayer {
         return this.player.getPlayerPosition();
     }
 
+    getPlayerLookAt() {
+        return this.player.lookAt;
+    }
+
+    getPlayerNormalizedLookAt() {
+        return this.player.lookAtNormilized;
+    }
+
     update() {
     }
 
