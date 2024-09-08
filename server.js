@@ -165,7 +165,6 @@ io.on('connection', (socket) => {
     delete players[socket.id];
     cannonPlayerBody[socket.id].vehicle.vehicle.removeFromWorld(world);
     delete cannonPlayerBody[socket.id];
-    console.log(players);
     io.emit('playerDisconnected', socket.id);
   });
 

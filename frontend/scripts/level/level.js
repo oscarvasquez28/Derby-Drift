@@ -168,7 +168,6 @@ export default class Level {
         const updatedPlayer = this.players.find(obj => obj.id === id);
         if (updatedPlayer) {
           updatedPlayer.updatePlayerFromJSON(playersData[id]);
-          // console.log("Recieved message from server: update\nUpdated player: " + id);
         }
         else {
           console.log("Recieved message from server: update\nPlayer " + id + " is not in the scene");
