@@ -10,27 +10,27 @@ export default class Level {
 
   constructor() {
     this.world = new World();
-  
+
     this.players = new Array().fill(0);
 
     this.models = new Array().fill(0);
-  
+
     this.socket = Connection.getConnection();
-  
+
     this.clientPlayer = null;
   }
 
   async initLevel() {
     this.world.initWorld();
-  
+
     this.levelCamera = this.world.camera;
-  
+
     this.levelScene = this.world.scene;
-  
+
     this.levelRenderer = this.world.renderer;
-  
+
     this.#setUpSocketEvents();
-  
+
     // Inicializar con valores por defecto
     // this.dobeto = new ObjModel(this.levelScene, 'models/PORFAVOR.obj', 'models/PORFAVOR.mtl');
 
@@ -41,7 +41,7 @@ export default class Level {
       mesh.position.x = 0;
       mesh.position.z = 0;
     });
-    
+
     this.models.push(this.dobeto);
   }
 
@@ -76,7 +76,7 @@ export default class Level {
       this.dobeto.mesh.rotation.y += 0.01;
       this.dobeto.mesh.position.y += 0.01;
     }
-    
+
     this.players.forEach(player => {
       player.update();
     });
@@ -132,7 +132,7 @@ export default class Level {
     }
   }
 
-  #setUpSocketEvents(){    
+  #setUpSocketEvents(){
 
     const socket = this.socket;
 
