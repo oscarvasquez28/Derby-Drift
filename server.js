@@ -62,7 +62,7 @@ let players = {};
 let cannonPlayerBody = {};
 const PLAYER_MAX_SPEED = 1000;
 const PLAYER_WEGIHT = 150;
-const PLAYER_WHEEL_WEGIHT = 1;
+const BRAKE_FORCE = 50;
 const MAX_STEER_VALUE = Math.PI / 8;
 // const PLAYER_ACCELERATION = 500;
 // const PLAYER_JUMP_HEIGHT = 10;
@@ -313,10 +313,9 @@ function getDirectionFromKeyboardInput(inputs) {
 
 function getDirectionFromGamepadInput(inputs) {
   const direction = new cannon.Vec3();
-  if (inputs.axes[1] < -0.1) direction.z += -1;
-  if (inputs.axes[1] > 0.1) direction.z += 1;
-  if (inputs.axes[0] < -0.1) direction.x += -1;
-  if (inputs.axes[0] > 0.1) direction.x += 1;
+  if (inputs.foward) direction.x += 1;
+  if (inputs.axes[0] < -0.1) direction.z += 1;
+  if (inputs.axes[0] > 0.1) direction.z += -1;
   return direction;
 }
 
@@ -329,6 +328,12 @@ function runInputsFromJSON(data) {
   // const jumpImpulse = new cannon.Vec3(0, PLAYER_JUMP_HEIGHT, 0);
 
   if (vehicle) {
+
+    vehicle.setBrake(0, 0);
+    vehicle.setBrake(0, 1);
+    vehicle.setBrake(0, 2);
+    vehicle.setBrake(0, 3);
+
     if (direction.z < 0) vehicle.setSteeringValue(-MAX_STEER_VALUE, 0), vehicle.setSteeringValue(-MAX_STEER_VALUE, 1);
     else if (direction.z > 0) vehicle.setSteeringValue(MAX_STEER_VALUE, 0), vehicle.setSteeringValue(MAX_STEER_VALUE, 1);
     else vehicle.setSteeringValue(0, 0), vehicle.setSteeringValue(0, 1);
@@ -341,6 +346,12 @@ function runInputsFromJSON(data) {
       vehicle.applyEngineForce(PLAYER_MAX_SPEED, 1);
     }
     else vehicle.applyEngineForce(0, 0), vehicle.applyEngineForce(0, 1);
+
+    if (data.inputs.brake) {
+      vehicle.setBrake(BRAKE_FORCE, 0);
+      vehicle.setBrake(BRAKE_FORCE, 1);
+    }
+
   } else {
     console.error('The player that submitted the input does not exist!');
   }
