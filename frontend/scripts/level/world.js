@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import Skydome from "./skydome.js";
 
 const SUN_LIGHT_COLOR = 0xfcffb5;
-const FLOOR_COLOR = 0x02ab5f;
+const FLOOR_COLOR = 0x796B5C;
 
 export default class World {
 
