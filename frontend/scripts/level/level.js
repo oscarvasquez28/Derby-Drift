@@ -2,7 +2,7 @@ import World from "./world.js"
 import Player from "../player/player.js"
 import ClientPlayer from "../player/clientPlayer.js"
 import Connection from "../../connection.js"
-import ObjModel from "./model.js"
+import ObjModel from "../model.js"
 
 const FPS = 60;
 
@@ -67,8 +67,8 @@ export default class Level {
     if (this.clientPlayer) {
       const playerPosition = this.clientPlayer.getPlayerPosition();
       const lookAtNorm = this.clientPlayer.getPlayerNormalizedLookAt();
-      this.levelCamera.position.set(playerPosition.x - (lookAtNorm.x * 2), playerPosition.y + 6, playerPosition.z - (lookAtNorm.z * 2));
-      this.levelCamera.lookAt(playerPosition.x, playerPosition.y, playerPosition.z );
+      this.levelCamera.position.set(playerPosition.x - (lookAtNorm.x * 2), playerPosition.y + 12, playerPosition.z - (lookAtNorm.z * 2));
+      this.levelCamera.lookAt(playerPosition.x, playerPosition.y + 10, playerPosition.z );
     }
 
     // Manejar modelos

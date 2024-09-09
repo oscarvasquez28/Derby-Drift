@@ -26,7 +26,7 @@ app.get('/redirect', (req, res) => {
 });
 
 app.get('/*.jpg', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/')[0], req.params['0'].split('/')[1] + ".jpg"), {
+  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".jpg"), {
     headers: {
       'Content-Type': 'image/jpeg'
     }
@@ -34,7 +34,7 @@ app.get('/*.jpg', (req, res) => {
 });
 
 app.get('/*.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/')[0], req.params['0'].split('/')[1] + ".png"), {
+  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".png"), {
     headers: {
       'Content-Type': 'image/png'
     }
@@ -42,15 +42,16 @@ app.get('/*.png', (req, res) => {
 });
 
 app.get('/*.obj', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/')[0], req.params['0'].split('/')[1] + ".obj"), {
+  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".obj"), {
     headers: {
       'Content-Type': 'model/obj'
     }
   });
+  console.log(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".obj"));
 });
 
 app.get('/*.mtl', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/')[0], req.params['0'].split('/')[1] + ".mtl"), {
+  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".mtl"), {
     headers: {
       'Content-Type': 'model/mtl'
     }
@@ -62,7 +63,7 @@ let players = {};
 let cannonPlayerBody = {};
 const PLAYER_MAX_SPEED = 1000;
 const PLAYER_WEGIHT = 150;
-const PLAYER_WHEEL_WEGIHT = 1;
+const BRAKE_FORCE = 50;
 const MAX_STEER_VALUE = Math.PI / 8;
 // const PLAYER_ACCELERATION = 500;
 // const PLAYER_JUMP_HEIGHT = 10;
@@ -313,10 +314,9 @@ function getDirectionFromKeyboardInput(inputs) {
 
 function getDirectionFromGamepadInput(inputs) {
   const direction = new cannon.Vec3();
-  if (inputs.axes[1] < -0.1) direction.z += -1;
-  if (inputs.axes[1] > 0.1) direction.z += 1;
-  if (inputs.axes[0] < -0.1) direction.x += -1;
-  if (inputs.axes[0] > 0.1) direction.x += 1;
+  if (inputs.foward) direction.x += 1;
+  if (inputs.axes[0] < -0.1) direction.z += 1;
+  if (inputs.axes[0] > 0.1) direction.z += -1;
   return direction;
 }
 
@@ -329,6 +329,12 @@ function runInputsFromJSON(data) {
   // const jumpImpulse = new cannon.Vec3(0, PLAYER_JUMP_HEIGHT, 0);
 
   if (vehicle) {
+
+    vehicle.setBrake(0, 0);
+    vehicle.setBrake(0, 1);
+    vehicle.setBrake(0, 2);
+    vehicle.setBrake(0, 3);
+
     if (direction.z < 0) vehicle.setSteeringValue(-MAX_STEER_VALUE, 0), vehicle.setSteeringValue(-MAX_STEER_VALUE, 1);
     else if (direction.z > 0) vehicle.setSteeringValue(MAX_STEER_VALUE, 0), vehicle.setSteeringValue(MAX_STEER_VALUE, 1);
     else vehicle.setSteeringValue(0, 0), vehicle.setSteeringValue(0, 1);
@@ -341,6 +347,12 @@ function runInputsFromJSON(data) {
       vehicle.applyEngineForce(PLAYER_MAX_SPEED, 1);
     }
     else vehicle.applyEngineForce(0, 0), vehicle.applyEngineForce(0, 1);
+
+    if (data.inputs.brake) {
+      vehicle.setBrake(BRAKE_FORCE, 0);
+      vehicle.setBrake(BRAKE_FORCE, 1);
+    }
+
   } else {
     console.error('The player that submitted the input does not exist!');
   }
