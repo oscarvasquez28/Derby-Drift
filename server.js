@@ -26,7 +26,7 @@ app.get('/redirect', (req, res) => {
 });
 
 app.get('/*.jpg', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/')[0], req.params['0'].split('/')[1] + ".jpg"), {
+  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".jpg"), {
     headers: {
       'Content-Type': 'image/jpeg'
     }
@@ -34,7 +34,7 @@ app.get('/*.jpg', (req, res) => {
 });
 
 app.get('/*.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/')[0], req.params['0'].split('/')[1] + ".png"), {
+  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".png"), {
     headers: {
       'Content-Type': 'image/png'
     }
@@ -42,15 +42,16 @@ app.get('/*.png', (req, res) => {
 });
 
 app.get('/*.obj', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/')[0], req.params['0'].split('/')[1] + ".obj"), {
+  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".obj"), {
     headers: {
       'Content-Type': 'model/obj'
     }
   });
+  console.log(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".obj"));
 });
 
 app.get('/*.mtl', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/')[0], req.params['0'].split('/')[1] + ".mtl"), {
+  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".mtl"), {
     headers: {
       'Content-Type': 'model/mtl'
     }
