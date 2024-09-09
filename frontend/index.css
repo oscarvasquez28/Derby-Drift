@@ -1,3 +1,7 @@
+#title{
+  width: 40%; 
+}
+
 .index-container{
   min-height: 100vh;
   margin: 0px;
@@ -26,7 +30,9 @@
 }
 
 .index-btn-container{
+  display: flex;
   margin: 30px 20px;
+  justify-content: center;
 }
 
 .index-btn-container button{
