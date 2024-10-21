@@ -5,6 +5,7 @@ export default class Track extends Level {
 
     constructor() {
         super();
+        this.levelId = 1;
     }
 
     async initLevel() {

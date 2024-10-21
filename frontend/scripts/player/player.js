@@ -35,10 +35,10 @@ export default class Player {
     this.name = "Incógnito";
     this.color = 0x000000;
     this.id = -1;
+    this.levelId = -1;
     this.mesh = {};
     this.scene = scene;
 
-    this.nametag = new NameTag(this, scene);
   }
 
   async initPlayerFromJSON(data) {
@@ -80,7 +80,6 @@ export default class Player {
         if (data.rotation.wheels.backRight && typeof data.rotation.wheels.backRight === 'object')
           this.#rotation.wheels.backRight = data.rotation.wheels.backRight;
       }
-      console.log(this.#rotation);
 
       // Si se proporciona un modelo será utilizado, de lo contrario se mostrará una vehículo básico por defecto
       if (!data.mesh) {
@@ -156,6 +155,7 @@ export default class Player {
       this.scene.add(this.mesh.wheels.backLeft);
       this.scene.add(this.mesh.wheels.backRight);
 
+      this.nametag = new NameTag(this, this.scene);
       return true;
 
     } catch (error) {

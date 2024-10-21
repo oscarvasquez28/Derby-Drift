@@ -5,6 +5,7 @@ export default class Colisseum extends Level {
 
     constructor() {
         super('textures/heightmap.jpg');
+        this.levelId = 0;
     }
 
     async initLevel() {

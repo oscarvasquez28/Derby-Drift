@@ -2,7 +2,6 @@ import World from "./world.js"
 import Player from "../player/player.js"
 import ClientPlayer from "../player/clientPlayer.js"
 import Connection from "../../connection.js"
-import ObjModel from "../model.js"
 
 const FPS = 60;
 
@@ -18,6 +17,8 @@ export default class Level {
     this.socket = Connection.getConnection();
 
     this.clientPlayer = null;
+
+    this.levelId = -1;
   }
 
   async initLevel() {
@@ -119,54 +120,89 @@ export default class Level {
     const socket = this.socket;
 
     socket.on('connect', () => {
-      console.log('Connected to server');
-    });
-
-    socket.on('newPlayer', (player) => {
-      console.log("Recieved message from server: newPlayer\nPlayer: " + player.name + " ID:" + player.id + ' connected');
-      this.addPlayer(player);
-    });
-
-    socket.on('currentPlayers', (playersData) => {
-      Object.keys(playersData).forEach((id) => {
-        if (!this.players.find(obj => obj.id === id)) {
-          this.addPlayer(playersData[id]);
-          console.log("Recieved message from server: currentPlayers\nRecieved new player: " + id);
+      
+      const playerInfo = {
+        levelId: this.levelId,
+        name: this.#genRandomName(),
+        id: socket.id,
+        position: {
+        chassis: { x: 0, y: 20, z: 0 },
+        wheels: {
+              frontLeft: { x: 0, y: 0, z: 0 },
+              frontRight: { x: 0, y: 0, z: 0 },
+              backLeft: { x: 0, y: 0, z: 0 },
+              backRight: { x: 0, y: 0, z: 0 }
+          }
+        },
+        rotation: {
+          chassis: { x: 0, y: 0, z: 0, w: 0 },
+          wheels: {
+              frontLeft: { x: 0, y: 0, z: 0, w: 0 },
+              frontRight: { x: 0, y: 0, z: 0, w: 0 },
+              backLeft: { x: 0, y: 0, z: 0, w: 0 },
+              backRight: { x: 0, y: 0, z: 0, w: 0 }
+          }
         }
-        else {
-          console.log("Recieved message from server: currentPlayers\nPlayer: " + playersData[id].name + " ID:" + id + " is already in the scene");
+      };
+
+      socket.emit('playerInfo', playerInfo);
+
+      socket.on('newPlayer', (player) => {
+        console.log("Recieved message from server: newPlayer\nPlayer: " + player.name + " ID:" + player.id + ' connected');
+        this.addPlayer(player);
+      });
+  
+      socket.on('currentPlayers', (playersData) => {
+        Object.keys(playersData).forEach((id) => {
+          if (!this.players.find(obj => obj.id === id)) {
+            this.addPlayer(playersData[id]);
+            console.log("Recieved message from server: currentPlayers\nRecieved new player: " + id);
+          }
+          else {
+            console.log("Recieved message from server: currentPlayers\nPlayer: " + playersData[id].name + " ID:" + id + " is already in the scene");
+          }
+        });
+      });
+  
+      socket.on('playerDisconnected', (id) => {
+        console.log("Recieved message from server: playerDisconnected");
+        const disconnectedPlayer = this.players.find(obj => obj.id === id);
+        if (disconnectedPlayer) {
+          disconnectedPlayer.removePlayer();
+          this.players = this.players.filter(obj => obj.id !== disconnectedPlayer.id);
+          console.log("Player: " + disconnectedPlayer.name + " ID:" + disconnectedPlayer.id + " disconnected");
         }
       });
-    });
-
-    socket.on('playerDisconnected', (id) => {
-      console.log("Recieved message from server: playerDisconnected");
-      const disconnectedPlayer = this.players.find(obj => obj.id === id);
-      if (disconnectedPlayer) {
-        disconnectedPlayer.removePlayer();
-        this.players = this.players.filter(obj => obj.id !== disconnectedPlayer.id);
-        console.log("Player: " + disconnectedPlayer.name + " ID:" + disconnectedPlayer.id + " disconnected");
-      }
-    });
-
-    socket.on('update', (playersData) => {
-      Object.keys(playersData).forEach((id) => {
-        const updatedPlayer = this.players.find(obj => obj.id === id);
-        if (updatedPlayer) {
-          updatedPlayer.updatePlayerFromJSON(playersData[id]);
-        }
-        else {
-          console.log("Recieved message from server: update\nPlayer " + id + " is not in the scene");
-        }
+  
+      socket.on('update', (playersData) => {
+        Object.keys(playersData).forEach((id) => {
+          const updatedPlayer = this.players.find(obj => obj.id === id);
+          if (updatedPlayer) {
+            updatedPlayer.updatePlayerFromJSON(playersData[id]);
+          }
+          else {
+            console.log("Recieved message from server: update\nPlayer " + id + " is not in the scene");
+          }
+        });
       });
+  
+      socket.on('disconnect', () => {
+        console.error('Disconnected from server');
+        window.location.reload();
+        // this.restartScene();
+      });
+
     });
 
-    socket.on('disconnect', () => {
-      console.error('Disconnected from server');
-      window.location.reload();
-      // this.restartScene();
-    });
+  }
 
+  #genRandomName() {
+    const names = [
+      "SmashMaster", "CrashKing", "DerbyDominator", "WreckWizard", 
+      "BumperBasher", "FenderBender", "GrillCrusher", "HoodHammer", 
+      "TireTerror", "AxleAnnihilator", "RimRipper", "ChassisCrusher"
+    ];
+    return names[Math.floor(Math.random() * names.length)];
   }
 
   restartScene() {

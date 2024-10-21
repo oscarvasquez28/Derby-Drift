@@ -6,6 +6,7 @@ export default class Nametag {
     this.scene = scene;
 
     const canvas = document.createElement('canvas');
+    canvas.width = 1024;
     const context = canvas.getContext('2d');
     context.font = 'Bold 50px Arial';
     context.fillStyle = 'black';
@@ -19,7 +20,7 @@ export default class Nametag {
     const material = new THREE.SpriteMaterial({ map: texture });
     this.sprite = new THREE.Sprite(material);
 
-    this.sprite.scale.set(5, 2.5, 1);
+    this.sprite.scale.set(15, 2.5, 1);
     this.scene.add(this.sprite);
   }
 
