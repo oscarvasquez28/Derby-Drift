@@ -83,6 +83,7 @@ export default class InputSystem {
                         left: gamepad.buttons[14].pressed, // D-pad left
                         right: gamepad.buttons[15].pressed, // D-pad right
                         foward: gamepad.buttons[0].pressed, // A button
+                        flip: gamepad.buttons[2].pressed, // X button
                         brake: gamepad.buttons[1].pressed, // B button
                         axes: gamepad.axes, // Joystick axes
                     }
