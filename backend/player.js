@@ -6,6 +6,7 @@ export default class Player {
     PLAYER_WEGIHT = 1000;
     BRAKE_FORCE = 50;
     MAX_STEER_VALUE = Math.PI / 8;
+    isFlipping = false;
 
     constructor(world, player = null) {
     
@@ -52,6 +53,51 @@ export default class Player {
 
     getBody() {
         return this.player.body;
+    }
+
+    flipCar() {
+
+        if (this.isFlipping) return;
+        const upVector = new cannon.Vec3(0, 1, 0);
+        const carUpVector = new cannon.Vec3();
+        this.player.body.vehicle.chassisBody.quaternion.vmult(upVector, carUpVector);
+
+        if (carUpVector.y > 0) {
+            console.log('Car is not upside down, no need to flip.');
+            return;
+        }
+        this.isFlipping = true;
+
+        const vehicle = this.player.body?.vehicle;
+        if (vehicle) {
+            // Define the target rotation (upright position)
+            const targetQuaternion = new cannon.Quaternion();
+            targetQuaternion.setFromAxisAngle(new cannon.Vec3(0, 1, 0), Math.PI);
+
+            vehicle.chassisBody.position.y += 2;
+
+            // Define the duration for the flip (in milliseconds)
+            const duration = 500; // 1 second
+            const startTime = Date.now();
+
+            const flipInterval = setInterval(() => {
+                console.log('Flipping car id:', this.player.json.id);
+                const elapsedTime = Date.now() - startTime;
+                const t = Math.min(elapsedTime / duration, 1);
+
+                // Interpolate between the current rotation and the target rotation
+                vehicle.chassisBody.quaternion.slerp(targetQuaternion, t, vehicle.chassisBody.quaternion);
+
+                // Stop the interval when the rotation is complete
+                if (t === 1) {
+                    clearInterval(flipInterval);
+                    this.isFlipping = false;
+                    // Optionally, reset the car's angular velocity to stop it from spinning
+                    vehicle.chassisBody.angularVelocity.set(0, 0, 0);
+                    vehicle.chassisBody.velocity.set(0, 0, 0);
+                }
+            }, 16); // Update every 16ms (~60fps)
+        }
     }
 
     createPlayerCar(player) {
@@ -166,6 +212,10 @@ export default class Player {
             if (data.inputs.brake) {
                 vehicle.setBrake(this.BRAKE_FORCE, 0);
                 vehicle.setBrake(this.BRAKE_FORCE, 1);
+            }
+
+            if(data.inputs.flip) {
+                this.flipCar();
             }
 
             this.updateJson();
