@@ -11,7 +11,7 @@ export default class Player {
     constructor(world, player = null) {
     
         const defaultPlayer = {
-            "name": 'tests',
+            "name": 'playerNameSetByServer',
             "color": 0xFFFFFF * Math.random(),
             "id": 0,
             // "position":  {x: 20 * Math.random() - 10, y: 5 * Math.random() + 20, z: 5 * Math.random()} ,

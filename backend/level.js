@@ -26,6 +26,7 @@ export default class Level {
     }
 
     removePlayer(id) {
+        if (this.players[id] == null) return;
         this.world.getWorld().removeBody(this.players[id].getBody());
         delete this.players[id];
     }

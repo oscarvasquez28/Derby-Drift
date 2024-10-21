@@ -60,59 +60,50 @@ app.get('/*.mtl', (req, res) => {
   });
 });
 
-const level1 = new Level();
+const levels = [new Level(), new Level()];
 
 // Manejar las conexiones de socket.io
 io.on('connection', (socket) => {
   console.log('User ' + socket.id + ' connected');
   socket.on('disconnect', () => {
     console.log('User ' + socket.id + ' disconnected');
-    level1.removePlayer(socket.id);
+    levels.forEach(level => {
+      level.removePlayer(socket.id);
+    });
     io.emit('playerDisconnected', socket.id);
   });
 
-  level1.addPlayer({
-    id: socket.id,
-    "position": {
-        chassis: { x: 0, y: 20, z: 0 },
-        wheels: {
-            frontLeft: { x: 0, y: 0, z: 0 },
-            frontRight: { x: 0, y: 0, z: 0 },
-            backLeft: { x: 0, y: 0, z: 0 },
-            backRight: { x: 0, y: 0, z: 0 }
-        }
-    },
-    "rotation": {
-        chassis: { x: 0, y: 0, z: 0, w: 0 },
-        wheels: {
-            frontLeft: { x: 0, y: 0, z: 0, w: 0 },
-            frontRight: { x: 0, y: 0, z: 0, w: 0 },
-            backLeft: { x: 0, y: 0, z: 0, w: 0 },
-            backRight: { x: 0, y: 0, z: 0, w: 0 },
-        }
+  socket.on('playerInfo', (data) => {
+    if(data.id == socket.id){
+      levels[data.levelId].addPlayer(data);
+    }else{
+      console.log('Error: id mismatch');
     }
+
+    io.emit(
+      'newPlayer',
+      levels[data.levelId].getPlayerJson(socket.id),
+    )
+
+    socket.emit(
+      'currentPlayers',
+      levels[data.levelId].getPlayersJSON(),
+    )
+
+    socket.on('input', (inputData) => {
+      levels[data.levelId].executePlayerInputFromJson(inputData.id, inputData);
+    })
+
   });
-  
-  io.emit(
-    'newPlayer',
-    level1.getPlayerJson(socket.id),
-  )
-
-  socket.emit(
-    'currentPlayers',
-    level1.getPlayersJSON(),
-  )
-
-  socket.on('input', (data) => {
-    level1.executePlayerInputFromJson(data.id, data);
-  })
 
 });
 
 function updateLevel(){
     setInterval(() => {
-        level1.step();
-        io.emit('update', level1.getPlayersJSON());
+        levels.forEach(level => {
+            level.step();
+            io.emit('update', level.getPlayersJSON());
+        });
     }, 1000 / FPS);
 }
 
