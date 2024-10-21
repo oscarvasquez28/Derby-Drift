@@ -163,6 +163,10 @@ export default class Level {
 
     const socket = this.socket;
 
+    socket.on('connect', () => {
+      console.log('Connected to server');
+    });
+
     socket.on('newPlayer', (player) => {
       console.log("Recieved message from server: newPlayer\nPlayer: " + player.name + " ID:" + player.id + ' connected');
       this.addPlayer(player);
@@ -203,8 +207,9 @@ export default class Level {
     });
 
     socket.on('disconnect', () => {
-      console.log('Disconnected from server');
-      this.restartScene();
+      console.error('Disconnected from server');
+      window.location.reload();
+      // this.restartScene();
     });
 
   }
