@@ -25,6 +25,10 @@ export default class Player {
 
   lookAt = { x: 0, y: 0, z: 0 };
   lookAtNormilized = { x: 0, y: 0, z: 0 };
+  wheelScale = 2.4;
+
+  debug = false; // Debug mode
+  debugChassisScale = { x: 8, y: 1, z: 4 };
 
   constructor(scene) {
 
@@ -80,11 +84,17 @@ export default class Player {
 
       // Si se proporciona un modelo será utilizado, de lo contrario se mostrará una vehículo básico por defecto
       if (!data.mesh) {
-        const carModel = new ObjModel(this.scene, 'models/Car2/Car2.obj', 'models/Car2/Car2.mtl', false)
-        await carModel.initModel().then((mesh) => {
-          this.mesh.chassis = mesh;
-          this.mesh.chassis.scale.set(2, 2, 2);
-        });
+        if (!this.debug) {
+          const carModel = new ObjModel(this.scene, 'models/Car2/Car2.obj', 'models/Car2/Car2.mtl', false)
+          await carModel.initModel().then((mesh) => {
+            this.mesh.chassis = mesh;
+            this.mesh.chassis.scale.set(2, 2, 2);
+          });
+        } else {
+          this.mesh.chassis = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+          this.mesh.chassis.scale.set(this.debugChassisScale.x, this.debugChassisScale.y, this.debugChassisScale.z);
+        }
+
         const material = new THREE.MeshStandardMaterial({ color: this.color });
         this.mesh.chassis.castShadow = true;
         this.mesh.chassis.recieveShadow = true;
@@ -97,22 +107,22 @@ export default class Player {
         const FrontLeft = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
         await FrontLeft.initModel().then((mesh) => {
           this.mesh.wheels.frontLeft = mesh;
-          this.mesh.wheels.frontLeft.scale.set(2, 2, 2);
+          this.mesh.wheels.frontLeft.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
         });
         const FrontRight = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
         await FrontRight.initModel().then((mesh) => {
           this.mesh.wheels.frontRight = mesh;
-          this.mesh.wheels.frontRight.scale.set(2, 2, 2);
+          this.mesh.wheels.frontRight.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
         });
         const BackLeft = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
         await BackLeft.initModel().then((mesh) => {
           this.mesh.wheels.backLeft = mesh;
-          this.mesh.wheels.backLeft.scale.set(2, 2, 2);
+          this.mesh.wheels.backLeft.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
         });
         const BackRight = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
         await BackRight.initModel().then((mesh) => {
           this.mesh.wheels.backRight = mesh;
-          this.mesh.wheels.backRight.scale.set(2, 2, 2);
+          this.mesh.wheels.backRight.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
         });
         this.mesh.wheels.frontLeft.castShadow = true;
         this.mesh.wheels.frontLeft.recieveShadow = true;
@@ -149,7 +159,7 @@ export default class Player {
       return true;
 
     } catch (error) {
-      console.log("Something went wrong when initializing player:\n" + this.name + " ID:" + this.id + "\n" + error);
+      console.error("Something went wrong when initializing player:\n" + this.name + " ID:" + this.id + "\n" + error);
       return false;
     }
 

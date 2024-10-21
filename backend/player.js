@@ -2,8 +2,8 @@ import * as cannon from 'cannon-es';
 
 export default class Player {
 
-    PLAYER_MAX_SPEED = 1000;
-    PLAYER_WEGIHT = 150;
+    PLAYER_MAX_SPEED = 10000;
+    PLAYER_WEGIHT = 1000;
     BRAKE_FORCE = 50;
     MAX_STEER_VALUE = Math.PI / 8;
 
@@ -66,7 +66,7 @@ export default class Player {
 
         const vehicle = new cannon.RaycastVehicle({ chassisBody: carBody, });
 
-        this.addWheelsToVehicle(vehicle, -1.0, 1);
+        this.addWheelsToVehicle(vehicle, -0.6, 1.2);
 
         vehicle.addToWorld(this.world);
 
@@ -103,18 +103,18 @@ export default class Player {
           useCustomSlidingRotationalSpeed: true
         }
       
-        options.chassisConnectionPointLocal.set(4, wheelHeight, 2);
+        options.chassisConnectionPointLocal.set(2.8, wheelHeight, 2.5);
         vehicle.isFrontWheel = true;
         vehicle.addWheel(options);
       
-        options.chassisConnectionPointLocal.set(4, wheelHeight, -2);
+        options.chassisConnectionPointLocal.set(2.8, wheelHeight, -2.5);
         vehicle.addWheel(options);
       
-        options.chassisConnectionPointLocal.set(-4, wheelHeight, -2);
+        options.chassisConnectionPointLocal.set(-3.6, wheelHeight, -2.5);
         vehicle.isFrontWheel = false;
         vehicle.addWheel(options);
       
-        options.chassisConnectionPointLocal.set(-4, wheelHeight, 2);
+        options.chassisConnectionPointLocal.set(-3.6, wheelHeight, 2.5);
         vehicle.addWheel(options);
     }
 
