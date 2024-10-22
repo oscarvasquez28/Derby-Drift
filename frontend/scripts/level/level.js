@@ -7,8 +7,8 @@ const FPS = 60;
 
 export default class Level {
 
-  constructor(heightMapPath = null, color = null) {
-    this.world = new World(heightMapPath, color);
+  constructor(heightMapPath = null, color = null, worldScale = 1) {
+    this.world = new World(heightMapPath, color, worldScale);
 
     this.players = new Array().fill(0);
 
@@ -77,6 +77,10 @@ export default class Level {
   }
 
   addPlayer(newPlayer) {
+
+    if (newPlayer.levelId !== this.levelId) {
+      return;
+    }
 
     let result = true;
     let addedPlayer = null;

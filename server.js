@@ -60,7 +60,7 @@ app.get('/*.mtl', (req, res) => {
   });
 });
 
-const levels = [new Level(), new Level('./public/models/Track/TrackHeightMap.png')];
+const levels = [new Level(), new Level('./public/models/Track/TrackHeightMap.png', 2)];
 
 // Manejar las conexiones de socket.io
 io.on('connection', (socket) => {

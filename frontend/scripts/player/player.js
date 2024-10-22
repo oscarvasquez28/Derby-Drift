@@ -94,7 +94,6 @@ export default class Player {
           this.mesh.chassis.scale.set(this.debugChassisScale.x, this.debugChassisScale.y, this.debugChassisScale.z);
         }
 
-        const material = new THREE.MeshStandardMaterial({ color: this.color });
         this.mesh.chassis.castShadow = true;
         this.mesh.chassis.recieveShadow = true;
         this.mesh.wheels = {
@@ -147,7 +146,6 @@ export default class Player {
           this.mesh.chassis.scale.set(this.debugChassisScale.x, this.debugChassisScale.y, this.debugChassisScale.z);
         }
 
-        const material = new THREE.MeshStandardMaterial({ color: this.color });
         this.mesh.chassis.castShadow = true;
         this.mesh.chassis.recieveShadow = true;
         this.mesh.wheels = {
