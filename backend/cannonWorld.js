@@ -5,13 +5,13 @@ export default class CannonWorld {
 
     GRAVITY_FORCE = 9.82;
 
-    constructor() {
+    constructor(heightmapPath = null) {
         this.world = new cannon.World();
         this.world.broadphase = new cannon.NaiveBroadphase();
         this.world.gravity.set(0, -this.GRAVITY_FORCE * 2, 0);
         this.world.defaultContactMaterial.friction = 0;
         this.world.solver.iterations = 10;
-        this.terrain = new Terrain(this.world);
+        this.terrain = new Terrain(this.world, heightmapPath);
         this.FPS = 144;
 
         this.groundMaterial = new cannon.Material("groundMaterial");

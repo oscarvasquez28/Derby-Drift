@@ -3,8 +3,8 @@ import Player from "./player.js";
 
 export default class Level {
 
-    constructor() {
-        this.world = new CannonWorld();
+    constructor(heightMapPath = null) {
+        this.world = new CannonWorld(heightMapPath);
         this.players = {};
     }
 

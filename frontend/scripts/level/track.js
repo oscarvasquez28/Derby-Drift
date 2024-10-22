@@ -4,8 +4,9 @@ import Level from './level.js';
 export default class Track extends Level {
 
     constructor() {
-        super();
+        super('models/Track/TrackHeightMap.png', 0x136D15);
         this.levelId = 1;
+        this.initHeight = 30;
     }
 
     async initLevel() {
@@ -23,14 +24,15 @@ export default class Track extends Level {
           mesh.scale.set(15, 15, 15);
           mesh.rotation.y = -125 * Math.PI / 180;
         });
-
+        
         this.Track = new ObjModel(this.levelScene, 'models/Track/Track.obj', 'models/Track/Track.mtl', false);
-
+        
         this.Track.initModel().then((mesh) => {
           mesh.position.x = 0;
           mesh.position.y = 10;
           mesh.position.z = 0;
           mesh.scale.set(4, 4, 4);
+          mesh.rotation.y = -125 * Math.PI;
         });
 
         this.models.push(this.dobeto);

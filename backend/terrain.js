@@ -5,7 +5,7 @@ export default class Terrain {
 
     constructor(world, heightmap = './public/textures/heightmap.jpg') {
         this.world = world;
-        this.heightmap = heightmap;
+        this.heightmap = heightmap ? heightmap : './public/textures/heightmap.jpg';
         this.terrain = this.initTerrain();
     }
 

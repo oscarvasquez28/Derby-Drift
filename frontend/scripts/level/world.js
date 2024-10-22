@@ -6,9 +6,11 @@ const FLOOR_COLOR = 0x796B5C;
 
 export default class World {
 
-  constructor(heightmapPath = 'textures/heightmap.jpg') {
+  constructor(heightmapPath = 'textures/heightmap.jpg', color = FLOOR_COLOR) {
     // Creamos la escena (mundo) que contendrá todos los objetos que se mostrarán
     this.scene = new THREE.Scene();
+
+    this.color = color;
     
     this.heightmapPath = heightmapPath;
 
@@ -113,7 +115,7 @@ export default class World {
       const floorGeometry = new THREE.PlaneGeometry(255, 255, width - 1, height - 1);
       applyHeightmapToGeometry(floorGeometry, heightData, width, height);
     
-      const floorMaterial = new THREE.MeshStandardMaterial({ color: FLOOR_COLOR });
+      const floorMaterial = new THREE.MeshStandardMaterial({ color: this.color });
       const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
     
       // Rotamos el plano para alinearlo con el horizonte

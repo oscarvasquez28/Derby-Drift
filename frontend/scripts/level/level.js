@@ -7,8 +7,8 @@ const FPS = 60;
 
 export default class Level {
 
-  constructor(heightMapPath = null) {
-    this.world = new World(heightMapPath);
+  constructor(heightMapPath = null, color = null) {
+    this.world = new World(heightMapPath, color);
 
     this.players = new Array().fill(0);
 
@@ -19,6 +19,8 @@ export default class Level {
     this.clientPlayer = null;
 
     this.levelId = -1;
+
+    this.initHeight = 10;
   }
 
   async initLevel() {
@@ -127,7 +129,7 @@ export default class Level {
         id: socket.id,
         mesh: Math.random() < 0.5 ? 1 : undefined,
         position: {
-        chassis: { x: 0, y: 20, z: 0 },
+        chassis: { x: 0, y: this.initHeight, z: 0 },
         wheels: {
               frontLeft: { x: 0, y: 0, z: 0 },
               frontRight: { x: 0, y: 0, z: 0 },
