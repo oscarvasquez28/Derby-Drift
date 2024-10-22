@@ -4,7 +4,7 @@ import Level from './level.js';
 export default class Track extends Level {
 
     constructor() {
-        super('models/Track/TrackHeightMap.png', 0x136D15);
+        super('models/Track/TrackHeightMap.png', 0x136D15, 2);
         this.levelId = 1;
         this.initHeight = 30;
     }

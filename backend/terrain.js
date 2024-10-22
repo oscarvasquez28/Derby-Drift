@@ -3,8 +3,9 @@ import * as cannon from 'cannon-es';
 
 export default class Terrain {
 
-    constructor(world, heightmap = './public/textures/heightmap.jpg') {
+    constructor(world, heightmap = './public/textures/heightmap.jpg', scale = 1) {
         this.world = world;
+        this.scale = scale;
         this.heightmap = heightmap ? heightmap : './public/textures/heightmap.jpg';
         this.terrain = this.initTerrain();
     }
@@ -40,7 +41,7 @@ export default class Terrain {
     async createComplexFloor(world) {
         const heightmapPath = this.heightmap; // Reemplazar con la ruta de tu archivo de mapa de alturas
         const matrix = await this.loadHeightmapTexture(heightmapPath);
-        const sideSize = 255; // Tamaño del lado
+        const sideSize = 255 * this.scale; // Tamaño del lado
         const elementSize = 1 * sideSize / (matrix[0].length - 1); // Distancia entre puntos
 
         // Crear la forma del terreno

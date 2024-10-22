@@ -58,7 +58,7 @@ export default class InputSystem {
                 right: this.pressedKeys.has('ArrowRight') || this.pressedKeys.has('d'),
                 left: this.pressedKeys.has('ArrowLeft') || this.pressedKeys.has('a'),
                 flip: this.pressedKeys.has('f'),
-                brake: this.pressedKeys.has('Control'), // Control key
+                brake: this.pressedKeys.has('z'),
                 jump: this.pressedKeys.has(' '), // Space key
             },
         };

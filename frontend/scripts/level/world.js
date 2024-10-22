@@ -6,11 +6,13 @@ const FLOOR_COLOR = 0x796B5C;
 
 export default class World {
 
-  constructor(heightmapPath = 'textures/heightmap.jpg', color = FLOOR_COLOR) {
+  constructor(heightmapPath = 'textures/heightmap.jpg', color = FLOOR_COLOR, scale = 1) {
     // Creamos la escena (mundo) que contendrá todos los objetos que se mostrarán
     this.scene = new THREE.Scene();
 
     this.color = color;
+
+    this.scale = scale;
     
     this.heightmapPath = heightmapPath;
 
@@ -91,19 +93,21 @@ export default class World {
     }
     
     // Función para modificar la geometría del plano basado en los datos de altura
-    function applyHeightmapToGeometry(geometry, heightData, width, height) {
+    function applyHeightmapToGeometry(geometry, heightData, width, height, scale = 1) {
       const vertices = geometry.attributes.position.array;
       const widthSegments = geometry.parameters.widthSegments;
       const heightSegments = geometry.parameters.heightSegments;
     
       for (let i = 0; i <= heightSegments; i++) {
-        for (let j = 0; j <= widthSegments; j++) {
-          const vertexIndex = (i * (widthSegments + 1) + j) * 3;
-          const x = j / widthSegments * (width - 1);
-          const y = i / heightSegments * (height - 1);
-          const heightValue = heightData[Math.floor(y)][Math.floor(x)];
-          vertices[vertexIndex + 2] = heightValue * 10; // Escalamos la altura según sea necesario
-        }
+      for (let j = 0; j <= widthSegments; j++) {
+        const vertexIndex = (i * (widthSegments + 1) + j) * 3;
+        const x = j / widthSegments * (width - 1);
+        const y = i / heightSegments * (height - 1);
+        const heightValue = heightData[Math.floor(y)][Math.floor(x)];
+        vertices[vertexIndex] *= scale; // Scale the x position
+        vertices[vertexIndex + 1] *= scale; // Scale the y position
+        vertices[vertexIndex + 2] = heightValue * 10; // Scale the height as needed
+      }
       }
     
       geometry.attributes.position.needsUpdate = true;
@@ -113,7 +117,7 @@ export default class World {
     // Cargamos la textura del mapa de altura y la aplicamos a la geometría del suelo
     loadHeightmapTexture(this.heightmapPath, (heightData, width, height) => {
       const floorGeometry = new THREE.PlaneGeometry(255, 255, width - 1, height - 1);
-      applyHeightmapToGeometry(floorGeometry, heightData, width, height);
+      applyHeightmapToGeometry(floorGeometry, heightData, width, height, this.scale);
     
       const floorMaterial = new THREE.MeshStandardMaterial({ color: this.color });
       const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
