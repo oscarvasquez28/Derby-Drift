@@ -4,7 +4,7 @@ import Level from './level.js';
 export default class Colisseum extends Level {
 
     constructor() {
-        super('textures/heightmap.jpg');
+        super('textures/heightmap.jpg', 0x796B5C);
         this.levelId = 0;
     }
 
