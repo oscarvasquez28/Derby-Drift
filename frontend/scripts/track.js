@@ -1,4 +1,4 @@
-import Level from "./level/colisseum.js"
+import Level from "./level/track.js"
 
 const level = new Level;
 

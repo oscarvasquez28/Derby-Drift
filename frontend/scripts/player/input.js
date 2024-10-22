@@ -13,8 +13,6 @@ export default class InputSystem {
         const socket = this.socket;
 
         document.addEventListener('keydown', (event) => {
-            this.pressedKeys.add(event.key);
-            this.updateInput(player, socket);
             if (event.key === 'Escape') {
                 const menu = document.getElementById('world-menu');
                 if (menu.style.display === 'none' || menu.style.display === '') {
@@ -23,6 +21,8 @@ export default class InputSystem {
                     menu.style.display = 'none';
                 }
             }
+            this.pressedKeys.add(event.key);
+            this.updateInput(player, socket);
         });
 
         document.addEventListener('keyup', (event) => {
@@ -57,6 +57,7 @@ export default class InputSystem {
                 down: this.pressedKeys.has('ArrowDown') || this.pressedKeys.has('s'),
                 right: this.pressedKeys.has('ArrowRight') || this.pressedKeys.has('d'),
                 left: this.pressedKeys.has('ArrowLeft') || this.pressedKeys.has('a'),
+                flip: this.pressedKeys.has('f'),
                 brake: this.pressedKeys.has('Control'), // Control key
                 jump: this.pressedKeys.has(' '), // Space key
             },
@@ -82,6 +83,7 @@ export default class InputSystem {
                         left: gamepad.buttons[14].pressed, // D-pad left
                         right: gamepad.buttons[15].pressed, // D-pad right
                         foward: gamepad.buttons[0].pressed, // A button
+                        flip: gamepad.buttons[2].pressed, // X button
                         brake: gamepad.buttons[1].pressed, // B button
                         axes: gamepad.axes, // Joystick axes
                     }
