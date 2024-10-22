@@ -29,10 +29,10 @@ export default class Track extends Level {
         
         this.Track.initModel().then((mesh) => {
           mesh.position.x = 0;
-          mesh.position.y = 10;
+          mesh.position.y = 8.5;
           mesh.position.z = 0;
-          mesh.scale.set(4, 4, 4);
-          mesh.rotation.y = -125 * Math.PI;
+          mesh.scale.set(4.7, 0.1, 4.7);
+          mesh.rotation.y = -270 * Math.PI / 180;
         });
 
         this.models.push(this.dobeto);

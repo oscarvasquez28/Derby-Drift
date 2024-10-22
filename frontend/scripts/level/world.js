@@ -48,7 +48,7 @@ export default class World {
     // Inicializamos la luz direccional (sol)
     sun.position.set(100, 100, 100);
     sun.target.position.set(0, 0, 0);
-    sun.angle = Math.PI / 4;
+    sun.angle = Math.PI;
     sun.penumbra = 0.1;
     sun.castShadow = true;
   
