@@ -78,6 +78,10 @@ export default class Level {
 
   addPlayer(newPlayer) {
 
+    if (newPlayer.levelId !== this.levelId) {
+      return;
+    }
+
     let result = true;
     let addedPlayer = null;
 
