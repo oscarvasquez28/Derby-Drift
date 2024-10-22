@@ -125,6 +125,7 @@ export default class Level {
         levelId: this.levelId,
         name: this.#genRandomName(),
         id: socket.id,
+        mesh: Math.random() < 0.5 ? 1 : undefined,
         position: {
         chassis: { x: 0, y: 20, z: 0 },
         wheels: {
