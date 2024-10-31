@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Server } from 'socket.io';
+import Socket from './backend/socket.js';
 import http from 'http';
 import Level from './backend/level.js';
 
@@ -14,12 +14,8 @@ const FPS = 144;
 const app = express();
 
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: "*",
-  },
-});
+Socket.initSocket(server);
+const io = Socket.getIO();
 
 app.use(express.static(path.join(__dirname, 'frontend')));
 
@@ -59,6 +55,11 @@ app.get('/*.mtl', (req, res) => {
     }
   });
 });
+
+const levelEnum = {
+  0: 'colliseum',
+  1: 'track',
+}
 
 const levels = [new Level(), new Level('./public/models/Track/TrackHeightMap.png', 2)];
 
