@@ -2,6 +2,7 @@ import World from "./world.js"
 import Player from "../player/player.js"
 import ClientPlayer from "../player/clientPlayer.js"
 import Connection from "../../connection.js"
+import Missile from "../player/Missile.js"
 
 const FPS = 60;
 
@@ -21,6 +22,8 @@ export default class Level {
     this.levelId = -1;
 
     this.initHeight = 10;
+
+    this.projectiles = [];
   }
 
   async initLevel() {
@@ -166,7 +169,7 @@ export default class Level {
             console.log("Recieved message from server: currentPlayers\nRecieved new player: " + id);
           }
           else {
-            console.log("Recieved message from server: currentPlayers\nPlayer: " + playersData[id].name + " ID:" + id + " is already in the scene");
+            console.error("Recieved message from server: currentPlayers\nPlayer: " + playersData[id].name + " ID:" + id + " is already in the scene");
           }
         });
       });
@@ -188,9 +191,30 @@ export default class Level {
             updatedPlayer.updatePlayerFromJSON(playersData[id]);
           }
           else {
-            console.log("Recieved message from server: update\nPlayer " + id + " is not in the scene");
+            console.error("Recieved message from server: update\nPlayer " + id + " is not in the scene");
           }
         });
+      });
+
+      socket.on('newProjectile', (projectileData) => {
+        // console.log("Recieved message from server: newProjectile\nRecieved new projectile from player: " + projectileData.id);
+        const newProjectile = new Missile(this.levelScene, this.players.find(player => player.id === projectileData.id), projectileData.id);
+        newProjectile.updateMissileFromJSON(projectileData);
+        this.projectiles.push(newProjectile);
+      });
+
+      socket.on('missileCollision', (data) => {
+        this.removeMissile(data);
+      });
+
+      socket.on('missileRemoved', (data) => {
+        console.log("Recieved message from server: missileRemoved\nRecieved removed missile: " + data.id);
+        this.removeMissile(data);
+      });
+
+      socket.on('updateMissiles', (missilesData) => {
+        console.log("Recieved message from server: updateMissiles\nRecieved updated missiles: " + missilesData.id);
+        this.updateMissiles(missilesData);
       });
   
       socket.on('disconnect', () => {
@@ -201,6 +225,30 @@ export default class Level {
 
     });
 
+  }
+
+  updateMissiles(missilesData) {
+    Object.keys(missilesData).forEach(id => {
+      const missileData = missilesData[id];
+      const missile = this.projectiles.find(missile => missile.id === missileData.id);
+      if (missile) {
+        missile.updateMissileFromJSON(missileData);
+      }
+      else {
+        console.error("Recieved message from server: updateMissiles\nMissile " + missileData.id + " is not in the scene");
+      }
+    });
+  }
+
+  removeMissile(data) {
+    const removingMissile = this.projectiles.find(missile => missile.id === data.id);
+    if (removingMissile) {
+      removingMissile.removeMissile();
+      this.projectiles = this.projectiles.filter(missile => missile.id !== data.id);
+    }
+    else {
+      console.error("There was an error removing the a missile\nMissile " + data.id + " is not in the scene");
+    }
   }
 
   #genRandomName() {

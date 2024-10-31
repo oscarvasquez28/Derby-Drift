@@ -59,6 +59,7 @@ export default class InputSystem {
                 left: this.pressedKeys.has('ArrowLeft') || this.pressedKeys.has('a'),
                 flip: this.pressedKeys.has('f'),
                 brake: this.pressedKeys.has('z'),
+                fire: this.pressedKeys.has(' '),
                 jump: this.pressedKeys.has(' '), // Space key
             },
         };
@@ -84,7 +85,7 @@ export default class InputSystem {
                         right: gamepad.buttons[15].pressed, // D-pad right
                         foward: gamepad.buttons[0].pressed, // A button
                         flip: gamepad.buttons[2].pressed, // X button
-                        brake: gamepad.buttons[1].pressed, // B button
+                        fire: gamepad.buttons[4].pressed, // LB button
                         axes: gamepad.axes, // Joystick axes
                     }
                 };
