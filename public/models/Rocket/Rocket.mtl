@@ -1,0 +1,13 @@
+# Blender MTL File: 'Car1.blend'
+# Material Count: 1
+
+newmtl Material.007
+Ns 250.000000
+Ka 0.640909 0.640909 0.640909
+Kd 0.297826 0.297826 0.297826
+Ks 0.704545 0.704545 0.704545
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd RocketDiffuse.png
