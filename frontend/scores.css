@@ -33,6 +33,7 @@
   color: #333333;
   width: 150px; /* Ajusta el tamaño según sea necesario */
   height: 40px; /* Ajusta la altura según sea necesario */
+  font-weight: bold; /* Texto en negrita */
   clip-path: polygon(
     10% 0%, /* Vértice superior izquierdo */
     90% 0%, /* Vértice superior derecho */
@@ -53,8 +54,11 @@
 }
 
 .scores-container{
+  margin-top: 20px;
+  padding-top: 20px;
   height: 100%;
   background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;  
   color: white;
   text-align: center;
 }

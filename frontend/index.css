@@ -1,3 +1,7 @@
+#title{
+  width: 40%; 
+}
+
 .index-container{
   min-height: 100vh;
   margin: 0px;
@@ -26,13 +30,16 @@
 }
 
 .index-btn-container{
+  display: flex;
   margin: 30px 20px;
+  justify-content: center;
 }
 
 .index-btn-container button{
   color: #333333;
   width: 150px; /* Ajusta el tamaño según sea necesario */
   height: 40px; /* Ajusta la altura según sea necesario */
+  font-weight: bold; /* Texto en negrita */
   clip-path: polygon(
     10% 0%, /* Vértice superior izquierdo */
     90% 0%, /* Vértice superior derecho */
