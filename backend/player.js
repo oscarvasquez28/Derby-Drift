@@ -1,5 +1,6 @@
 import * as cannon from 'cannon-es';
 import Missile from './missile.js';
+import Socket from './socket.js';
 
 export default class Player {
 
@@ -110,6 +111,8 @@ export default class Player {
             position: new cannon.Vec3(player.position.chassis.x, player.position.chassis.y, player.position.chassis.z)
         });
 
+        carBody.tag = 'player';
+
         carBody.angularVelocity.set(0, 0, 0.5);
 
         const vehicle = new cannon.RaycastVehicle({ chassisBody: carBody, });
@@ -128,6 +131,13 @@ export default class Player {
             backRight: vehicle.getWheelTransformWorld(3),
             },
         }
+
+        carBody.addEventListener('collide', (event) => {
+            console.log('Collision detected!', event.body.tag);
+            if (event.body.tag !== 'player') return;
+            const relativeVelocity = event.contact.getImpactVelocityAlongNormal();
+            Socket.getIO().emit('playerCollision', { id: player.id, relativeVelocity });
+        });
 
         return body;
     }

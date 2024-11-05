@@ -6,6 +6,7 @@ export default class InputSystem {
 
     constructor(player) {
         this.player = player;
+        this.collidedWithPlayer = false;
     }
 
     initInputSystem() {
@@ -20,6 +21,12 @@ export default class InputSystem {
                 } else {
                     menu.style.display = 'none';
                 }
+            }
+            if (event.key === 'm') {
+                if(this.collidedWithPlayer)
+                    alert('Player Has Collided With Another Player');
+                else
+                    alert('Player Has Not Collided With Another Player');
             }
             this.pressedKeys.add(event.key);
             this.updateInput(player, socket);
@@ -98,6 +105,10 @@ export default class InputSystem {
         };
     
         poll();
+    }
+
+    collided(){
+        this.collidedWithPlayer = true;
     }
 
 }

@@ -216,6 +216,13 @@ export default class Level {
         console.log("Recieved message from server: updateMissiles\nRecieved updated missiles: " + missilesData.id);
         this.updateMissiles(missilesData);
       });
+
+      socket.on('playerCollision', (data) => {
+        if (this.clientPlayer){
+          console.log("Recieved message from server: playerCollision\nRecieved player collision: " + data.id);
+          this.clientPlayer.collided();
+        }
+      });
   
       socket.on('disconnect', () => {
         console.error('Disconnected from server');
