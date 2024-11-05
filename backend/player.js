@@ -1,4 +1,6 @@
 import * as cannon from 'cannon-es';
+import Missile from './missile.js';
+import Socket from './socket.js';
 
 export default class Player {
 
@@ -8,7 +10,7 @@ export default class Player {
     MAX_STEER_VALUE = Math.PI / 8;
     isFlipping = false;
 
-    constructor(world, player = null) {
+    constructor(level, world, player = null) {
     
         const defaultPlayer = {
             "name": 'playerNameSetByServer',
@@ -35,6 +37,7 @@ export default class Player {
             }
         }
 
+        this.level = level;
         this.world = world;
         this.player = {
             json: player ? player : defaultPlayer,
@@ -108,6 +111,8 @@ export default class Player {
             position: new cannon.Vec3(player.position.chassis.x, player.position.chassis.y, player.position.chassis.z)
         });
 
+        carBody.tag = 'player';
+
         carBody.angularVelocity.set(0, 0, 0.5);
 
         const vehicle = new cannon.RaycastVehicle({ chassisBody: carBody, });
@@ -126,6 +131,13 @@ export default class Player {
             backRight: vehicle.getWheelTransformWorld(3),
             },
         }
+
+        carBody.addEventListener('collide', (event) => {
+            console.log('Collision detected!', event.body.tag);
+            if (event.body.tag !== 'player') return;
+            const relativeVelocity = event.contact.getImpactVelocityAlongNormal();
+            Socket.getIO().emit('playerCollision', { id: player.id, relativeVelocity });
+        });
 
         return body;
     }
@@ -218,6 +230,10 @@ export default class Player {
                 this.flipCar();
             }
 
+            if(data.inputs.fire) {
+                this.fireProjectile();
+            }
+
             this.updateJson();
 
 
@@ -276,6 +292,38 @@ export default class Player {
             };
         }
 
+    }
+
+    fireProjectile() {
+        console.log('Firing projectile from player id:', this.player.json.id);
+        if (!this.projectiles) {
+            this.projectiles = [];
+        }
+        const missile = new Missile(this.level, this.world, this.player.body.chassis);
+        this.projectiles.push(missile);
+        this.shotProjectile = true;
+    }
+
+    hasShotProjectile() {
+        const shotProjectile = this.shotProjectile;
+        this.shotProjectile = false;
+        return shotProjectile;
+    }
+
+    getLastProjectile() {
+        return this.projectiles[this.projectiles.length - 1];
+    }
+
+    getCurrentProjectiles() {
+        return this.projectiles;
+    }
+
+    getCurrentProjectilesJSON() {
+        const projectilesJson = [];
+        this.projectiles.forEach(projectile => {
+            projectilesJson.push(projectile.getJSON());
+        });
+        return projectilesJson;
     }
 
     destroy() {

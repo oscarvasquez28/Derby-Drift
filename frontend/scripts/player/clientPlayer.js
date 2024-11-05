@@ -29,5 +29,9 @@ export default class ClientPlayer {
         return this.player;
     }
 
+    collided() {
+        this.playerInput.collided();
+    }
+
 }
 

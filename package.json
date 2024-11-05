@@ -17,6 +17,7 @@
     "express": "^4.19.2",
     "socket.io": "^4.7.5",
     "socketio": "^1.0.0",
+    "uuid": "^11.0.2",
     "vite": "^5.4.2"
   },
   "devDependencies": {

@@ -6,6 +6,7 @@ export default class InputSystem {
 
     constructor(player) {
         this.player = player;
+        this.collidedWithPlayer = false;
     }
 
     initInputSystem() {
@@ -20,6 +21,12 @@ export default class InputSystem {
                 } else {
                     menu.style.display = 'none';
                 }
+            }
+            if (event.key === 'm') {
+                if(this.collidedWithPlayer)
+                    alert('Player Has Collided With Another Player');
+                else
+                    alert('Player Has Not Collided With Another Player');
             }
             this.pressedKeys.add(event.key);
             this.updateInput(player, socket);
@@ -59,6 +66,7 @@ export default class InputSystem {
                 left: this.pressedKeys.has('ArrowLeft') || this.pressedKeys.has('a'),
                 flip: this.pressedKeys.has('f'),
                 brake: this.pressedKeys.has('z'),
+                fire: this.pressedKeys.has(' '),
                 jump: this.pressedKeys.has(' '), // Space key
             },
         };
@@ -84,7 +92,7 @@ export default class InputSystem {
                         right: gamepad.buttons[15].pressed, // D-pad right
                         foward: gamepad.buttons[0].pressed, // A button
                         flip: gamepad.buttons[2].pressed, // X button
-                        brake: gamepad.buttons[1].pressed, // B button
+                        fire: gamepad.buttons[4].pressed, // LB button
                         axes: gamepad.axes, // Joystick axes
                     }
                 };
@@ -97,6 +105,10 @@ export default class InputSystem {
         };
     
         poll();
+    }
+
+    collided(){
+        this.collidedWithPlayer = true;
     }
 
 }
