@@ -26,7 +26,7 @@ export default class InputSystem {
                 if(this.collidedWithPlayer)
                     alert('Player Has Collided With Another Player');
                 else
-                    alert('Player Has Not Collided With Another Player');
+                    console.error('Player Has Not Collided With Another Player');
             }
             this.pressedKeys.add(event.key);
             this.updateInput(player, socket);
@@ -71,7 +71,7 @@ export default class InputSystem {
             },
         };
 
-        console.log(inputInfo.inputs);
+        // console.log(inputInfo.inputs);
         socket.emit('input', inputInfo);
     }
 
