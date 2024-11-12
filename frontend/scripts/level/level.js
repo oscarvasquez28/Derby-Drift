@@ -129,7 +129,7 @@ export default class Level {
     const socket = this.socket;
 
     socket.on('connect', () => {
-      
+
       const playerInfo = {
         levelId: this.levelId,
         name: this.#genRandomName(),
@@ -161,7 +161,7 @@ export default class Level {
         console.log("Recieved message from server: newPlayer\nPlayer: " + player.name + " ID:" + player.id + ' connected');
         this.addPlayer(player);
       });
-  
+
       socket.on('currentPlayers', (playersData) => {
         Object.keys(playersData).forEach((id) => {
           if (!this.players.find(obj => obj.id === id)) {
@@ -173,7 +173,7 @@ export default class Level {
           }
         });
       });
-  
+
       socket.on('playerDisconnected', (id) => {
         console.log("Recieved message from server: playerDisconnected");
         const disconnectedPlayer = this.players.find(obj => obj.id === id);
@@ -183,7 +183,7 @@ export default class Level {
           console.log("Player: " + disconnectedPlayer.name + " ID:" + disconnectedPlayer.id + " disconnected");
         }
       });
-  
+
       socket.on('update', (playersData) => {
         Object.keys(playersData).forEach((id) => {
           const updatedPlayer = this.players.find(obj => obj.id === id);
@@ -223,7 +223,7 @@ export default class Level {
           this.clientPlayer.collided();
         }
       });
-  
+
       socket.on('disconnect', () => {
         console.error('Disconnected from server');
         window.location.reload();
@@ -259,12 +259,17 @@ export default class Level {
   }
 
   #genRandomName() {
+    const userName = sessionStorage.getItem('userName');
+    if (userName) {
+      return userName;
+    }
     const names = [
-      "SmashMaster", "CrashKing", "DerbyDominator", "WreckWizard", 
-      "BumperBasher", "FenderBender", "GrillCrusher", "HoodHammer", 
+      "SmashMaster", "CrashKing", "DerbyDominator", "WreckWizard",
+      "BumperBasher", "FenderBender", "GrillCrusher", "HoodHammer",
       "TireTerror", "AxleAnnihilator", "RimRipper", "ChassisCrusher"
     ];
-    return names[Math.floor(Math.random() * names.length)];
+    const randomName = names[Math.floor(Math.random() * names.length)];
+    return randomName;
   }
 
   restartScene() {
