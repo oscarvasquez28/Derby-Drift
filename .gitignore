@@ -85,3 +85,5 @@ public/
 
 # Build directory
 build/
+
+frontend/conf.js
