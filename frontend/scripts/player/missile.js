@@ -12,7 +12,7 @@ export default class Missile {
 
     createMissile() {
         // const missileBody = new ObjModel('Missile', this.player.position, this.player.quaternion);
-        const missileBody = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 2), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+        const missileBody = new THREE.Mesh(new THREE.BoxGeometry(2, 0.5, 0.5), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
         this.scene.add(missileBody);
         return missileBody;
     }
