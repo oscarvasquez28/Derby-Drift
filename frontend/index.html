@@ -24,10 +24,17 @@
     </div>
 
 
+    <!-- Audio -->
+    <audio id="myAudio">
+      <source src="psychosocial.mp3" type="audio/mpeg">
+      Tu navegador no soporta la reproducción de audio.
+    </audio>
+
+
     <!-- Botones -->
     <div class="row">
       <div class="col-xl-12 mt-2">
-        <div class="index-btn-container"><a href="./track.html"><button>Jugar Carrera</button></a></div>
+        <div id="playAudioButton" class="index-btn-container"><a href="./track.html"><button>Jugar Carrera</button></a></div>
         <div class="index-btn-container"><a href="./world.html"><button>Jugar Coliseo</button></a></div>
         <div class="index-btn-container"><a href="./config.html"><button>Configuración</button></a></div>
         <div class="index-btn-container"><a href="./scores.html"><button>Puntuaciones</button></a></div>
@@ -49,6 +56,17 @@
     </div>
   </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (localStorage.getItem('audioPlaying') === 'true') {
+        var audio = document.getElementById('myAudio');
+        audio.play().catch(function(error) {
+          console.log('Error al intentar reproducir el audio:', error);
+        });
+      }
+    });
+  </script>
 
   <script>
     document.getElementById('g_id_onload').setAttribute('data-client_id', CONFIG.GOOGLE_CLIENT_ID);
