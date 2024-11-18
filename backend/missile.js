@@ -60,16 +60,16 @@ export default class Missile {
     startTimer(duration) {
         setTimeout(() => {
             console.log(`Missile ${this.id} has been removed after ${duration}ms`);
-            Socket.getIO().emit('missileRemoved', {
-                id: this.id,
-                playerId: this.player.id
-            });
             this.remove = true;
         }, duration);
     }
 
     destroy() {
         this.world.removeBody(this.body);
+        Socket.getIO().emit('missileRemoved', {
+            id: this.id,
+            playerId: this.player.id
+        });
         this.level.levelProjectiles = this.level.levelProjectiles.filter(projectile => projectile.id !== this.id);
         this.player.projectiles = this.player.projectiles.filter(projectile => projectile.id !== this.id);
         delete this;

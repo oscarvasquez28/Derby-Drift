@@ -140,6 +140,7 @@ export default class Level {
         name: this.#genRandomName(),
         id: socket.id,
         health: this.playerInitHealth,
+        score: 0,
         mesh: Math.random() < 0.5 ? 1 : undefined,
         position: {
         chassis: { x: 0, y: this.initHeight, z: 0 },

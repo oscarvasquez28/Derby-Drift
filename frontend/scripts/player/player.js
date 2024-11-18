@@ -35,10 +35,11 @@ export default class Player {
   constructor(scene) {
 
     this.name = "Incógnito";
+    this.id = -1;
     this.initHealth = undefined;
     this.health = undefined;
     this.color = 0x000000;
-    this.id = -1;
+    this.score = 0;
     this.levelId = -1;
     this.mesh = {};
     this.scene = scene;
@@ -260,6 +261,9 @@ export default class Player {
 
       if (data.color)
         this.color = data.color;
+
+      if(data.score)
+        this.score = data.score;
 
       if (data.position && typeof data.position === 'object') {
         if (data.position.chassis && typeof data.position.chassis === 'object')

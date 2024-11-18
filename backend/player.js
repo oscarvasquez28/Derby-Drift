@@ -17,6 +17,7 @@ export default class Player {
             "color": 0xFFFFFF * Math.random(),
             "id": 0,
             "health": 100,
+            "score": 0,
             // "position":  {x: 20 * Math.random() - 10, y: 5 * Math.random() + 20, z: 5 * Math.random()} ,
             "position": {
                 chassis: { x: 0, y: 20, z: 0 },
@@ -248,6 +249,18 @@ export default class Player {
 
         return result;
 
+    }
+
+    addScore(score = 1) {
+        this.player.json.score += score;
+    }
+
+    takeDamage(damage = 10) {
+        this.player.json.health -= damage;
+        if (this.player.json.health <= 0) {
+            this.remove = true;
+            Socket.getIO().emit('playerDestroyed', { id: this.player.json.id });
+        }
     }
 
     updateJson() {

@@ -53,13 +53,11 @@ export default class Level {
                 quaternion: missile.body.quaternion
             });
             
+            
             const collidedPlayer = Object.values(this.players).find(player => player.getBody().chassis.id === event.body.id);
             if (collidedPlayer) {
-                collidedPlayer.player.json.health -= missile.damage;
-                if (collidedPlayer.player.json.health <= 0) {
-                    Socket.getIO().emit('playerDestroyed', { id: collidedPlayer.player.json.id });
-                    collidedPlayer.remove = true;
-                }
+                missile.player.addScore();
+                collidedPlayer.takeDamage(missile.damage);
             }
         }
     }
