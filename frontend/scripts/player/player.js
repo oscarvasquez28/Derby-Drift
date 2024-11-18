@@ -35,6 +35,8 @@ export default class Player {
   constructor(scene) {
 
     this.name = "Incógnito";
+    this.initHealth = undefined;
+    this.health = undefined;
     this.color = 0x000000;
     this.id = -1;
     this.levelId = -1;
@@ -47,16 +49,21 @@ export default class Player {
 
     try {
 
+      if (data.id)
+        this.id = data.id;
+      else
+        throw "Cannot initialize player with an undefined id";
+
       if (data.name)
         this.name = data.name;
 
       if (data.color)
         this.color = data.color;
 
-      if (data.id)
-        this.id = data.id;
-      else
-        throw "Cannot initialize player with an undefined id";
+      if (data.health){
+        this.initHealth = data.health;
+        this.health = data.health;
+      }
 
       if (data.position && typeof data.position === 'object') {
         if (data.position.chassis && typeof data.position.chassis === 'object')
@@ -241,8 +248,13 @@ export default class Player {
 
     try {
 
+      console.log(this.health);
+
       if (data.name)
         this.name = data.name;
+
+      if (data.health)
+        this.health = data.health;
 
       if (data.color)
         this.color = data.color;

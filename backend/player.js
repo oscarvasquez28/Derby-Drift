@@ -16,6 +16,7 @@ export default class Player {
             "name": 'playerNameSetByServer',
             "color": 0xFFFFFF * Math.random(),
             "id": 0,
+            "health": 100,
             // "position":  {x: 20 * Math.random() - 10, y: 5 * Math.random() + 20, z: 5 * Math.random()} ,
             "position": {
               chassis: { x: 0, y: 20, z: 0 },
