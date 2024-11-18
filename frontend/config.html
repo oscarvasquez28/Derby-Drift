@@ -8,6 +8,18 @@
   <title>Derby Drift</title>
 </head>
 <body>
+  <audio id="myAudio" loop>
+    <source src="psychosocial.mp3" type="audio/mpeg">
+    Tu navegador no soporta la reproducción de audio.
+  </audio>
+  <audio id="myAudio2" loop>
+    <source src="disparo.mp3" type="audio/mpeg">
+    Tu navegador no soporta la reproducción de audio.
+  </audio>
+  <audio id="myAudio3">
+    <source src="carro-loop.mp3" type="audio/mpeg">
+    Tu navegador no soporta la reproducción de audio.
+  </audio>
   <div class="container-fluid config-container">
     <div class="row config-row-container">
       <div class="config-container-title">
@@ -36,10 +48,10 @@
           <div class="container-fluid h-100">
             <div class="row config-container-audio-height">
               <div class="col-xl-6 col-md-6">
-                <h4>Master</h4>
+                <h4>Música</h4>
               </div>
               <div class="col-xl-6 col-md-6">
-                <input type="range" min="0" max="100" value="50">
+                <input id="masterVolume" type="range" min="0" max="100" value="50">
               </div>
             </div>
             <div class="row config-container-audio-height">
@@ -47,7 +59,7 @@
                 <h4>Efectos de sonido</h4>
               </div>
               <div class="col-xl-6 col-md-6">
-                <input type="range" min="0" max="100" value="50">
+                <input id="effectsVolume" type="range" min="0" max="100" value="50">
               </div>
             </div>
             <div class="row config-container-audio-height">
@@ -55,7 +67,7 @@
                 <h4>Sonido ambiental</h4>
               </div>
               <div class="col-xl-6 col-md-6">
-                <input type="range" min="0" max="100" value="50">
+                <input id="ambientVolume" type="range" min="0" max="100" value="50">
               </div>
             </div>
           </div>
@@ -164,6 +176,88 @@
       </div>
     </div>
   </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Reproducir el audio si está guardado como "true" en localStorage
+        if (localStorage.getItem('audioPlaying') === 'true') {
+        var audio = document.getElementById('myAudio');
+        audio.play().catch(function(error) {
+          console.log('Error al intentar reproducir el audio:', error);
+        });
+      }
+
+      // Control de volumen del audio master
+      var masterVolume = document.getElementById('masterVolume');
+      var audioMaster = document.getElementById('myAudio');
+
+      // Recuperar volumen desde localStorage
+      if (localStorage.getItem('masterVolume') !== null) {
+        masterVolume.value = localStorage.getItem('masterVolume');
+      }
+
+      // Función para actualizar el volumen del audio
+      function updateMasterVolume() {
+        audioMaster.volume = masterVolume.value / 100;
+        localStorage.setItem('masterVolume', masterVolume.value);  // Guardar volumen en localStorage
+      }
+
+      masterVolume.addEventListener('input', updateMasterVolume);
+      updateMasterVolume();  // Actualiza el volumen al cargar la página
+    });
+  </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('audioPlaying') === 'true') {
+          var audio = document.getElementById('myAudio2');
+          audio.play().catch(function(error) {
+            console.log('Error al intentar reproducir el audio:', error);
+          });
+        }
+          // Control de volumen de efectos
+      var effectsVolume = document.getElementById('effectsVolume');
+      var audioEffects = document.getElementById('myAudio2');
+
+      // Recuperar volumen de efectos desde localStorage
+      if (localStorage.getItem('effectsVolume') !== null) {
+        effectsVolume.value = localStorage.getItem('effectsVolume');
+      }
+
+      // Función para actualizar el volumen de efectos
+      function updateEffectsVolume() {
+        audioEffects.volume = effectsVolume.value / 100;
+        localStorage.setItem('effectsVolume', effectsVolume.value);  // Guardar volumen en localStorage
+      }
+
+      effectsVolume.addEventListener('input', updateEffectsVolume);
+      updateEffectsVolume();  // Actualiza el volumen de efectos al cargar la página
+      });
+    </script>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          if (localStorage.getItem('audioPlaying') === 'true') {
+            var audio = document.getElementById('myAudio3');
+            audio.play().catch(function(error) {
+              console.log('Error al intentar reproducir el audio:', error);
+            });
+          }
+          var ambientVolume = document.getElementById('ambientVolume');
+      var audioAmbient = document.getElementById('myAudio3');
+
+      // Recuperar volumen ambiental desde localStorage
+      if (localStorage.getItem('ambientVolume') !== null) {
+        ambientVolume.value = localStorage.getItem('ambientVolume');
+      }
+
+      // Función para actualizar el volumen ambiental
+      function updateAmbientVolume() {
+        audioAmbient.volume = ambientVolume.value / 100;
+        localStorage.setItem('ambientVolume', ambientVolume.value);  // Guardar volumen en localStorage
+      }
+
+      ambientVolume.addEventListener('input', updateAmbientVolume);
+      updateAmbientVolume();  // Actualiza el volumen ambiental al cargar la página
+        });
+      </script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="./config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

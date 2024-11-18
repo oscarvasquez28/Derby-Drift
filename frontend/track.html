@@ -17,6 +17,19 @@
     <title>Derby Drift Track</title>
 </head>
 <body>
+  <!-- Audio -->
+  <audio id="myAudio">
+    <source src="psychosocial.mp3" type="audio/mpeg">
+    Tu navegador no soporta la reproducción de audio.
+  </audio>
+  <audio id="myAudio2" loop>
+    <source src="carro-loop.mp3" type="audio/mpeg">
+    Tu navegador no soporta la reproducción de audio.
+  </audio>
+  <audio id="myAudio3">
+    <source src="disparo.mp3" type="audio/mpeg">
+    Tu navegador no soporta la reproducción de audio.
+  </audio>
     <div id="world-menu">
       <div class="container-fluid world-menu-container">
         <div class="row world-menu-rows">
@@ -35,5 +48,49 @@
       </div>
     </div>
 </body>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('audioPlaying') === 'true') {
+      var audio = document.getElementById('myAudio');
+      audio.play().catch(function(error) {
+        console.log('Error al intentar reproducir el audio:', error);
+      });
+    }
+    var audioMusic  = document.getElementById('myAudio');
+    if (localStorage.getItem('masterVolume') !== null) {
+      audioMusic.volume = localStorage.getItem('masterVolume') / 100;  // Establecer el volumen de audio 2
+    } else {
+      audioMusic.volume = 0.5;  // Valor predeterminado si no hay volumen guardado
+    }
+  });
+  document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('audioPlaying') === 'true') {
+      var audio = document.getElementById('myAudio2');
+      audio.play().catch(function(error) {
+        console.log('Error al intentar reproducir el audio:', error);
+      });
+    }
+    var audioAmbient  = document.getElementById('myAudio2');
+    if (localStorage.getItem('ambientVolume') !== null) {
+      audioAmbient.volume = localStorage.getItem('ambientVolume') / 100;  // Establecer el volumen de audio 2
+    } else {
+      audioAmbient.volume = 0.5;  // Valor predeterminado si no hay volumen guardado
+    }
+  });
+  document.addEventListener('keydown', function(event) {
+      if (event.key === 'r' || event.key === 'R') {
+        var audio = document.getElementById('myAudio3');
+        audio.play().catch(function(error) {
+          console.log('Error al intentar reproducir el audio:', error);
+        });
+      }
+      var effectsVolume = document.getElementById('myAudio3');
+      if (localStorage.getItem('effectsVolume') !== null) {
+        effectsVolume.volume = localStorage.getItem('effectsVolume') / 100;  // Establecer el volumen de audio 3
+    } else {
+      effectsVolume.volume = 0.5;  // Valor predeterminado si no hay volumen guardado
+    }
+    });
+</script>
 <script type="module" src="./scripts/track.js"></script>
 </html>
