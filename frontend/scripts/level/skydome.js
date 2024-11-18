@@ -4,6 +4,7 @@ export default class Skydome {
 
     constructor(scene){
         this.scene = scene;
+        this.clientPlayer = null;
     }
 
     initSkydome(){
@@ -20,6 +21,14 @@ export default class Skydome {
         this.skydome = skydome;
 
         this.scene.add(skydome);
+    }
+
+    update(){
+        this.skydome.rotation.y += 0.0001;
+        if (this.clientPlayer) {
+            const playerPosition = this.clientPlayer.getPlayerPosition();
+            this.skydome.position.set(playerPosition.x, playerPosition.y, playerPosition.z);
+        }
     }
 
 }

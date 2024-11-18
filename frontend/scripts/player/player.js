@@ -27,12 +27,16 @@ export default class Player {
   lookAtNormilized = { x: 0, y: 0, z: 0 };
   wheelScale = 2.4;
 
+  projectiles = []; // TODO Add projectiles from socket.on newProjectile method in level.js 
+
   debug = false; // Debug mode
   debugChassisScale = { x: 8, y: 1, z: 4 };
 
   constructor(scene) {
 
     this.name = "Incógnito";
+    this.initHealth = undefined;
+    this.health = undefined;
     this.color = 0x000000;
     this.id = -1;
     this.levelId = -1;
@@ -45,16 +49,21 @@ export default class Player {
 
     try {
 
+      if (data.id)
+        this.id = data.id;
+      else
+        throw "Cannot initialize player with an undefined id";
+
       if (data.name)
         this.name = data.name;
 
       if (data.color)
         this.color = data.color;
 
-      if (data.id)
-        this.id = data.id;
-      else
-        throw "Cannot initialize player with an undefined id";
+      if (data.health){
+        this.initHealth = data.health;
+        this.health = data.health;
+      }
 
       if (data.position && typeof data.position === 'object') {
         if (data.position.chassis && typeof data.position.chassis === 'object')
@@ -241,6 +250,13 @@ export default class Player {
 
       if (data.name)
         this.name = data.name;
+
+      if (data.health){
+        this.health = data.health;
+        if (this.health <= this.initHealth / 2){
+          //TODO Make the on fire effect using particle system
+        }
+      }
 
       if (data.color)
         this.color = data.color;

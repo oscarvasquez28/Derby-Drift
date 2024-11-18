@@ -139,4 +139,8 @@ export default class World {
     });
   }   
 
+  update(){
+    this.skydome.update();
+  }
+
 }

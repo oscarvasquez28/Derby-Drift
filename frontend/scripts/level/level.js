@@ -21,6 +21,8 @@ export default class Level {
 
     this.levelId = -1;
 
+    this.playerInitHealth = 100;
+
     this.initHeight = 10;
 
     this.projectiles = [];
@@ -57,6 +59,8 @@ export default class Level {
   }
 
   update() {
+
+    this.world.update();
 
     if (this.clientPlayer) {
       const playerPosition = this.clientPlayer.getPlayerPosition();
@@ -121,6 +125,7 @@ export default class Level {
     const clientPlayer = this.players.find(obj => obj.id === this.socket.id);
     if (clientPlayer) {
       this.clientPlayer = new ClientPlayer(clientPlayer);
+      this.world.skydome.clientPlayer = this.clientPlayer;
     }
   }
 
@@ -134,6 +139,7 @@ export default class Level {
         levelId: this.levelId,
         name: this.#genRandomName(),
         id: socket.id,
+        health: this.playerInitHealth,
         mesh: Math.random() < 0.5 ? 1 : undefined,
         position: {
         chassis: { x: 0, y: this.initHeight, z: 0 },
@@ -174,6 +180,20 @@ export default class Level {
         });
       });
 
+      socket.on('playerDestroyed', (data) => {
+        console.log("Recieved message from server: playerDestroyed\nPlayer: " + data.id + " was destroyed");
+        const destroyedPlayer = this.players.find(obj => obj.id === data.id);
+        if (destroyedPlayer) {
+          if (destroyedPlayer.id === this.clientPlayer.player.id) {
+            alert("You have been destroyed");
+            this.clientPlayer = null;
+          }
+          destroyedPlayer.removePlayer();
+          this.players = this.players.filter(obj => obj.id !== destroyedPlayer.id);
+          console.log("Player: " + destroyedPlayer.name + " ID:" + destroyedPlayer.id + " was removed from the scene");
+        }
+      });
+      
       socket.on('playerDisconnected', (id) => {
         console.log("Recieved message from server: playerDisconnected");
         const disconnectedPlayer = this.players.find(obj => obj.id === id);

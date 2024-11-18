@@ -23,7 +23,7 @@ export default class InputSystem {
                 }
             }
             if (event.key === 'm') {
-                if(this.collidedWithPlayer)
+                if (this.collidedWithPlayer)
                     alert('Player Has Collided With Another Player');
                 else
                     console.error('Player Has Not Collided With Another Player');
@@ -36,8 +36,8 @@ export default class InputSystem {
             this.pressedKeys.delete(event.key);
             this.updateInput(player, socket);
         });
-    
-        document.getElementById('world-resume-button').addEventListener('click', function() {
+
+        document.getElementById('world-resume-button').addEventListener('click', function () {
             const menu = document.getElementById('world-menu');
             menu.style.display = 'none';
         });
@@ -47,7 +47,7 @@ export default class InputSystem {
             console.log('Gamepad connected:', event.gamepad);
             this.pollGamepad(player, socket);
         });
-    
+
         window.addEventListener('gamepaddisconnected', (event) => {
             console.log('Gamepad disconnected:', event.gamepad);
         });
@@ -60,14 +60,13 @@ export default class InputSystem {
             type: 'keyboard',
             lookat: { x: 0, y: 0, z: 0 },
             inputs: {
-                up: this.pressedKeys.has('ArrowUp') || this.pressedKeys.has('w'),
-                down: this.pressedKeys.has('ArrowDown') || this.pressedKeys.has('s'),
-                right: this.pressedKeys.has('ArrowRight') || this.pressedKeys.has('d'),
-                left: this.pressedKeys.has('ArrowLeft') || this.pressedKeys.has('a'),
-                flip: this.pressedKeys.has('f'),
-                brake: this.pressedKeys.has('z'),
-                fire: this.pressedKeys.has(' '),
-                jump: this.pressedKeys.has(' '), // Space key
+                up: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).forward.toLowerCase() : 'w'),
+                down: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).backward.toLowerCase() : 's'),
+                left: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).left.toLowerCase() : 'a'),
+                right: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).right.toLowerCase() : 'd'),
+                fire: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).shoot.toLowerCase() : 'r'),
+                brake: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).drift.toLowerCase() : 'c'),
+                flip: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).flip.toLowerCase() : 'f'),
             },
         };
 
@@ -77,7 +76,7 @@ export default class InputSystem {
 
     pollGamepad(player, socket) {
         const gamepadIndex = 0;
-    
+
         const poll = () => {
             const gamepad = navigator.getGamepads()[gamepadIndex];
             if (gamepad) {
@@ -96,18 +95,18 @@ export default class InputSystem {
                         axes: gamepad.axes, // Joystick axes
                     }
                 };
-    
+
                 console.log(inputInfo.inputs);
                 socket.emit('input', inputInfo);
             }
-    
+
             requestAnimationFrame(poll);
         };
-    
+
         poll();
     }
 
-    collided(){
+    collided() {
         this.collidedWithPlayer = true;
     }
 
