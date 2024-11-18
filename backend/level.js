@@ -15,6 +15,9 @@ export default class Level {
         for (const id in this.players) {
             if (this.players.hasOwnProperty(id)) {
                 this.players[id].updateJson();
+                if (this.players[id].remove) {
+                    this.removePlayer(id);
+                }
             }
         }
         this.updateLevelProjectiles();
@@ -38,10 +41,33 @@ export default class Level {
         this.players[player.id] = new Player(this, this.world.getWorld(), player);
     }
 
+    handleMissileCollision(missileId, event) {
+        const missile = this.levelProjectiles.find(projectile => projectile.id === missileId);
+        if (missile) {
+            console.log('Collided with', event.body.id);
+            Socket.getIO().emit('missileCollision', {
+                id: this.id,
+                playerId: missile.player.id,
+                collidedWith: event.body.id,
+                position: missile.body.position,
+                quaternion: missile.body.quaternion
+            });
+            
+            const collidedPlayer = Object.values(this.players).find(player => player.getBody().chassis.id === event.body.id);
+            if (collidedPlayer) {
+                collidedPlayer.player.json.health -= missile.damage;
+                if (collidedPlayer.player.json.health <= 0) {
+                    Socket.getIO().emit('playerDestroyed', { id: collidedPlayer.player.json.id });
+                    collidedPlayer.remove = true;
+                }
+            }
+        }
+    }
+
     updateLevelProjectiles() {
         this.levelProjectiles.forEach(projectile => {
-            if (projectile.collided || !projectile) {
-                projectile.player.projectiles?.splice(projectile.player.projectiles.indexOf(projectile), 1);
+            if (projectile.remove) {
+                projectile.destroy();
             }
         });
         this.levelProjectiles = this.levelProjectiles.filter(projectile => !projectile.collided);
@@ -59,7 +85,8 @@ export default class Level {
 
     removePlayer(id) {
         if (this.players[id] == null) return;
-        this.world.getWorld().removeBody(this.players[id].getBody());
+        this.players[id].destroy();
+        // this.players[id].getBody().vehicle.removeFromWorld(this.world.getWorld());
         delete this.players[id];
     }
 

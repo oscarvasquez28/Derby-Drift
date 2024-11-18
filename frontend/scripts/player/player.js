@@ -248,8 +248,6 @@ export default class Player {
 
     try {
 
-      console.log(this.health);
-
       if (data.name)
         this.name = data.name;
 

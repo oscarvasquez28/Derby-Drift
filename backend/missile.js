@@ -8,15 +8,18 @@ export default class Missile {
         this.level = level;
         this.world = world;
         this.player = player;
+        this.chassis = this.player.player.body.chassis;
+        this.damage = 100;
         this.body = this.createMissile();
-        this.body.position.copy(this.player.position);
-        this.body.velocity.copy(this.player.velocity);
-        this.body.angularVelocity.copy(this.player.angularVelocity);
-        this.body.quaternion.copy(this.player.quaternion);
+        this.body.position.copy(this.chassis.position);
+        this.body.velocity.copy(this.chassis.velocity);
+        this.body.angularVelocity.copy(this.chassis.angularVelocity);
+        this.body.quaternion.copy(this.chassis.quaternion);
         this.body.position.vadd(new cannon.Vec3(0, 4, 0), this.body.position);
         this.body.applyLocalForce(new cannon.Vec3(100000, 0, 0), new cannon.Vec3(0, 0, 0));
         this.collided = false;
         this.collideListener = this.handleCollision.bind(this);
+        this.remove = false;
         this.body.addEventListener('collide', this.collideListener);
         this.startTimer(5000);
     }
@@ -37,15 +40,8 @@ export default class Missile {
     handleCollision(event) {
         this.body.removeEventListener('collide', this.collideListener);
         this.collided = true;
-        console.log('Collided with', event.body.id);
-        Socket.getIO().emit('missileCollision', {
-            id: this.id,
-            playerId: this.player.id,
-            collidedWith: event.body.id,
-            position: this.body.position,
-            quaternion: this.body.quaternion
-        });
-        delete this;
+        this.level.handleMissileCollision(this.id, event);
+        this.remove = true;
     }
 
     getJSON() {
@@ -63,14 +59,19 @@ export default class Missile {
 
     startTimer(duration) {
         setTimeout(() => {
-            this.world.removeBody(this.body);
-            this.level.levelProjectiles = this.level.levelProjectiles.filter(projectile => projectile.id !== this.id);
             console.log(`Missile ${this.id} has been removed after ${duration}ms`);
             Socket.getIO().emit('missileRemoved', {
                 id: this.id,
                 playerId: this.player.id
             });
-            delete this;
+            this.remove = true;
         }, duration);
+    }
+
+    destroy() {
+        this.world.removeBody(this.body);
+        this.level.levelProjectiles = this.level.levelProjectiles.filter(projectile => projectile.id !== this.id);
+        this.player.projectiles = this.player.projectiles.filter(projectile => projectile.id !== this.id);
+        delete this;
     }
 }

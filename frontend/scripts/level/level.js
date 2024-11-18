@@ -180,6 +180,20 @@ export default class Level {
         });
       });
 
+      socket.on('playerDestroyed', (data) => {
+        console.log("Recieved message from server: playerDestroyed\nPlayer: " + data.id + " was destroyed");
+        const destroyedPlayer = this.players.find(obj => obj.id === data.id);
+        if (destroyedPlayer) {
+          if (destroyedPlayer.id === this.clientPlayer.player.id) {
+            alert("You have been destroyed");
+            this.clientPlayer = null;
+          }
+          destroyedPlayer.removePlayer();
+          this.players = this.players.filter(obj => obj.id !== destroyedPlayer.id);
+          console.log("Player: " + destroyedPlayer.name + " ID:" + destroyedPlayer.id + " was removed from the scene");
+        }
+      });
+      
       socket.on('playerDisconnected', (id) => {
         console.log("Recieved message from server: playerDisconnected");
         const disconnectedPlayer = this.players.find(obj => obj.id === id);

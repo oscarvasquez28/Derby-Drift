@@ -11,7 +11,7 @@ export default class Player {
     isFlipping = false;
 
     constructor(level, world, player = null) {
-    
+
         const defaultPlayer = {
             "name": 'playerNameSetByServer',
             "color": 0xFFFFFF * Math.random(),
@@ -19,28 +19,30 @@ export default class Player {
             "health": 100,
             // "position":  {x: 20 * Math.random() - 10, y: 5 * Math.random() + 20, z: 5 * Math.random()} ,
             "position": {
-              chassis: { x: 0, y: 20, z: 0 },
-              wheels: {
-                frontLeft: { x: 0, y: 0, z: 0 },
-                frontRight: { x: 0, y: 0, z: 0 },
-                backLeft: { x: 0, y: 0, z: 0 },
-                backRight: { x: 0, y: 0, z: 0 }
-              }
+                chassis: { x: 0, y: 20, z: 0 },
+                wheels: {
+                    frontLeft: { x: 0, y: 0, z: 0 },
+                    frontRight: { x: 0, y: 0, z: 0 },
+                    backLeft: { x: 0, y: 0, z: 0 },
+                    backRight: { x: 0, y: 0, z: 0 }
+                }
             },
             "rotation": {
-              chassis: { x: 0, y: 0, z: 0, w: 0 },
-              wheels: {
-                frontLeft: { x: 0, y: 0, z: 0, w: 0 },
-                frontRight: { x: 0, y: 0, z: 0, w: 0 },
-                backLeft: { x: 0, y: 0, z: 0, w: 0 },
-                backRight: { x: 0, y: 0, z: 0, w: 0 },
-              }
+                chassis: { x: 0, y: 0, z: 0, w: 0 },
+                wheels: {
+                    frontLeft: { x: 0, y: 0, z: 0, w: 0 },
+                    frontRight: { x: 0, y: 0, z: 0, w: 0 },
+                    backLeft: { x: 0, y: 0, z: 0, w: 0 },
+                    backRight: { x: 0, y: 0, z: 0, w: 0 },
+                }
             }
         }
 
         this.level = level;
         this.world = world;
         this.projectiles = [];
+        this.remove = false;
+        this.shotProjectile = false;
         this.player = {
             json: player ? player : defaultPlayer,
             body: this.initPlayer(player ? player : defaultPlayer)
@@ -48,7 +50,7 @@ export default class Player {
 
     }
 
-    initPlayer(player){
+    initPlayer(player) {
         return this.createPlayerCar(player);
     }
 
@@ -127,10 +129,10 @@ export default class Player {
             vehicle: vehicle,
             chassis: vehicle.chassisBody,
             wheels: {
-            frontLeft: vehicle.getWheelTransformWorld(0),
-            frontRight: vehicle.getWheelTransformWorld(1),
-            backLeft: vehicle.getWheelTransformWorld(2),
-            backRight: vehicle.getWheelTransformWorld(3),
+                frontLeft: vehicle.getWheelTransformWorld(0),
+                frontRight: vehicle.getWheelTransformWorld(1),
+                backLeft: vehicle.getWheelTransformWorld(2),
+                backRight: vehicle.getWheelTransformWorld(3),
             },
         }
 
@@ -147,33 +149,33 @@ export default class Player {
     addWheelsToVehicle(vehicle, wheelHeight = 0, wheelRadius = 0.5) {
 
         var options = {
-          radius: wheelRadius,
-          directionLocal: new cannon.Vec3(0, -1, 0),
-          suspensionStiffness: 30,
-          suspensionRestLength: 0.3,
-          frictionSlip: 5,
-          dampingRelaxation: 2.3,
-          dampingCompression: 4.4,
-          maxSuspensionForce: 100000,
-          rollInfluence:  0.01,
-          axleLocal: new cannon.Vec3(0, 0, 1),
-          chassisConnectionPointLocal: new cannon.Vec3(1, 1, 0),
-          maxSuspensionTravel: 9999,
-          customSlidingRotationalSpeed: -30,
-          useCustomSlidingRotationalSpeed: true
+            radius: wheelRadius,
+            directionLocal: new cannon.Vec3(0, -1, 0),
+            suspensionStiffness: 30,
+            suspensionRestLength: 0.3,
+            frictionSlip: 5,
+            dampingRelaxation: 2.3,
+            dampingCompression: 4.4,
+            maxSuspensionForce: 100000,
+            rollInfluence: 0.01,
+            axleLocal: new cannon.Vec3(0, 0, 1),
+            chassisConnectionPointLocal: new cannon.Vec3(1, 1, 0),
+            maxSuspensionTravel: 9999,
+            customSlidingRotationalSpeed: -30,
+            useCustomSlidingRotationalSpeed: true
         }
-      
+
         options.chassisConnectionPointLocal.set(2.8, wheelHeight, 2.5);
         vehicle.isFrontWheel = true;
         vehicle.addWheel(options);
-      
+
         options.chassisConnectionPointLocal.set(2.8, wheelHeight, -2.5);
         vehicle.addWheel(options);
-      
+
         options.chassisConnectionPointLocal.set(-3.6, wheelHeight, -2.5);
         vehicle.isFrontWheel = false;
         vehicle.addWheel(options);
-      
+
         options.chassisConnectionPointLocal.set(-3.6, wheelHeight, 2.5);
         vehicle.addWheel(options);
     }
@@ -228,11 +230,11 @@ export default class Player {
                 vehicle.setBrake(this.BRAKE_FORCE, 1);
             }
 
-            if(data.inputs.flip) {
+            if (data.inputs.flip) {
                 this.flipCar();
             }
 
-            if(data.inputs.fire) {
+            if (data.inputs.fire) {
                 this.fireProjectile();
             }
 
@@ -277,8 +279,8 @@ export default class Player {
             const wheelQuaternion = wheelTransform.quaternion;
 
             const wheelKey = i === 0 ? 'frontLeft' :
-                     i === 1 ? 'frontRight' :
-                     i === 2 ? 'backLeft' : 'backRight';
+                i === 1 ? 'frontRight' :
+                    i === 2 ? 'backLeft' : 'backRight';
 
             this.player.json.position.wheels[wheelKey] = {
                 x: wheelPosition.x,
@@ -298,7 +300,7 @@ export default class Player {
 
     fireProjectile() {
         console.log('Firing projectile from player id:', this.player.json.id);
-        const missile = new Missile(this.level, this.world, this.player.body.chassis);
+        const missile = new Missile(this.level, this.world, this);
         this.projectiles.push(missile);
         this.shotProjectile = true;
     }
