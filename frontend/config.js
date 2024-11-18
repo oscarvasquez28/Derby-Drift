@@ -37,7 +37,8 @@ const defaultControls = {
   left: 'A',
   right: 'D',
   shoot: 'R',
-  drift: 'C'
+  drift: 'C',
+  flip: 'F',
 };
 
 // Load controls from localStorage or use defaults
@@ -49,6 +50,7 @@ function loadControls() {
   document.querySelector('#right').value = controls.right;
   document.querySelector('#shoot').value = controls.shoot;
   document.querySelector('#drift').value = controls.drift;
+  document.querySelector('#flip').value = controls.flip;
 }
 
 loadControls();
@@ -61,7 +63,8 @@ function saveControls() {
     left: document.querySelector('#left').value,
     right: document.querySelector('#right').value,
     shoot: document.querySelector('#shoot').value,
-    drift: document.querySelector('#drift').value
+    drift: document.querySelector('#drift').value,
+    flip: document.querySelector('#flip').value,    
   };
   localStorage.setItem('controls', JSON.stringify(controls));
 }
