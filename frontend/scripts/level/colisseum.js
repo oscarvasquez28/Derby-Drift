@@ -4,7 +4,7 @@ import Level from './level.js';
 export default class Colisseum extends Level {
 
     constructor() {
-        super('textures/heightmap.jpg', 0x796B5C);
+        super('textures/heightmap.jpg', 0x796B5C, 3);
         this.levelId = 0;
     }
 
@@ -17,13 +17,15 @@ export default class Colisseum extends Level {
         // Inicializar con rotación y posición en personalizadas
         this.dobeto = new ObjModel(this.levelScene, 'models/PORFAVOR.obj', 'models/PORFAVOR.mtl', false);
         await this.dobeto.initModel().then((mesh) => {
-          mesh.position.y = 25;
-          mesh.position.x = -135;
-          mesh.position.z = -135;
-          mesh.scale.set(15, 15, 15);
+          mesh.position.y = 50;
+          mesh.position.x = -350;
+          mesh.position.z = -350;
+          mesh.scale.set(50, 50, 50);
           mesh.rotation.y = -125 * Math.PI / 180;
         });
     
+        const scale = 10;        
+
         this.colliseum = {
           rails: new ObjModel(this.levelScene, 'models/Colliseum/ColliseumRails.obj', 'models/Colliseum/ColliseumRails.mtl', false),
           seats: new ObjModel(this.levelScene, 'models/Colliseum/ColliseumSeats.obj', 'models/Colliseum/ColliseumSeats.mtl', false),
@@ -34,19 +36,19 @@ export default class Colisseum extends Level {
           mesh.position.x = 10;
           mesh.position.y = 13;
           mesh.position.z = 0;
-          mesh.scale.set(3.3, 3.3, 3.3);
+          mesh.scale.set(scale, scale, scale);
         });
         this.colliseum.seats.initModel().then((mesh) => {
           mesh.position.x = 10;
           mesh.position.y = 13;
           mesh.position.z = 0;
-          mesh.scale.set(3.3, 3.3, 3.3);
+          mesh.scale.set(scale, scale, scale);
         });
         this.colliseum.walls.initModel().then((mesh) => {
           mesh.position.x = 10;
           mesh.position.y = 13;
           mesh.position.z = 0;
-          mesh.scale.set(3.3, 3.3, 3.3);
+          mesh.scale.set(scale, scale, scale);
         });
     
         this.models.push(this.dobeto);

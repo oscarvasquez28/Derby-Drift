@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
-const FPS = 144;
+const FPS = 400;
 
 const app = express();
 
@@ -61,7 +61,7 @@ const levelEnum = {
   1: 'track',
 }
 
-const levels = [new Level(), new Level('./public/models/Track/TrackHeightMap.png', 2)];
+const levels = [new Level(null, 3), new Level('./public/models/Track/TrackHeightMap.png', 2)];
 
 // Manejar las conexiones de socket.io
 io.on('connection', (socket) => {
