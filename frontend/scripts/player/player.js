@@ -27,6 +27,8 @@ export default class Player {
   lookAtNormilized = { x: 0, y: 0, z: 0 };
   wheelScale = 2.4;
 
+  projectiles = []; // TODO Add projectiles from socket.on newProjectile method in level.js 
+
   debug = false; // Debug mode
   debugChassisScale = { x: 8, y: 1, z: 4 };
 

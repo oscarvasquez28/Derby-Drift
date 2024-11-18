@@ -39,6 +39,7 @@ export default class Player {
 
         this.level = level;
         this.world = world;
+        this.projectiles = [];
         this.player = {
             json: player ? player : defaultPlayer,
             body: this.initPlayer(player ? player : defaultPlayer)
@@ -296,9 +297,6 @@ export default class Player {
 
     fireProjectile() {
         console.log('Firing projectile from player id:', this.player.json.id);
-        if (!this.projectiles) {
-            this.projectiles = [];
-        }
         const missile = new Missile(this.level, this.world, this.player.body.chassis);
         this.projectiles.push(missile);
         this.shotProjectile = true;
