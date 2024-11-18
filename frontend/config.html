@@ -100,7 +100,7 @@
                 <h4>Adelante</h4>
               </div>
               <div class="col-xl-6 config-controles">
-                <input type="text" value="W" maxlength="1">
+                <input type="text" id="forward" maxlength="1">
               </div>
             </div>
             <div class="row config-container-controles-height">
@@ -108,7 +108,7 @@
                 <h4>Atrás</h4>
               </div>
               <div class="col-xl-6 config-controles">
-                <input type="text" value="S" maxlength="1">
+                <input type="text" id="backward" maxlength="1">
               </div>
             </div>
             <div class="row config-container-controles-height">
@@ -116,7 +116,7 @@
                 <h4>Izquierda</h4>
               </div>
               <div class="col-xl-6 config-controles">
-                <input type="text" value="A" maxlength="1">
+                <input type="text" id="left" maxlength="1">
               </div>
             </div>
             <div class="row config-container-controles-height">
@@ -124,7 +124,7 @@
                 <h4>Derecha</h4>
               </div>
               <div class="col-xl-6 config-controles">
-                <input type="text" value="D" maxlength="1">
+                <input type="text" id="right" maxlength="1">
               </div>
             </div>
             <div class="row config-container-controles-height">
@@ -132,7 +132,7 @@
                 <h4>Disparar</h4>
               </div>
               <div class="col-xl-6 config-controles">
-                <input type="text" value="R" maxlength="1">
+                <input type="text" id="shoot" maxlength="1">
               </div>
             </div>
             <div class="row config-container-controles-height">
@@ -140,7 +140,15 @@
                 <h4>Drift</h4>
               </div>
               <div class="col-xl-6 config-controles">
-                <input type="text" value="C" maxlength="1">
+                <input type="text" id="drift" maxlength="1">
+              </div>
+            </div>
+            <div class="row config-container-controles-height">
+              <div class="col-xl-6 config-controles">
+                <input class="w-auto" type="button" id="btn-guardar" value="Guardar">
+              </div>
+              <div class="col-xl-6 config-controles">
+                <input class="w-auto" type="button" id="btn-reset" value="Restaurar a predefinidos">
               </div>
             </div>
           </div>
@@ -148,6 +156,7 @@
       </div>
     </div>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="./config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>

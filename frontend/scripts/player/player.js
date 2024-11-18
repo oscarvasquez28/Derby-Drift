@@ -253,8 +253,12 @@ export default class Player {
       if (data.name)
         this.name = data.name;
 
-      if (data.health)
+      if (data.health){
         this.health = data.health;
+        if (this.health <= this.initHealth / 2){
+          //TODO Make the on fire effect using particle system
+        }
+      }
 
       if (data.color)
         this.color = data.color;
