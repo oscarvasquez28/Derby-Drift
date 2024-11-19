@@ -106,6 +106,12 @@ document.getElementById('fps').addEventListener('change', function() {
 
 document.getElementById('fps').value = localStorage.getItem('FPS') || 60;
 
+document.getElementById('showFPS').addEventListener('change', function() {
+  localStorage.setItem('showFPS', this.checked);
+});
+
+document.getElementById('showFPS').checked = JSON.parse(localStorage.getItem('showFPS')) || false;
+
 document.getElementById('btn-reset').addEventListener('click', function() {
   Swal.fire({
     icon: 'question',
