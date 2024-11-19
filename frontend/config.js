@@ -100,6 +100,12 @@ document.querySelectorAll('.config-controles input').forEach(input => {
   });
 });
 
+document.getElementById('fps').addEventListener('change', function() {
+  localStorage.setItem('FPS', parseInt(this.value, 10));
+});
+
+document.getElementById('fps').value = localStorage.getItem('FPS') || 60;
+
 document.getElementById('btn-reset').addEventListener('click', function() {
   Swal.fire({
     icon: 'question',

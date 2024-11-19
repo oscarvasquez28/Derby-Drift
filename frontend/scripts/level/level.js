@@ -4,7 +4,7 @@ import ClientPlayer from "../player/clientPlayer.js"
 import Connection from "../../connection.js"
 import Missile from "../player/Missile.js"
 
-const FPS = 60;
+const FPS = localStorage.getItem('FPS') || 60;
 
 export default class Level {
 
