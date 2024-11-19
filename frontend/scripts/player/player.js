@@ -215,6 +215,23 @@ export default class Player {
       this.mesh.wheels.backRight.position.set(this.#position.wheels.backLeft.x, this.#position.wheels.backLeft.y, this.#position.wheels.backLeft.z);
       this.mesh.wheels.backRight.quaternion.copy(this.#rotation.wheels.backRight);
 
+      // Añadir un foco al frente del coche
+      let spotlight = new THREE.SpotLight(0xffffff, .2);
+      spotlight.position.set(3, 5, 3); // Ajustar la posición según sea necesario
+      spotlight.target.position.set(10, 0, 0); // Apuntando hacia adelante
+      spotlight.angle = Math.PI / 4; // Reducir el ángulo del cono de luz
+      spotlight.penumbra = 0.1; // Ajustar la penumbra si es necesario
+      this.mesh.chassis.add(spotlight);
+      this.mesh.chassis.add(spotlight.target);
+      // Repetimos para el otro lado
+      spotlight = new THREE.SpotLight(0xffffff, .2);
+      spotlight.position.set(3, 5, -3);
+      spotlight.target.position.set(10, 0, 0);
+      spotlight.angle = Math.PI / 4;
+      spotlight.penumbra = 0.1;
+      this.mesh.chassis.add(spotlight);
+      this.mesh.chassis.add(spotlight.target);
+
       this.nametag = new NameTag(this, this.scene);
       return true;
 

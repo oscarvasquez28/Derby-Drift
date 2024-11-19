@@ -31,6 +31,9 @@ export default class World {
 
     this.sun = new THREE.DirectionalLight(SUN_LIGHT_COLOR, 1);
 
+    // Propiedad para el ciclo día-noche
+    this.elapsedTime = 30;
+    this.FPS = parseFloat(localStorage.getItem('FPS')) || 60;
   }
 
   initWorld(){      
@@ -154,6 +157,15 @@ export default class World {
     if(!this.clientPlayer?.alive){
       this.controls.update();
     }
+
+    // Actualizamos el tiempo transcurrido
+    const deltaTime = 1 / this.FPS;
+    this.elapsedTime += deltaTime;
+
+    // Calculamos la intensidad del sol basado en el tiempo transcurrido
+    const dayDuration = 120; // Duración de un día en segundos
+    const sunIntensity = Math.abs(Math.sin((this.elapsedTime / dayDuration) * Math.PI * 2));
+    this.sun.intensity = sunIntensity;
   }
 
 }

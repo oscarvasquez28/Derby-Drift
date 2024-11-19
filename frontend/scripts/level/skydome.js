@@ -12,7 +12,7 @@ export default class Skydome {
         const textureLoader = new THREE.TextureLoader();
         const skyTexture = textureLoader.load('textures/skydome.jpg');
 
-        const skyGeometry = new THREE.SphereGeometry(1000, 60, 40);
+        const skyGeometry = new THREE.SphereGeometry(900, 60, 40);
         const skyMaterial = new THREE.MeshBasicMaterial({
         map: skyTexture,
         side: THREE.BackSide
