@@ -1,6 +1,7 @@
 import CannonWorld from "./cannonWorld.js";
 import Player from "./player.js";
 import Socket from "./socket.js";
+import Database from "./database.js";
 
 export default class Level {
 
@@ -8,6 +9,7 @@ export default class Level {
         this.world = new CannonWorld(heightMapPath, worldScale);
         this.players = {};
         this.levelProjectiles = [];
+        this.db = Database.getDb();
     }
 
     step() {
@@ -60,7 +62,7 @@ export default class Level {
             const collidedPlayer = Object.values(this.players).find(player => player.getBody().chassis.id === event.body.id);
             if (collidedPlayer) {
                 missile.player.addScore();
-                collidedPlayer.takeDamage(missile.damage, "Player was hit by missile from player: " + missile.player.getJson().name); 
+                collidedPlayer.takeDamage(missile.damage, "Player was hit by missile from player: " + missile.player.getJson().name);
             }
         }
     }

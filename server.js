@@ -1,5 +1,6 @@
 import express from 'express';
-import mysql from 'mysql2';
+import bodyParser from 'body-parser';
+import Database from './backend/database.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import Socket from './backend/socket.js';
@@ -19,7 +20,7 @@ Socket.initSocket(server);
 const io = Socket.getIO();
 
 // Configuración de la base de datos MySQL
-const db = mysql.createConnection({
+const db = Database.initConnection({
   host: 'localhost',
   user: 'root',
   password: '',
@@ -36,6 +37,8 @@ db.connect((err) => {
 });
 
 app.use(express.static(path.join(__dirname, 'frontend')));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Definir ruta del servidor
 app.get('/redirect', (_, res) => {
@@ -53,6 +56,7 @@ app.get('/players', (req, res) => {
 });
 
 app.post('/setHighscore', (req, res) => {
+  console.log(req);
   const { email, name, highscore } = req.body;
 
   if (!email || !name || !highscore) {
@@ -65,11 +69,18 @@ app.post('/setHighscore', (req, res) => {
     }
 
     if (results.length > 0) {
-      db.query('UPDATE players SET highscore = ? WHERE email = ?', [highscore, email], (err) => {
-        if (err) {
-          return res.status(500).json({ error: err.message });
+      results.forEach((player) => {
+        if (player.highscore >= parseInt(highscore)) {
+          return res.json({ message: 'Highscore not updated' });
         }
-        res.json({ message: 'Highscore updated successfully' });
+        else{
+          db.query('UPDATE players SET highscore = ? WHERE email = ?', [highscore, email], (err) => {
+            if (err) {
+              return res.status(500).json({ error: err.message });
+            }
+            res.json({ message: 'Highscore updated successfully' });
+          });
+        }
       });
     } else {
       db.query('INSERT INTO players (email, name, highscore) VALUES (?, ?, ?)', [email, name, highscore], (err) => {

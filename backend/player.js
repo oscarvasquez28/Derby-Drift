@@ -1,6 +1,7 @@
 import * as cannon from 'cannon-es';
 import Missile from './missile.js';
 import Socket from './socket.js';
+import Database from './database.js';
 
 export default class Player {
 
@@ -13,6 +14,7 @@ export default class Player {
     constructor(level, world, player = null) {
 
         const defaultPlayer = {
+            "email": 'playerEmailSetByServer',
             "name": 'playerNameSetByServer',
             "color": 0xFFFFFF * Math.random(),
             "id": 0,
@@ -42,6 +44,7 @@ export default class Player {
         this.level = level;
         this.world = world;
         this.projectiles = [];
+        this.db = Database.getDb();
         this.remove = false;
         this.shotProjectile = false;
         this.player = {
@@ -341,6 +344,29 @@ export default class Player {
     }
 
     destroy() {
+        if (this.db){
+            const player = this.player.json;
+            if (player.email){
+                this.db.query('SELECT * FROM players WHERE email = ?', [player.email], (err, results) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    if (results.length > 0) {
+                        results.forEach((dbPlayer) => {
+                            if (dbPlayer.highscore < player.score) {
+                                this.db.query('UPDATE players SET highscore = ? WHERE email = ?', [player.score, player.email]);
+                            }
+                        });
+                    } else {
+                        this.db.query('INSERT INTO players (email, name, highscore) VALUES (?, ?, ?)', [player.email, player.name, player.score]);
+                    }
+                });
+            }
+            else {
+                this.db.query('INSERT INTO players (email, name, highscore) VALUES (?, ?, ?)', ['Anonymus', player.name, player.score]);
+            }
+
+        }
         if (this.player.body?.vehicle) {
             this.player.body.vehicle.removeFromWorld(this.world);
         }

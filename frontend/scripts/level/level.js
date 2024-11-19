@@ -137,6 +137,7 @@ export default class Level {
 
       const playerInfo = {
         levelId: this.levelId,
+        email: sessionStorage.getItem('userEmail') || undefined,
         name: this.#genRandomName(),
         id: socket.id,
         health: this.playerInitHealth,
@@ -188,6 +189,7 @@ export default class Level {
           if (destroyedPlayer.id === this.clientPlayer.player.id) {
             alert("You have been destroyed: " + data.cause);
             this.clientPlayer.alive = false;
+            this.showLostScreen();
           }
           destroyedPlayer.removePlayer();
           this.players = this.players.filter(obj => obj.id !== destroyedPlayer.id);
@@ -253,6 +255,22 @@ export default class Level {
 
     });
 
+  }
+
+  showLostScreen() {
+    const lostScreen = document.getElementById('lost-screen');
+    const spectateBtn = document.getElementById('spectate-button');
+    const restartBtn = document.getElementById('restart-button');
+
+    lostScreen.style.display = 'flex';
+    spectateBtn.addEventListener('click', () => {
+      lostScreen.style.display = 'none';
+    });
+    restartBtn.addEventListener('click', () => {
+      this.restartScene();
+      lostScreen.style.display = 'none';
+      window.location.reload();
+    });
   }
 
   updateMissiles(missilesData) {
