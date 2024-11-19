@@ -137,4 +137,3 @@ document.getElementById('btn-guardar').addEventListener('click', function() {
     title: 'Controles guardados',
   });
 });
-
