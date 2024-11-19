@@ -1,4 +1,5 @@
 import express from 'express';
+import mysql from 'mysql2';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import Socket from './backend/socket.js';
@@ -17,11 +18,68 @@ const server = http.createServer(app);
 Socket.initSocket(server);
 const io = Socket.getIO();
 
+// Configuración de la base de datos MySQL
+const db = mysql.createConnection({
+  host: 'localhost:3306',
+  user: 'root',
+  password: '',
+  database: 'derbyDrift'
+});
+
+// Conectar a la base de datos
+db.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database:', err.stack);
+    return;
+  }
+  console.log('Connected to MySQL with id ' + db.threadId);
+});
+
 app.use(express.static(path.join(__dirname, 'frontend')));
 
 // Definir ruta del servidor
 app.get('/redirect', (_, res) => {
   res.sendFile(path.join(process.cwd(), "frontend", "index.html"));
+});
+
+// Ruta para obtener datos desde MySQL
+app.get('/players', (req, res) => {
+  db.query('SELECT * FROM players', (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(results);
+  });
+});
+
+app.post('/setHighscore', (req, res) => {
+  const { email, name, highscore } = req.body;
+
+  if (!email || !name || !highscore) {
+    return res.status(400).json({ error: 'Email, name, and highscore are required' });
+  }
+
+  db.query('SELECT * FROM players WHERE email = ?', [email], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (results.length > 0) {
+      db.query('UPDATE players SET highscore = ? WHERE email = ?', [highscore, email], (err) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        res.json({ message: 'Highscore updated successfully' });
+      });
+    } else {
+      db.query('INSERT INTO players (email, name, highscore) VALUES (?, ?, ?)', [email, name, highscore], (err) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        res.json({ message: 'Player created and highscore set successfully' });
+      });
+    }
+  });
 });
 
 app.get('/*.jpg', (req, res) => {

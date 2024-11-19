@@ -16,6 +16,7 @@
     "canvas": "^2.11.2",
     "express": "^4.19.2",
     "gapi-script": "^1.2.0",
+    "mysql2": "^3.11.4",
     "socket.io": "^4.7.5",
     "socketio": "^1.0.0",
     "uuid": "^11.0.2",
