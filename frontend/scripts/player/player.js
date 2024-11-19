@@ -92,64 +92,14 @@ export default class Player {
       }
       console.log(data.mesh);
       // Si se proporciona un modelo será utilizado, de lo contrario se mostrará una vehículo básico por defecto
-      if (!data.mesh) {
+      if (data.mesh) {
         if (!this.debug) {
-          const carModel = new ObjModel(this.scene, 'models/Car2/Car2.obj', 'models/Car2/Car2.mtl', false)
+          const model = data.mesh === 1 ? 'Car1' : 'Car2';
+          const scale = data.mesh === 1 ? 1.5 : 2;
+          const carModel = new ObjModel(this.scene, 'models/'+model+'/'+model+'.obj', 'models/'+model+'/'+model+'.mtl', false)
           await carModel.initModel().then((mesh) => {
             this.mesh.chassis = mesh;
-            this.mesh.chassis.scale.set(2, 2, 2);
-          });
-        } else {
-          this.mesh.chassis = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
-          this.mesh.chassis.scale.set(this.debugChassisScale.x, this.debugChassisScale.y, this.debugChassisScale.z);
-        }
-
-        this.mesh.chassis.castShadow = true;
-        this.mesh.chassis.recieveShadow = true;
-        this.mesh.wheels = {
-          frontLeft: null,
-          frontRight: null,
-          backLeft: null,
-          backRight: null,
-        };
-        const FrontLeft = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
-        await FrontLeft.initModel().then((mesh) => {
-          this.mesh.wheels.frontLeft = mesh;
-          this.mesh.wheels.frontLeft.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
-        });
-        const FrontRight = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
-        await FrontRight.initModel().then((mesh) => {
-          this.mesh.wheels.frontRight = mesh;
-          this.mesh.wheels.frontRight.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
-        });
-        const BackLeft = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
-        await BackLeft.initModel().then((mesh) => {
-          this.mesh.wheels.backLeft = mesh;
-          this.mesh.wheels.backLeft.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
-        });
-        const BackRight = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
-        await BackRight.initModel().then((mesh) => {
-          this.mesh.wheels.backRight = mesh;
-          this.mesh.wheels.backRight.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
-        });
-        this.mesh.wheels.frontLeft.castShadow = true;
-        this.mesh.wheels.frontLeft.recieveShadow = true;
-        this.mesh.wheels.frontLeft.rotation.isEuler = false;
-        this.mesh.wheels.frontRight.castShadow = true;
-        this.mesh.wheels.frontRight.recieveShadow = true;
-        this.mesh.wheels.frontRight.rotation.isEuler = false;
-        this.mesh.wheels.backLeft.castShadow = true;
-        this.mesh.wheels.backLeft.recieveShadow = true;
-        this.mesh.wheels.backLeft.rotation.isEuler = false;
-        this.mesh.wheels.backRight.castShadow = true;
-        this.mesh.wheels.backRight.recieveShadow = true;
-        this.mesh.wheels.backRight.rotation.isEuler = false;
-      } else {
-        if (!this.debug) {
-          const carModel = new ObjModel(this.scene, 'models/Car1/Car1.obj', 'models/Car1/Car1.mtl', false)
-          await carModel.initModel().then((mesh) => {
-            this.mesh.chassis = mesh;
-            this.mesh.chassis.scale.set(1.5, 1.5, 1.5);
+            this.mesh.chassis.scale.set(scale, scale, scale);
             this.mesh.chassis.castShadow = true;
             this.mesh.chassis.recieveShadow = true;
           });
