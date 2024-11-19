@@ -33,19 +33,19 @@ export default class Colisseum extends Level {
         }
     
         this.colliseum.rails.initModel().then((mesh) => {
-          mesh.position.x = 10;
+          mesh.position.x = 30;
           mesh.position.y = 13;
           mesh.position.z = 0;
           mesh.scale.set(scale, scale, scale);
         });
         this.colliseum.seats.initModel().then((mesh) => {
-          mesh.position.x = 10;
+          mesh.position.x = 30;
           mesh.position.y = 13;
           mesh.position.z = 0;
           mesh.scale.set(scale, scale, scale);
         });
         this.colliseum.walls.initModel().then((mesh) => {
-          mesh.position.x = 10;
+          mesh.position.x = 30;
           mesh.position.y = 13;
           mesh.position.z = 0;
           mesh.scale.set(scale, scale, scale);
