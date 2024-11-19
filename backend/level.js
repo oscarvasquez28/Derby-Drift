@@ -115,4 +115,8 @@ export default class Level {
         return this.players.length;
     }
 
+    getWorld() {
+        return this.world.getWorld();
+    }
+
 }

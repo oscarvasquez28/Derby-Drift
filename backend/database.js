@@ -7,7 +7,7 @@ export default class Database {
         if (this.db != null) {
             throw new Error('Database connection already initialized');
         }
-        this.db = mysql.createConnection(connectionSettings);
+        this.db = mysql.createPool(connectionSettings);
         return this.db;
     }
 

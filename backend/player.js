@@ -346,24 +346,49 @@ export default class Player {
     destroy() {
         if (this.db){
             const player = this.player.json;
-            if (player.email){
-                this.db.query('SELECT * FROM players WHERE email = ?', [player.email], (err, results) => {
-                    if (err) {
-                        console.log(err);
-                    }
-                    if (results.length > 0) {
-                        results.forEach((dbPlayer) => {
-                            if (dbPlayer.highscore < player.score) {
-                                this.db.query('UPDATE players SET highscore = ? WHERE email = ?', [player.score, player.email]);
+            if(player.score > 0){
+                if (player.email){
+                    this.db.getConnection((err, connection) => {
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
+                        connection.query('SELECT * FROM players WHERE email = ?', [player.email], (err, results) => {
+                            if (err) {
+                                console.log(err);
+                                connection.release();
+                                return;
+                            }
+                            if (results.length > 0) {
+                                results.forEach((dbPlayer) => {
+                                    if (dbPlayer.highscore < player.score) {
+                                        connection.query('UPDATE players SET highscore = ? WHERE email = ?', [player.score, player.email], (err) => {
+                                            if (err) console.log(err);
+                                            connection.release();
+                                        });
+                                    }
+                                });
+                            } else {
+                                connection.query('INSERT INTO players (email, name, highscore) VALUES (?, ?, ?)', [player.email, player.name, player.score], (err) => {
+                                    if (err) console.log(err);
+                                    connection.release();
+                                });
                             }
                         });
-                    } else {
-                        this.db.query('INSERT INTO players (email, name, highscore) VALUES (?, ?, ?)', [player.email, player.name, player.score]);
-                    }
-                });
-            }
-            else {
-                this.db.query('INSERT INTO players (email, name, highscore) VALUES (?, ?, ?)', ['Anonymus', player.name, player.score]);
+                    });
+                }
+                else {
+                    this.db.getConnection((err, connection) => {
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
+                        connection.query('INSERT INTO players (name, highscore) VALUES (?, ?)', [player.name, player.score], (err) => {
+                            if (err) console.log(err);
+                            connection.release();
+                        });
+                    });
+                }
             }
 
         }
