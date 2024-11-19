@@ -33,19 +33,19 @@ export default class Colosseum extends Level {
         }
     
         this.colosseum.rails.initModel().then((mesh) => {
-          mesh.position.x = 30;
+          mesh.position.x = 0;
           mesh.position.y = 13;
           mesh.position.z = 0;
           mesh.scale.set(scale, scale, scale);
         });
         this.colosseum.seats.initModel().then((mesh) => {
-          mesh.position.x = 30;
+          mesh.position.x = 0;
           mesh.position.y = 13;
           mesh.position.z = 0;
           mesh.scale.set(scale, scale, scale);
         });
         this.colosseum.walls.initModel().then((mesh) => {
-          mesh.position.x = 30;
+          mesh.position.x = 0;
           mesh.position.y = 13;
           mesh.position.z = 0;
           mesh.scale.set(scale, scale, scale);

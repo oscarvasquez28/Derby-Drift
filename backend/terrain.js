@@ -54,7 +54,7 @@ export default class Terrain {
 
         floor.position.set(-sideSize / 2, 0, sideSize / 2); // Centrar el terreno
         floor.quaternion.setFromEuler(-Math.PI / 2, 0, 0); // Rotar el suelo -90 grados en el eje X
-        world.bodies.at(0)?.pop();
+        // world.bodies.at(0)?.pop();
         floor.id = 0;
         // Agregar el cuerpo del suelo al mundo
         world.addBody(floor);

@@ -7,7 +7,7 @@ export default class Colosseum extends Level {
     }
 
     init() {
-        this.getWorld();
+        this.world.createCircularBoundary(325, 500);
     }
 
 }
