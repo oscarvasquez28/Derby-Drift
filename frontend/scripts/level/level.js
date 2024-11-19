@@ -186,7 +186,7 @@ export default class Level {
         const destroyedPlayer = this.players.find(obj => obj.id === data.id);
         if (destroyedPlayer) {
           if (destroyedPlayer.id === this.clientPlayer.player.id) {
-            alert("You have been destroyed");
+            alert("You have been destroyed: " + data.cause);
             this.clientPlayer.alive = false;
           }
           destroyedPlayer.removePlayer();

@@ -255,11 +255,11 @@ export default class Player {
         this.player.json.score += score;
     }
 
-    takeDamage(damage = 10) {
+    takeDamage(damage = 10, cause = 'unknown') {
         this.player.json.health -= damage;
         if (this.player.json.health <= 0) {
             this.remove = true;
-            Socket.getIO().emit('playerDestroyed', { id: this.player.json.id });
+            Socket.getIO().emit('playerDestroyed', { id: this.player.json.id, cause: cause });
         }
     }
 
