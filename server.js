@@ -20,7 +20,7 @@ const io = Socket.getIO();
 
 // Configuración de la base de datos MySQL
 const db = mysql.createConnection({
-  host: 'localhost:3306',
+  host: 'localhost',
   user: 'root',
   password: '',
   database: 'derbyDrift'
