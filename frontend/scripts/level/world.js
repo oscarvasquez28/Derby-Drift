@@ -29,7 +29,7 @@ export default class World {
     // Creamos el skydome
     this.skydome = new Skydome(this.scene);
 
-    this.sun = new THREE.SpotLight(SUN_LIGHT_COLOR, 1);
+    this.sun = new THREE.DirectionalLight(SUN_LIGHT_COLOR, 1);
 
   }
 
@@ -52,7 +52,6 @@ export default class World {
     
     // Inicializamos la luz direccional (sol)
     sun.position.set(100, 100, 100);
-    sun.target.position.set(0, 0, 0);
     sun.angle = Math.PI;
     sun.penumbra = 0.1;
     sun.castShadow = true;
@@ -132,6 +131,7 @@ export default class World {
       floorMesh.rotateX(-Math.PI / 2);
       floorMesh.rotateZ(Math.PI / 2);
       floorMesh.receiveShadow = true;
+      floorMesh.castShadow = true;
     
       scene.add(floorMesh);
     });

@@ -2,7 +2,7 @@ import World from "./world.js"
 import Player from "../player/player.js"
 import ClientPlayer from "../player/clientPlayer.js"
 import Connection from "../../connection.js"
-import Missile from "../player/Missile.js"
+import Missile from "../player/missile.js"
 
 const FPS = localStorage.getItem('FPS') || 60;
 
