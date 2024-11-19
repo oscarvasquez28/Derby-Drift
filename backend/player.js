@@ -6,7 +6,7 @@ import Database from './database.js';
 export default class Player {
 
     PLAYER_MAX_SPEED = 10000;
-    PLAYER_WEGIHT = 1000;
+    PLAYER_WEIGHT = 1000;
     BRAKE_FORCE = 50;
     MAX_STEER_VALUE = Math.PI / 8;
     isFlipping = false;
@@ -114,10 +114,22 @@ export default class Player {
     createPlayerCar(player) {
         const shape = new cannon.Box(new cannon.Vec3(4, 0.5, 2));
         const carBody = new cannon.Body({
-            mass: this.PLAYER_WEGIHT,
+            mass: this.PLAYER_WEIGHT,
             shape: shape,
             position: new cannon.Vec3(player.position.chassis.x, player.position.chassis.y, player.position.chassis.z)
         });
+
+        //TODO: Set the car's rotation to look towards the center of the level
+        const lookAt = new cannon.Vec3(0, 0, 0).vsub(carBody.position).unit();
+        console.log('lookAt:', lookAt);
+        const up = new cannon.Vec3(0, 1, 0);
+        const right = new cannon.Vec3();
+        up.cross(lookAt, right).unit();
+        lookAt.cross(right, up).unit();
+
+        carBody.quaternion.setFromVectors(new cannon.Vec3(1, 0, 0), right);
+        carBody.quaternion.setFromVectors(new cannon.Vec3(0, 1, 0), up);
+        carBody.quaternion.setFromVectors(new cannon.Vec3(0, 0, 1), lookAt);
 
         carBody.tag = 'player';
 

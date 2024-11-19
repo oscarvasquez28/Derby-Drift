@@ -6,11 +6,15 @@ export default class Colosseum extends Level {
     constructor() {
         super('textures/heightmap.jpg', 0x796B5C, 3);
         this.levelId = 0;
+        this.initHeight = 30;
     }
 
     async initLevel() {
         super.initLevel();
         
+        this.defaultPlayer.position.chassis.x = Math.random() * 300 - 150;
+        this.defaultPlayer.position.chassis.z = Math.random() * 300 - 150;
+
         // Inicializar con valores por defecto
         // this.dobeto = new ObjModel(this.levelScene, 'models/PORFAVOR.obj', 'models/PORFAVOR.mtl');
     

@@ -31,6 +31,34 @@ export default class Level {
   async initLevel() {
     this.world.initWorld();
 
+    this.defaultPlayer = {
+      levelId: this.levelId,
+      email: sessionStorage.getItem('userEmail') || undefined,
+      name: this.#genRandomName(),
+      id: null,
+      health: this.playerInitHealth,
+      score: 0,
+      mesh: Math.random() < 0.5 ? 1 : 2,
+      position: {
+        chassis: { x: 0, y: this.initHeight, z: 0 },
+        wheels: {
+          frontLeft: { x: 0, y: 0, z: 0 },
+          frontRight: { x: 0, y: 0, z: 0 },
+          backLeft: { x: 0, y: 0, z: 0 },
+          backRight: { x: 0, y: 0, z: 0 }
+        }
+      },
+      rotation: {
+        chassis: { x: 0, y: 0, z: 0, w: 0 },
+        wheels: {
+          frontLeft: { x: 0, y: 0, z: 0, w: 0 },
+          frontRight: { x: 0, y: 0, z: 0, w: 0 },
+          backLeft: { x: 0, y: 0, z: 0, w: 0 },
+          backRight: { x: 0, y: 0, z: 0, w: 0 }
+        }
+      }
+    };
+
     this.levelCamera = this.world.camera;
 
     this.levelScene = this.world.scene;
@@ -66,7 +94,7 @@ export default class Level {
       const playerPosition = this.clientPlayer.getPlayerPosition();
       const lookAtNorm = this.clientPlayer.getPlayerNormalizedLookAt();
       this.levelCamera.position.set(playerPosition.x - (lookAtNorm.x * 2), playerPosition.y + 12, playerPosition.z - (lookAtNorm.z * 2));
-      this.levelCamera.lookAt(playerPosition.x, playerPosition.y + 10, playerPosition.z );
+      this.levelCamera.lookAt(playerPosition.x, playerPosition.y + 10, playerPosition.z);
     }
 
     this.players.forEach(player => {
@@ -129,39 +157,14 @@ export default class Level {
     }
   }
 
-  #setUpSocketEvents(){
+  #setUpSocketEvents() {
 
     const socket = this.socket;
 
     socket.on('connect', () => {
 
-      const playerInfo = {
-        levelId: this.levelId,
-        email: sessionStorage.getItem('userEmail') || undefined,
-        name: this.#genRandomName(),
-        id: socket.id,
-        health: this.playerInitHealth,
-        score: 0,
-        mesh: Math.random() < 0.5 ? 1 : 2,
-        position: {
-        chassis: { x: 0, y: this.initHeight, z: 0 },
-        wheels: {
-              frontLeft: { x: 0, y: 0, z: 0 },
-              frontRight: { x: 0, y: 0, z: 0 },
-              backLeft: { x: 0, y: 0, z: 0 },
-              backRight: { x: 0, y: 0, z: 0 }
-          }
-        },
-        rotation: {
-          chassis: { x: 0, y: 0, z: 0, w: 0 },
-          wheels: {
-              frontLeft: { x: 0, y: 0, z: 0, w: 0 },
-              frontRight: { x: 0, y: 0, z: 0, w: 0 },
-              backLeft: { x: 0, y: 0, z: 0, w: 0 },
-              backRight: { x: 0, y: 0, z: 0, w: 0 }
-          }
-        }
-      };
+      this.defaultPlayer.id = socket.id;
+      const playerInfo = this.defaultPlayer;
 
       socket.emit('playerInfo', playerInfo);
 
@@ -187,16 +190,16 @@ export default class Level {
         const destroyedPlayer = this.players.find(obj => obj.id === data.id);
         if (destroyedPlayer) {
           if (destroyedPlayer.id === this.clientPlayer.player.id) {
-            alert("You have been destroyed: " + data.cause);
+            // alert("You have been destroyed: " + data.cause);
             this.clientPlayer.alive = false;
-            this.showLostScreen();
+            this.showLostScreen(data.cause);
           }
           destroyedPlayer.removePlayer();
           this.players = this.players.filter(obj => obj.id !== destroyedPlayer.id);
           console.log("Player: " + destroyedPlayer.name + " ID:" + destroyedPlayer.id + " was removed from the scene");
         }
       });
-      
+
       socket.on('playerDisconnected', (id) => {
         console.log("Recieved message from server: playerDisconnected");
         const disconnectedPlayer = this.players.find(obj => obj.id === id);
@@ -241,7 +244,7 @@ export default class Level {
       });
 
       socket.on('playerCollision', (data) => {
-        if (this.clientPlayer){
+        if (this.clientPlayer) {
           console.log("Recieved message from server: playerCollision\nRecieved player collision: " + data.id);
           this.clientPlayer.collided();
         }
@@ -257,10 +260,33 @@ export default class Level {
 
   }
 
-  showLostScreen() {
+  showLostScreen(cause = "Banned") {
     const lostScreen = document.getElementById('lost-screen');
     const spectateBtn = document.getElementById('spectate-button');
     const restartBtn = document.getElementById('restart-button');
+    const score = document.getElementById('score');
+    const causeText = document.getElementById('cause');
+
+    if (this.clientPlayer.getPlayer().email) {
+      const email = this.clientPlayer.getPlayer().email;
+      const score = this.clientPlayer.getPlayer().score;
+      fetch('/players')
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          const player = data.find(player => player.email === email);
+            const highscoreText = document.getElementById('highscore');
+            if (this.clientPlayer.getPlayer().score > player.highscore) {
+            highscoreText.style.display = 'block';
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+
+    score.textContent = this.clientPlayer.getPlayer().score;
+    causeText.textContent = cause;
 
     lostScreen.style.display = 'flex';
     spectateBtn.addEventListener('click', () => {

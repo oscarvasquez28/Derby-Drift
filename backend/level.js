@@ -18,7 +18,7 @@ export default class Level {
             if (this.players.hasOwnProperty(id)) {
                 this.players[id].updateJson();
                 if(this.players[id].getJson().position.chassis.y < -10){
-                    this.players[id].takeDamage(100, "Fell off the map");
+                    this.players[id].takeDamage(100, "El jugador cayó al vacío");
                 }
                 if (this.players[id].remove) {
                     this.removePlayer(id);
@@ -62,7 +62,7 @@ export default class Level {
             const collidedPlayer = Object.values(this.players).find(player => player.getBody().chassis.id === event.body.id);
             if (collidedPlayer) {
                 missile.player.addScore();
-                collidedPlayer.takeDamage(missile.damage, "Player was hit by missile from player: " + missile.player.getJson().name);
+                collidedPlayer.takeDamage(missile.damage, "El jugador fue alcanzado por un misil del jugador: " + missile.player.getJson().name);
             }
         }
     }
