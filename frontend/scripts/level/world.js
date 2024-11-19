@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Skydome from "./skydome.js";
 
 const SUN_LIGHT_COLOR = 0xfcffb5;
@@ -41,6 +42,10 @@ export default class World {
     
     camera.position.set(0, 1, 15);
     camera.lookAt(0, 0, 0);
+
+    // Creamos los controles orbitales de la cámara
+    this.controls = new OrbitControls( camera, renderer.domElement );    
+    this.skydome.camera = camera;
     
     // Juntamos el renderizador a nuestro documento html
     document.body.appendChild(renderer.domElement);
@@ -139,8 +144,16 @@ export default class World {
     });
   }   
 
+  setClientPlayer(player){
+    this.clientPlayer = player;
+    this.skydome.clientPlayer = player;
+  }
+
   update(){
     this.skydome.update();
+    if(!this.clientPlayer?.alive){
+      this.controls.update();
+    }
   }
 
 }

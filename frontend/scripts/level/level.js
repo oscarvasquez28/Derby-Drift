@@ -49,8 +49,8 @@ export default class Level {
     const animate = (time) => {
       if (time - lastTime >= interval) {
         lastTime = time;
-        this.levelRenderer.render(this.levelScene, this.levelCamera);
         this.update();
+        this.levelRenderer.render(this.levelScene, this.levelCamera);
       }
       requestAnimationFrame(animate);
     };
@@ -62,7 +62,7 @@ export default class Level {
 
     this.world.update();
 
-    if (this.clientPlayer) {
+    if (this.clientPlayer && this.clientPlayer.alive) {
       const playerPosition = this.clientPlayer.getPlayerPosition();
       const lookAtNorm = this.clientPlayer.getPlayerNormalizedLookAt();
       this.levelCamera.position.set(playerPosition.x - (lookAtNorm.x * 2), playerPosition.y + 12, playerPosition.z - (lookAtNorm.z * 2));
@@ -125,7 +125,7 @@ export default class Level {
     const clientPlayer = this.players.find(obj => obj.id === this.socket.id);
     if (clientPlayer) {
       this.clientPlayer = new ClientPlayer(clientPlayer);
-      this.world.skydome.clientPlayer = this.clientPlayer;
+      this.world.setClientPlayer(this.clientPlayer);
     }
   }
 
@@ -187,7 +187,7 @@ export default class Level {
         if (destroyedPlayer) {
           if (destroyedPlayer.id === this.clientPlayer.player.id) {
             alert("You have been destroyed");
-            this.clientPlayer = null;
+            this.clientPlayer.alive = false;
           }
           destroyedPlayer.removePlayer();
           this.players = this.players.filter(obj => obj.id !== destroyedPlayer.id);

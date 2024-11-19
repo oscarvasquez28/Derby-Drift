@@ -8,6 +8,8 @@ export default class ClientPlayer {
         this.player = player;
         this.playerInput = new Input(this.player, Connection.getConnection());
         this.playerInput.initInputSystem();
+        this.alive = true;
+        this.oribtCameraAlive = false; //TODO Make player camera orbit around player while alive
     }
 
     getPlayerPosition() {
