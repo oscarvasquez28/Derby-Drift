@@ -58,6 +58,9 @@ export default class Player {
       if (data.name)
         this.name = data.name;
 
+      if (data.email)
+        this.email = data.email;
+
       if (data.color)
         this.color = data.color;
 

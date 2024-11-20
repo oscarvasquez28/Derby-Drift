@@ -26,6 +26,8 @@ export default class Level {
     this.initHeight = 10;
 
     this.projectiles = [];
+
+    this.gameEnded = false;
   }
 
   async initLevel() {
@@ -170,6 +172,7 @@ export default class Level {
 
       socket.on('newPlayer', (player) => {
         console.log("Recieved message from server: newPlayer\nPlayer: " + player.name + " ID:" + player.id + ' connected');
+        if(this.gameEnded) return;
         this.addPlayer(player);
       });
 
@@ -197,6 +200,15 @@ export default class Level {
           destroyedPlayer.removePlayer();
           this.players = this.players.filter(obj => obj.id !== destroyedPlayer.id);
           console.log("Player: " + destroyedPlayer.name + " ID:" + destroyedPlayer.id + " was removed from the scene");
+        }
+      });
+
+      socket.on('playerWon', (data) => {
+        console.log("Recieved message from server: playerWon\nPlayer: " + data.id + " won the game");
+        const winningPlayer = this.players.find(obj => obj.id === data.id);
+        if (winningPlayer.id === this.clientPlayer.getPlayer().id) {
+          alert("Player: " + winningPlayer.name + " ID:" + winningPlayer.id + " won the game");
+          this.showWinScreen();
         }
       });
 
@@ -266,6 +278,7 @@ export default class Level {
     const restartBtn = document.getElementById('restart-button');
     const score = document.getElementById('score');
     const causeText = document.getElementById('cause');
+    const highscoreText = document.getElementById('highscore');
 
     if (this.clientPlayer.getPlayer().email) {
       const email = this.clientPlayer.getPlayer().email;
@@ -275,8 +288,7 @@ export default class Level {
         .then(data => {
           console.log(data);
           const player = data.find(player => player.email === email);
-            const highscoreText = document.getElementById('highscore');
-            if (this.clientPlayer.getPlayer().score > player.highscore) {
+          if (this.clientPlayer.getPlayer().score > player.highscore) {
             highscoreText.style.display = 'block';
           }
         })
@@ -296,6 +308,50 @@ export default class Level {
       this.restartScene();
       lostScreen.style.display = 'none';
       window.location.reload();
+    });
+  }
+
+  showWinScreen() {
+    const lostScreen = document.getElementById('lost-screen');
+    const spectateBtn = document.getElementById('spectate-button');
+    const restartBtn = document.getElementById('restart-button');
+    const homeBtn = document.getElementById('menu-button');
+    const score = document.getElementById('score');
+    const causeText = document.getElementById('cause');
+    const lostScreenText = document.getElementById('lost-screen-message');
+    const highscoreText = document.getElementById('highscore');
+    lostScreenText.textContent = "¡Ganaste!";
+
+    if (this.clientPlayer.getPlayer().email) {
+      const email = this.clientPlayer.getPlayer().email;
+      const score = this.clientPlayer.getPlayer().score + 1;
+      fetch('/players')
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          const player = data.find(player => player.email === email);
+          if (score > player.highscore) {
+            highscoreText.hidden = false; 
+          }
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    }
+
+    this.gameEnded = true;
+
+    score.textContent = this.clientPlayer.getPlayer().score + 1;
+
+    lostScreen.style.display = 'flex';
+    spectateBtn.hidden = true;
+    restartBtn.addEventListener('click', () => {
+      this.restartScene();
+      lostScreen.style.display = 'none';
+      window.location.reload();
+    });
+    homeBtn.addEventListener('click', () => {
+      window.location.href = '/';
     });
   }
 

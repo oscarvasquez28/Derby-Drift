@@ -22,6 +22,11 @@ export default class Level {
                 }
                 if (this.players[id].remove) {
                     this.removePlayer(id);
+                    if (Object.keys(this.players).length === 1) {
+                        const remainingPlayerId = Object.keys(this.players)[0];
+                        Socket.getIO().emit('playerWon', { id: remainingPlayerId });
+                        this.removePlayer(remainingPlayerId);
+                    }
                 }
             }
         }
@@ -57,7 +62,6 @@ export default class Level {
                 position: missile.body.position,
                 quaternion: missile.body.quaternion
             });
-            
             
             const collidedPlayer = Object.values(this.players).find(player => player.getBody().chassis.id === event.body.id);
             if (collidedPlayer) {
