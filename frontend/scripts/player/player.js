@@ -161,6 +161,8 @@ export default class Player {
         this.mesh.shield = new THREE.Mesh(sphereGeometry, sphereMaterial);
         this.mesh.chassis.add(this.mesh.shield);
         this.mesh.chassis.add(this.mesh.shieldWireframe);
+        const pointlight = new THREE.PointLight(0x00ffff, 5, 150, 4);
+        this.mesh.shield.add(pointlight);
         this.hideShield();
 
         // this.mesh.wheels.frontLeft.rotation.isEuler = false;

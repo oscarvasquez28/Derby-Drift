@@ -42,6 +42,8 @@ export default class CannonWorld {
                 shape: shape
             });
 
+            body.tag = "wall";
+
             body.quaternion.setFromAxisAngle(new cannon.Vec3(0, 1, 0), -angle);
 
             this.world.addBody(body);

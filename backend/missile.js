@@ -25,7 +25,7 @@ export default class Missile {
     }
 
     createMissile() {
-        const shape = new cannon.Sphere(0.5);
+        const shape = new cannon.Sphere(2);
         const body = new cannon.Body({
             mass: 1,
             position: new cannon.Vec3(),

@@ -145,6 +145,16 @@ io.on('connection', (socket) => {
       levels[data.levelId].getPlayersJSON(),
     )
 
+    socket.emit(
+      'currentProjectiles',
+      levels[data.levelId].getLevelProjectilesJSON(),
+    )
+
+    socket.emit(
+      'currentPowerUps',
+      levels[data.levelId].getActivePowerUpsJSON(),
+    )
+
     socket.on('input', (inputData) => {
       levels[data.levelId].executePlayerInputFromJson(inputData.id, inputData);
     })

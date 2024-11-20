@@ -2,6 +2,7 @@ import CannonWorld from "./cannonWorld.js";
 import Player from "./player.js";
 import Socket from "./socket.js";
 import Database from "./database.js";
+import PowerUp from "./powerUp.js";
 
 export default class Level {
 
@@ -9,6 +10,9 @@ export default class Level {
         this.world = new CannonWorld(heightMapPath, worldScale);
         this.players = {};
         this.levelProjectiles = [];
+        this.powerUps = [];
+        this.powerUps = new Array(5).fill(null).map(() => new PowerUp({ position: { x: 0, y: 0, z: 0 }, world: this.world.getWorld() }));
+        this.powerUpTimer = 60;
         this.db = Database.getDb();
     }
 
@@ -30,7 +34,11 @@ export default class Level {
                 }
             }
         }
-        this.updateLevelProjectiles();
+
+        if (Object.keys(this.players).length > 0) {
+            this.updateLevelPowerUps();
+            this.updateLevelProjectiles();
+        }
     }
 
     executePlayerInputFromJson(id, JSONinput) {
@@ -65,13 +73,16 @@ export default class Level {
             
             const collidedPlayer = Object.values(this.players).find(player => player.getBody().chassis.id === event.body.id);
             if (collidedPlayer) {
-                missile.player.addScore();
                 if (collidedPlayer.getJson().hasShield){
                     // Socket.getIO().emit('playerShielded', { id: collidedPlayer.id });
                     collidedPlayer.removeShield();
                 }
-                else
-                    collidedPlayer.takeDamage(missile.damage, "El jugador fue alcanzado por un misil del jugador: " + missile.player.getJson().name);
+                else{
+                    if (collidedPlayer.takeDamage(missile.damage, "El jugador fue alcanzado por un misil del jugador: " + missile.player.getJson().name)){
+                        missile.player.addScore();                        
+                    }
+
+                }
             }
         }
     }
@@ -87,12 +98,53 @@ export default class Level {
             Socket.getIO().emit('updateMissiles', this.getLevelProjectilesJSON());
     }
 
+    updateLevelPowerUps() {
+        this.powerUps.forEach(powerUp => {
+            if (powerUp.spawned) {
+                powerUp.step(this.players);
+            }
+        });
+        this.powerUpTimer -= 1 / 60;
+        if (this.powerUpTimer <= 0) {
+            this.spawnPowerUp();
+            this.powerUpTimer = 15;
+        }
+    }
+    
+    spawnPowerUp() {
+        const powerUp = this.powerUps.find(powerUp => !powerUp.spawned);
+        if (powerUp) {
+            powerUp.spawn();
+            Socket.getIO().emit('powerUpSpawned', powerUp.getJson());
+        }
+    }
+
     getLevelProjectilesJSON() {
         const levelProjectilesJson = {};
         this.levelProjectiles.forEach((projectile, index) => {
             levelProjectilesJson[index] = projectile.getJSON();
         });
         return levelProjectilesJson;
+    }
+
+    getLevelPowerUpsJSON() {
+        const powerUpsJson = {};
+        this.powerUps.forEach((powerUp, index) => {
+            powerUpsJson[index] = powerUp.getJson();
+        });
+        return powerUpsJson;
+    }
+
+    getActivePowerUps() {
+        return this.powerUps.filter(powerUp => powerUp.spawned);
+    }
+
+    getActivePowerUpsJSON() {   
+        const powerUpsJson = {};
+        this.getActivePowerUps().forEach((powerUp, index) => {
+            powerUpsJson[index] = powerUp.getJson();
+        });
+        return powerUpsJson;
     }
 
     removePlayer(id) {

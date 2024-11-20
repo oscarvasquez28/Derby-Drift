@@ -276,6 +276,7 @@ export default class Player {
             this.remove = true;
             Socket.getIO().emit('playerDestroyed', { id: this.player.json.id, cause: cause });
         }
+        return this.remove;
     }
 
     updateJson() {
@@ -340,6 +341,14 @@ export default class Player {
         return shotProjectile;
     }
 
+    addShield() {
+        this.player.json.hasShield = true;
+    }
+
+    addAmmo(ammo = 1) {
+        this.player.json.ammo += ammo;
+    }
+    
     getLastProjectile() {
         return this.projectiles[this.projectiles.length - 1];
     }

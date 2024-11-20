@@ -4,6 +4,7 @@ import ClientPlayer from "../player/clientPlayer.js"
 import Connection from "../../connection.js"
 import Missile from "../player/missile.js"
 import Stats from 'three/addons/libs/stats.module.js'
+import PowerUp from "./powerUp.js"
 
 const FPS = localStorage.getItem('FPS') * 1.5 || 60 * 1.5;
 
@@ -27,6 +28,8 @@ export default class Level {
     this.initHeight = 10;
 
     this.projectiles = [];
+
+    this.powerUps = []; 
 
     this.gameEnded = false;
   }
@@ -113,6 +116,10 @@ export default class Level {
       player.update();
     });
 
+    this.powerUps.forEach(powerUp => {  
+      powerUp.update();
+    });
+
   }
 
   updatePlayers(updatedPlayers) {
@@ -183,11 +190,12 @@ export default class Level {
 
       socket.on('newPlayer', (player) => {
         console.log("Recieved message from server: newPlayer\nPlayer: " + player.name + " ID:" + player.id + ' connected');
-        if(this.gameEnded) return;
+        if (this.gameEnded) return;
         this.addPlayer(player);
       });
 
       socket.on('currentPlayers', (playersData) => {
+        if (this.gameEnded) return;
         Object.keys(playersData).forEach((id) => {
           if (!this.players.find(obj => obj.id === id)) {
             this.addPlayer(playersData[id]);
@@ -200,6 +208,7 @@ export default class Level {
       });
 
       socket.on('playerDestroyed', (data) => {
+        if (this.gameEnded) return;
         console.log("Recieved message from server: playerDestroyed\nPlayer: " + data.id + " was destroyed");
         const destroyedPlayer = this.players.find(obj => obj.id === data.id);
         if (destroyedPlayer) {
@@ -215,15 +224,18 @@ export default class Level {
       });
 
       socket.on('playerWon', (data) => {
+        if (this.gameEnded) return;
         console.log("Recieved message from server: playerWon\nPlayer: " + data.id + " won the game");
         const winningPlayer = this.players.find(obj => obj.id === data.id);
         if (winningPlayer.id === this.clientPlayer.getPlayer().id) {
           // alert("Player: " + winningPlayer.name + " ID:" + winningPlayer.id + " won the game");
           this.showWinScreen();
         }
+        this.gameEnded = true;
       });
 
       socket.on('playerDisconnected', (id) => {
+        if (this.gameEnded) return;
         console.log("Recieved message from server: playerDisconnected");
         const disconnectedPlayer = this.players.find(obj => obj.id === id);
         if (disconnectedPlayer) {
@@ -246,6 +258,7 @@ export default class Level {
       });
 
       socket.on('newProjectile', (projectileData) => {
+        if (this.gameEnded) return;
         // console.log("Recieved message from server: newProjectile\nRecieved new projectile from player: " + projectileData.id);
         const newProjectile = new Missile(this.levelScene, this.players.find(player => player.id === projectileData.id), projectileData.id);
         newProjectile.updateMissileFromJSON(projectileData);
@@ -253,23 +266,57 @@ export default class Level {
       });
 
       socket.on('missileCollision', (data) => {
+        if (this.gameEnded) return;
         this.removeMissile(data);
       });
 
       socket.on('missileRemoved', (data) => {
+        if (this.gameEnded) return;
         console.log("Recieved message from server: missileRemoved\nRecieved removed missile: " + data.id);
         this.removeMissile(data);
       });
 
       socket.on('updateMissiles', (missilesData) => {
+        if (this.gameEnded) return;
         console.log("Recieved message from server: updateMissiles\nRecieved updated missiles: " + missilesData.id);
         this.updateMissiles(missilesData);
       });
 
       socket.on('playerCollision', (data) => {
+        if (this.gameEnded) return;
         if (this.clientPlayer) {
           console.log("Recieved message from server: playerCollision\nRecieved player collision: " + data.id);
           this.clientPlayer.collided();
+        }
+      });
+
+      socket.on('currentPowerUps', (data) => {
+        if (this.gameEnded) return;
+        console.log("Recieved message from server: currentPowerUps\nRecieved power ups: " + data);
+        Object.keys(data).forEach(id => {
+          if (!this.powerUps.find(powerUp => powerUp.id === id)) {
+            const powerUp = data[id];
+            powerUp.scene = this.levelScene;
+            this.spawnPowerUp(powerUp);
+          }
+        });
+      });
+
+      socket.on('powerUpSpawned', (data) => {
+        if (this.gameEnded) return;
+        console.log("Recieved message from server: powerUpSpawned\nRecieved power up: " + data.id);
+        data.scene = this.levelScene;
+        this.spawnPowerUp(data);
+      });
+
+      socket.on('powerUpCollected', (data) => {
+        if (this.gameEnded) return;
+        const collectedPowerUp = this.powerUps.find(powerUp => powerUp.id === data.id);
+        if (collectedPowerUp) {
+          collectedPowerUp.destroy();
+          this.powerUps = this.powerUps.filter(powerUp => powerUp.id !== data.id);
+        } else {
+          console.error("PowerUp with ID " + data.id + " not found in the scene");
         }
       });
 
@@ -287,6 +334,7 @@ export default class Level {
     const lostScreen = document.getElementById('lost-screen');
     const spectateBtn = document.getElementById('spectate-button');
     const restartBtn = document.getElementById('restart-button');
+    const homeBtn = document.getElementById('menu-button');
     const score = document.getElementById('score');
     const causeText = document.getElementById('cause');
     const highscoreText = document.getElementById('highscore');
@@ -320,6 +368,9 @@ export default class Level {
       lostScreen.style.display = 'none';
       window.location.reload();
     });
+    homeBtn.addEventListener('click', () => {
+      window.location.href = '/';
+    });
   }
 
   showWinScreen() {
@@ -342,15 +393,13 @@ export default class Level {
           console.log(data);
           const player = data.find(player => player.email === email);
           if (score > player.highscore) {
-            highscoreText.hidden = false; 
+            highscoreText.hidden = false;
           }
         })
         .catch(err => {
           console.error(err);
         });
     }
-
-    this.gameEnded = true;
 
     score.textContent = this.clientPlayer.getPlayer().score + 1;
 
@@ -364,6 +413,11 @@ export default class Level {
     homeBtn.addEventListener('click', () => {
       window.location.href = '/';
     });
+  }
+
+  spawnPowerUp(powerUpData) {
+    const powerUp = new PowerUp(powerUpData);
+    this.powerUps.push(powerUp);
   }
 
   updateMissiles(missilesData) {
@@ -412,7 +466,7 @@ export default class Level {
     while (this.levelScene.children.length > 0) {
       this.levelScene.remove(this.levelScene.children[0]);
     }
-
+    
     this.initLevel();
 
   }
