@@ -40,8 +40,8 @@ export default class Level {
       name: this.#genRandomName(),
       id: null,
       health: this.playerInitHealth,
-      ammo: 1,
-      hasShield: true,
+      ammo: 999,
+      hasShield: false,
       hasBoost: false,
       score: 0,
       mesh: Math.random() < 0.5 ? 1 : 2,
@@ -143,6 +143,7 @@ export default class Level {
     }
     else if (typeof newPlayer === 'object') {
       addedPlayer = new Player(this.world.scene);
+      newPlayer.camera = this.levelCamera;
       result = addedPlayer.initPlayerFromJSON(newPlayer);
     }
 

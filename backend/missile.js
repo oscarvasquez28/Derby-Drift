@@ -9,7 +9,7 @@ export default class Missile {
         this.world = world;
         this.player = player;
         this.chassis = this.player.player.body.chassis;
-        this.damage = 100;
+        this.damage = 50;
         this.body = this.createMissile();
         this.body.position.copy(this.chassis.position);
         this.body.velocity.copy(this.chassis.velocity);

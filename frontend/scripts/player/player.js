@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import ObjModel from '../model.js'
 import NameTag from './nametag.js'
+import ParticleSystem from '../particles.js'
 
 export default class Player {
 
@@ -43,6 +44,7 @@ export default class Player {
     this.levelId = -1;
     this.mesh = {};
     this.scene = scene;
+    this.onFire = false;
 
   }
 
@@ -67,10 +69,10 @@ export default class Player {
       if (data.ammo)
         this.ammo = data.ammo;
 
-      if (data.hasShield)
+      if (data.hasShield != undefined)
         this.hasShield = data.hasShield;
 
-      if (data.hasBoost)
+      if (data.hasBoost != undefined)
         this.hasBoost = data.hasBoost;
 
       if (data.score)
@@ -200,6 +202,18 @@ export default class Player {
       this.mesh.chassis.add(spotlight);
       this.mesh.chassis.add(spotlight.target);
 
+      if (data.camera){
+        this.fire = new ParticleSystem({ 
+          alwaysRender: true,
+          parent: this.scene,
+          spawnPosition: this.mesh.chassis.position,
+          camera: data.camera,
+          life: 2,
+          velocity: {x: 0, y: 30, z: 0},
+          size: 5
+        });
+      }
+
       this.nametag = new NameTag(this, this.scene);
       return true;
 
@@ -240,7 +254,7 @@ export default class Player {
       if (data.health){
         this.health = data.health;
         if (this.health <= this.initHealth / 2){
-          //TODO Make the on fire effect using particle system
+          this.onFire = true;
         }
       }
 
@@ -322,6 +336,9 @@ export default class Player {
       this.hideShield();
 
     this.#generateLookAt();
+
+    if (this.onFire && this.fire)
+      this.fire.Step((1 / (localStorage.getItem('FPS')) || 60)); 
     
   }
 
@@ -341,6 +358,8 @@ export default class Player {
     this.scene.remove(this.mesh.wheels.backLeft);
     this.scene.remove(this.mesh.wheels.backRight);
     this.nametag.remove();
+    if (this.fire)
+      this.fire.destroy();
   }
 
   showShield() {

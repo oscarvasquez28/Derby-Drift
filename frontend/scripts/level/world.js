@@ -22,6 +22,7 @@ export default class World {
     
     // Creamos el renderizador que graficará toda la lógica de three.js en nuestra página
     this.renderer = new THREE.WebGLRenderer();
+    this.renderer.antialias = true;
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = localStorage.getItem('showShadows') != undefined ? JSON.parse(localStorage.getItem('showShadows')) : true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
