@@ -14,22 +14,18 @@ export default class PowerUp {
 
     createPowerUpMesh() {
         const sphereGeometry = new THREE.SphereGeometry(4.3, 8, 8);
-        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5, depthWrite: false });
-        const sphereWireframeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
+        const sphereMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
 
-        const shieldWireframe = new THREE.Mesh(sphereGeometry, sphereWireframeMaterial);
-        const shield = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        const dev = new THREE.Mesh(sphereGeometry, sphereMaterial);
 
-        this.scene.add(shield);
-        shield.add(shieldWireframe);
+        dev.receiveShadow = true;
 
-        shield.position.copy(this.position);
-        shield.quaternion.copy(this.quaternion);
+        this.scene.add(dev);
 
-        return {
-            shield: shield,
-            shieldWireframe: shieldWireframe  
-        };
+        dev.position.copy(this.position);
+        dev.quaternion.copy(this.quaternion);
+
+        return dev;
     }
 
     getJSON() {
@@ -41,29 +37,23 @@ export default class PowerUp {
         }
     }
 
-    getBody() {
-        return this.body;
-    }
-
     destroy() {
-        this.scene.remove(this.mesh.shield);
-        this.scene.remove(this.mesh.shieldWireframe);
+        this.scene.remove(this.mesh);
     }
 
     setPos(position = this.position) {  
         this.position = position;
-        this.mesh.shield.position.copy(position);
+        this.mesh.position.copy(position);
     }
 
     setQuaternion(quaternion = this.quaternion) {
         this.quaternion = quaternion;
-        this.mesh.shield.quaternion.copy(quaternion);
+        this.mesh.quaternion.copy(quaternion);
     }
 
     update() {
         this.setQuaternion();
         this.setPos();
-        this.mesh.shield.rotation.y += 0.01;
-        this.mesh.shieldWireframe.rotation.y += 0.01;
+        this.mesh.rotation.y += 0.01;
     }
 }

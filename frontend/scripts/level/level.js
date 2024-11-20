@@ -5,6 +5,7 @@ import Connection from "../../connection.js"
 import Missile from "../player/missile.js"
 import Stats from 'three/addons/libs/stats.module.js'
 import PowerUp from "./powerUp.js"
+import Shield from "./shield.js"
 
 const FPS = localStorage.getItem('FPS') * 1.5 || 60 * 1.5;
 
@@ -29,7 +30,7 @@ export default class Level {
 
     this.projectiles = [];
 
-    this.powerUps = []; 
+    this.powerUps = [];
 
     this.gameEnded = false;
   }
@@ -116,7 +117,7 @@ export default class Level {
       player.update();
     });
 
-    this.powerUps.forEach(powerUp => {  
+    this.powerUps.forEach(powerUp => {
       powerUp.update();
     });
 
@@ -416,8 +417,28 @@ export default class Level {
   }
 
   spawnPowerUp(powerUpData) {
-    const powerUp = new PowerUp(powerUpData);
+    powerUpData.scene = this.levelScene;
+
+    let powerUp;
+
+    switch (powerUpData.type) {
+      case 'ammo':
+        //TODO: Implement ammo power up
+        powerUp = new PowerUp(powerUpData);
+        break;
+      case 'shield':
+        powerUp = new Shield(powerUpData);
+        break;
+      case 'boost':
+        //TODO: Implement boost power up
+        powerUp = new PowerUp(powerUpData);
+        break;
+      default:
+        powerUp = new PowerUp(powerUpData);
+        break;
+    }
     this.powerUps.push(powerUp);
+
   }
 
   updateMissiles(missilesData) {
@@ -466,7 +487,7 @@ export default class Level {
     while (this.levelScene.children.length > 0) {
       this.levelScene.remove(this.levelScene.children[0]);
     }
-    
+
     this.initLevel();
 
   }

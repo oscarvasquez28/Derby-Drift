@@ -91,7 +91,7 @@ export default class InputSystem {
                         right: gamepad.buttons[15].pressed, // D-pad right
                         foward: gamepad.buttons[0].pressed, // A button
                         flip: gamepad.buttons[2].pressed, // X button
-                        fire: gamepad.buttons[4].pressed, // LB button
+                        fire: player.ammo <= 0 || gamepad.buttons[4].pressed, // LB button
                         axes: gamepad.axes, // Joystick axes
                     }
                 };
