@@ -1,5 +1,6 @@
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
+import * as THREE from 'three';
 
 export default class ObjModel {
     constructor(scene, objPath, mtlPath, selfInit = true) {
@@ -21,13 +22,19 @@ export default class ObjModel {
 
         return new Promise((resolve, reject) => {
             mtlLoader.load(this.mtlPath, (materials) => {
-                materials.preload();
-                objLoader.setMaterials(materials);
-                objLoader.load(this.objPath, (object) => {
-                    this.scene.add(object);
-                    this.mesh = object;
-                    resolve(object);
-                }, undefined, reject);
+            materials.preload();
+            objLoader.setMaterials(materials);
+            objLoader.load(this.objPath, (object) => {
+                object.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+                this.scene.add(object);
+                this.mesh = object;
+                resolve(object);
+            }, undefined, reject);
             });
         });
     }

@@ -3,8 +3,9 @@ import Player from "../player/player.js"
 import ClientPlayer from "../player/clientPlayer.js"
 import Connection from "../../connection.js"
 import Missile from "../player/missile.js"
+import Stats from 'three/addons/libs/stats.module.js'
 
-const FPS = localStorage.getItem('FPS') || 60;
+const FPS = localStorage.getItem('FPS') * 1.5 || 60 * 1.5;
 
 export default class Level {
 
@@ -67,6 +68,11 @@ export default class Level {
 
     this.levelRenderer = this.world.renderer;
 
+    if (localStorage.getItem('showFPS') != undefined ? JSON.parse(localStorage.getItem('showFPS')) : false) {
+      this.stats = new Stats();
+      document.body.appendChild(this.stats.dom);
+    }
+
     this.#setUpSocketEvents();
 
   }
@@ -91,6 +97,7 @@ export default class Level {
   update() {
 
     this.world.update();
+    this.stats?.update();
 
     if (this.clientPlayer && this.clientPlayer.alive) {
       const playerPosition = this.clientPlayer.getPlayerPosition();

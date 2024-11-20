@@ -103,16 +103,12 @@ export default class Player {
           await carModel.initModel().then((mesh) => {
             this.mesh.chassis = mesh;
             this.mesh.chassis.scale.set(scale, scale, scale);
-            this.mesh.chassis.castShadow = true;
-            this.mesh.chassis.recieveShadow = true;
           });
         } else {
           this.mesh.chassis = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
           this.mesh.chassis.scale.set(this.debugChassisScale.x, this.debugChassisScale.y, this.debugChassisScale.z);
         }
 
-        this.mesh.chassis.castShadow = true;
-        this.mesh.chassis.recieveShadow = true;
         this.mesh.wheels = {
           frontLeft: null,
           frontRight: null,
@@ -123,29 +119,21 @@ export default class Player {
         await FrontLeft.initModel().then((mesh) => {
           this.mesh.wheels.frontLeft = mesh;
           this.mesh.wheels.frontLeft.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
-          this.mesh.wheels.frontLeft.castShadow = true;
-          this.mesh.wheels.frontLeft.recieveShadow = true;
         });
         const FrontRight = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
         await FrontRight.initModel().then((mesh) => {
           this.mesh.wheels.frontRight = mesh;
           this.mesh.wheels.frontRight.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
-          this.mesh.wheels.frontRight.castShadow = true;
-          this.mesh.wheels.frontRight.recieveShadow = true;
         });
         const BackLeft = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
         await BackLeft.initModel().then((mesh) => {
           this.mesh.wheels.backLeft = mesh;
           this.mesh.wheels.backLeft.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
-          this.mesh.wheels.backLeft.castShadow = true;
-          this.mesh.wheels.backLeft.recieveShadow = true;
         });
         const BackRight = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
         await BackRight.initModel().then((mesh) => {
           this.mesh.wheels.backRight = mesh;
           this.mesh.wheels.backRight.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
-          this.mesh.wheels.backRight.castShadow = true;
-          this.mesh.wheels.backRight.recieveShadow = true;
         });
 
         // this.mesh.wheels.frontLeft.rotation.isEuler = false;
@@ -174,6 +162,7 @@ export default class Player {
       spotlight.target.position.set(10, 0, 0); // Apuntando hacia adelante
       spotlight.angle = Math.PI / 4; // Reducir el ángulo del cono de luz
       spotlight.penumbra = 0.1; // Ajustar la penumbra si es necesario
+      spotlight.castShadow = true; // Activar las sombras
       this.mesh.chassis.add(spotlight);
       this.mesh.chassis.add(spotlight.target);
       // Repetimos para el otro lado
@@ -182,6 +171,7 @@ export default class Player {
       spotlight.target.position.set(10, 0, 0);
       spotlight.angle = Math.PI / 4;
       spotlight.penumbra = 0.1;
+      spotlight.castShadow = true;
       this.mesh.chassis.add(spotlight);
       this.mesh.chassis.add(spotlight.target);
 

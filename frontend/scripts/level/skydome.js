@@ -35,4 +35,8 @@ export default class Skydome {
         }
     }
 
+    setColor(color){
+        this.skydome.material.color.set(color);
+    }   
+
 }
