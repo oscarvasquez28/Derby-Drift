@@ -64,7 +64,7 @@ export default class InputSystem {
                 down: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).backward.toLowerCase() : 's'),
                 left: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).left.toLowerCase() : 'a'),
                 right: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).right.toLowerCase() : 'd'),
-                fire: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).shoot.toLowerCase() : 'r'),
+                fire: player.ammo > 0 ? (this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).shoot.toLowerCase() : 'r')) : false,
                 brake: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).drift.toLowerCase() : 'c'),
                 flip: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).flip.toLowerCase() : 'f'),
             },

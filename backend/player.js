@@ -250,7 +250,7 @@ export default class Player {
                 this.flipCar();
             }
 
-            if (data.inputs.fire) {
+            if (this.getJson().ammo > 0 && data.inputs.fire) {
                 this.fireProjectile();
             }
 
@@ -331,6 +331,7 @@ export default class Player {
         const missile = new Missile(this.level, this.world, this);
         this.projectiles.push(missile);
         this.shotProjectile = true;
+        this.getJson().ammo--;
     }
 
     hasShotProjectile() {
@@ -353,6 +354,10 @@ export default class Player {
             projectilesJson.push(projectile.getJSON());
         });
         return projectilesJson;
+    }
+
+    removeShield() {
+        this.player.json.hasShield = false;
     }
 
     destroy() {

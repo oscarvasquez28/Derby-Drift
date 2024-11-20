@@ -71,9 +71,6 @@ export default class World {
     sun.shadow.camera.right = 1000;
     sun.shadow.camera.top = 1000;
     sun.shadow.camera.bottom = -1000;
-
-    const helper = new THREE.CameraHelper( sun.shadow.camera );
-    scene.add( helper );
     
     scene.add(sun);
     scene.add(sun.target);

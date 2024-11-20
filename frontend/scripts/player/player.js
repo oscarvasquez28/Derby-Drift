@@ -20,7 +20,7 @@ export default class Player {
       frontRight: { x: 0, y: 0, z: 0, w: 0 },
       backLeft: { x: 0, y: 0, z: 0, w: 0 },
       backRight: { x: 0, y: 0, z: 0, w: 0 }
-    },
+    }
   };
 
   lookAt = { x: 0, y: 0, z: 0 };
@@ -55,11 +55,26 @@ export default class Player {
       else
         throw "Cannot initialize player with an undefined id";
 
+      if (data.levelId)
+        this.levelId = data.levelId;
+
       if (data.name)
         this.name = data.name;
 
       if (data.email)
         this.email = data.email;
+
+      if (data.ammo)
+        this.ammo = data.ammo;
+
+      if (data.hasShield)
+        this.hasShield = data.hasShield;
+
+      if (data.hasBoost)
+        this.hasBoost = data.hasBoost;
+
+      if (data.score)
+        this.score = data.score;
 
       if (data.color)
         this.color = data.color;
@@ -135,6 +150,16 @@ export default class Player {
           this.mesh.wheels.backRight = mesh;
           this.mesh.wheels.backRight.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
         });
+
+        // Añadir la esfera que muestra los jugadores con escudo
+        const sphereGeometry = new THREE.SphereGeometry(4.3, 8, 8);
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5, depthWrite: false });
+        const sphereWireframeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
+        this.mesh.shieldWireframe = new THREE.Mesh(sphereGeometry, sphereWireframeMaterial);
+        this.mesh.shield = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        this.mesh.chassis.add(this.mesh.shield);
+        this.mesh.chassis.add(this.mesh.shieldWireframe);
+        this.hideShield();
 
         // this.mesh.wheels.frontLeft.rotation.isEuler = false;
 
@@ -219,6 +244,15 @@ export default class Player {
         }
       }
 
+      if (data.ammo)
+        this.ammo = data.ammo;
+
+      if (data.hasShield != undefined)
+        this.hasShield = data.hasShield;
+
+      if (data.hasBoost != undefined)
+        this.hasBoost = data.hasBoost;
+
       if (data.color)
         this.color = data.color;
 
@@ -273,7 +307,22 @@ export default class Player {
   update() {
     if (this.nametag)
       this.nametag.update();
+    if (this.hasShield === true){
+      this.showShield();
+      if (this.mesh.shield && this.mesh.shieldWireframe) {
+        this.mesh.shield.rotation.y += 0.01;
+        this.mesh.shield.rotation.x += 0.02;
+        this.mesh.shield.rotation.z += 0.005;
+        this.mesh.shieldWireframe.rotation.y += 0.01;
+        this.mesh.shieldWireframe.rotation.x += 0.02;
+        this.mesh.shieldWireframe.rotation.z += 0.005;
+      }
+    }
+    else
+      this.hideShield();
+
     this.#generateLookAt();
+    
   }
 
   setPlayerPosition(newPos = { x: 0, y: 0, z: 0 }) {
@@ -292,6 +341,18 @@ export default class Player {
     this.scene.remove(this.mesh.wheels.backLeft);
     this.scene.remove(this.mesh.wheels.backRight);
     this.nametag.remove();
+  }
+
+  showShield() {
+    if (!this.mesh.shield || !this.mesh.shieldWireframe) return;
+    this.mesh.shield.visible = true;
+    this.mesh.shieldWireframe.visible = true;
+  }
+
+  hideShield() {
+    if (!this.mesh.shield || !this.mesh.shieldWireframe) return;
+    this.mesh.shield.visible = false;
+    this.mesh.shieldWireframe.visible = false;
   }
 
   #generateLookAt() {

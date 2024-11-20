@@ -66,7 +66,12 @@ export default class Level {
             const collidedPlayer = Object.values(this.players).find(player => player.getBody().chassis.id === event.body.id);
             if (collidedPlayer) {
                 missile.player.addScore();
-                collidedPlayer.takeDamage(missile.damage, "El jugador fue alcanzado por un misil del jugador: " + missile.player.getJson().name);
+                if (collidedPlayer.getJson().hasShield){
+                    // Socket.getIO().emit('playerShielded', { id: collidedPlayer.id });
+                    collidedPlayer.removeShield();
+                }
+                else
+                    collidedPlayer.takeDamage(missile.damage, "El jugador fue alcanzado por un misil del jugador: " + missile.player.getJson().name);
             }
         }
     }

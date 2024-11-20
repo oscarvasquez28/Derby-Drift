@@ -40,6 +40,9 @@ export default class Level {
       name: this.#genRandomName(),
       id: null,
       health: this.playerInitHealth,
+      ammo: 1,
+      hasShield: true,
+      hasBoost: false,
       score: 0,
       mesh: Math.random() < 0.5 ? 1 : 2,
       position: {
@@ -214,7 +217,7 @@ export default class Level {
         console.log("Recieved message from server: playerWon\nPlayer: " + data.id + " won the game");
         const winningPlayer = this.players.find(obj => obj.id === data.id);
         if (winningPlayer.id === this.clientPlayer.getPlayer().id) {
-          alert("Player: " + winningPlayer.name + " ID:" + winningPlayer.id + " won the game");
+          // alert("Player: " + winningPlayer.name + " ID:" + winningPlayer.id + " won the game");
           this.showWinScreen();
         }
       });

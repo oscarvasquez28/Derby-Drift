@@ -12,7 +12,7 @@ export default class CannonWorld {
         this.world.defaultContactMaterial.friction = 0;
         this.world.solver.iterations = 10;
         this.terrain = new Terrain(this.world, heightmapPath, scale);
-        this.FPS = 144;
+        this.FPS = 200;
 
         this.groundMaterial = new cannon.Material("groundMaterial");
         this.wheelMaterial = new cannon.Material("wheelMaterial");
@@ -27,7 +27,7 @@ export default class CannonWorld {
     createCircularBoundary(radius, numSegments) {
         const angleStep = (2 * Math.PI) / numSegments;
         const wallHeight = 10;
-        const wallThickness = 1;
+        const wallThickness = 3;
         const wallLength = (2 * Math.PI * radius) / numSegments;
 
         for (let i = 0; i < numSegments; i++) {
