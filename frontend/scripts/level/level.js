@@ -7,6 +7,7 @@ import Stats from 'three/addons/libs/stats.module.js'
 import PowerUp from "./powerUp.js"
 import Shield from "./shield.js"
 import Ammo from "./ammo.js"
+import Boost from "./boost.js"
 
 const FPS = localStorage.getItem('FPS') * 1.5 || 60 * 1.5;
 
@@ -428,15 +429,13 @@ export default class Level {
 
     switch (powerUpData.type) {
       case 'ammo':
-        //TODO: Implement ammo power up
         powerUp = new Ammo(powerUpData);
         break;
       case 'shield':
         powerUp = new Shield(powerUpData);
         break;
       case 'boost':
-        //TODO: Implement boost power up
-        powerUp = new PowerUp(powerUpData);
+        powerUp = new Boost(powerUpData);
         break;
       default:
         powerUp = new PowerUp(powerUpData);

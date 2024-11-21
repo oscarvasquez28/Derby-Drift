@@ -65,7 +65,7 @@ export default class PowerUp {
     }
     
     spawn(type) {
-        this.type = type ? type : (Math.random() > 0.7 ? 'shield' : 'ammo');        
+        this.type = type ? type : (Math.random() < 0.1 ? 'shield' : (Math.random() < 0.4 ? 'boost' : 'ammo'));
         const randomX = Math.floor(Math.random() * 500) - 250;
         const randomZ = Math.floor(Math.random() * 500) - 250;
         this.position.set(randomX, 10, randomZ);
@@ -88,9 +88,8 @@ export default class PowerUp {
             case 'shield':
                 player.addShield();
                 break;
-            case 'speed':
-                // player.increaseSpeed();
-                console.warn(`TODO implement power-up: ${this.type}`);
+            case 'boost':
+                player.applyBoost();
                 break;
             case 'ammo':
                 player.addAmmo();

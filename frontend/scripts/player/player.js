@@ -45,6 +45,8 @@ export default class Player {
     this.mesh = {};
     this.scene = scene;
     this.onFire = false;
+    this.trail = {};
+    this.fire = null;
 
   }
 
@@ -81,7 +83,7 @@ export default class Player {
       if (data.color)
         this.color = data.color;
 
-      if (data.health){
+      if (data.health) {
         this.initHealth = data.health;
         this.health = data.health;
       }
@@ -116,7 +118,7 @@ export default class Player {
         if (!this.debug) {
           const model = data.mesh === 1 ? 'Car1' : 'Car2';
           const scale = data.mesh === 1 ? 1.5 : 2;
-          const carModel = new ObjModel(this.scene, 'models/'+model+'/'+model+'.obj', 'models/'+model+'/'+model+'.mtl', false)
+          const carModel = new ObjModel(this.scene, 'models/' + model + '/' + model + '.obj', 'models/' + model + '/' + model + '.mtl', false)
           await carModel.initModel().then((mesh) => {
             this.mesh.chassis = mesh;
             this.mesh.chassis.scale.set(scale, scale, scale);
@@ -204,15 +206,33 @@ export default class Player {
       this.mesh.chassis.add(spotlight);
       this.mesh.chassis.add(spotlight.target);
 
-      if (data.camera){
-        this.fire = new ParticleSystem({ 
+      if (data.camera) {
+        this.fire = new ParticleSystem({
           alwaysRender: true,
           parent: this.scene,
           spawnPosition: this.mesh.chassis.position,
           camera: data.camera,
           life: 2,
-          velocity: {x: 0, y: 30, z: 0},
+          velocity: { x: 0, y: 30, z: 0 },
           size: 5
+        });
+        this.trail[0] = new ParticleSystem({
+          alwaysRender: true,
+          parent: this.scene,
+          spawnPosition: this.mesh.wheels.backRight.position,
+          camera: data.camera,
+          life: 2,
+          velocity: { x: 0, y: 15, z: 0 },
+          size: 2.5
+        });
+        this.trail[1] = new ParticleSystem({
+          alwaysRender: true,
+          parent: this.scene,
+          spawnPosition: this.mesh.wheels.backLeft.position,
+          camera: data.camera,
+          life: 2,
+          velocity: { x: 0, y: 15, z: 0 },
+          size: 2.5
         });
       }
 
@@ -253,9 +273,9 @@ export default class Player {
       if (data.name)
         this.name = data.name;
 
-      if (data.health){
+      if (data.health) {
         this.health = data.health;
-        if (this.health <= this.initHealth / 2){
+        if (this.health <= this.initHealth / 2) {
           this.onFire = true;
         }
       }
@@ -272,7 +292,7 @@ export default class Player {
       if (data.color)
         this.color = data.color;
 
-      if(data.score)
+      if (data.score)
         this.score = data.score;
 
       if (data.position && typeof data.position === 'object') {
@@ -323,7 +343,7 @@ export default class Player {
   update() {
     if (this.nametag)
       this.nametag.update();
-    if (this.hasShield === true){
+    if (this.hasShield === true) {
       this.showShield();
       if (this.mesh.shield && this.mesh.shieldWireframe) {
         this.mesh.shield.rotation.y += 0.01;
@@ -339,9 +359,22 @@ export default class Player {
 
     this.#generateLookAt();
 
+    if (this.hasBoost && this.trail) {
+      for (let i = 0; i < 2; i++) {
+        if (this.trail[i]){
+          this.trail[i].show();
+          this.trail[i].Step((1 / (localStorage.getItem('FPS')) || 60));
+        }
+      }
+    }else
+      for (let i = 0; i < 2; i++) {
+        if (this.trail[i])
+          this.trail[i].hide();
+      }
+
     if (this.onFire && this.fire)
-      this.fire.Step((1 / (localStorage.getItem('FPS')) || 60)); 
-    
+      this.fire.Step((1 / (localStorage.getItem('FPS')) || 60));
+
   }
 
   setPlayerPosition(newPos = { x: 0, y: 0, z: 0 }) {

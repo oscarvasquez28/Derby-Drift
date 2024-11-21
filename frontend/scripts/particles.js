@@ -241,6 +241,14 @@ export default class ParticleSystem {
     this.params.parent.remove(this._points);
   }
 
+  show() {  
+    this._points.visible = true;
+  }
+
+  hide() {
+    this._points.visible = false;
+  }
+
   Step(timeElapsed) {
     this._AddParticles(timeElapsed);
     this._UpdateParticles(timeElapsed);

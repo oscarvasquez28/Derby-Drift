@@ -6,6 +6,7 @@ import Database from './database.js';
 export default class Player {
 
     PLAYER_MAX_SPEED = 10000;
+    PLAYER_MAX_SPEED_BOOST = 20000;
     PLAYER_WEIGHT = 1000;
     BRAKE_FORCE = 50;
     MAX_STEER_VALUE = Math.PI / 8;
@@ -232,12 +233,12 @@ export default class Player {
             else if (direction.z > 0) vehicle.setSteeringValue(this.MAX_STEER_VALUE, 0), vehicle.setSteeringValue(this.MAX_STEER_VALUE, 1);
             else vehicle.setSteeringValue(0, 0), vehicle.setSteeringValue(0, 1);
             if (direction.x < 0) {
-                vehicle.applyEngineForce(-this.PLAYER_MAX_SPEED, 0);
-                vehicle.applyEngineForce(-this.PLAYER_MAX_SPEED, 1);
+                vehicle.applyEngineForce(!this.getJson().hasBoost ? -this.PLAYER_MAX_SPEED : -this.PLAYER_MAX_SPEED_BOOST, 0);
+                vehicle.applyEngineForce(!this.getJson().hasBoost ? -this.PLAYER_MAX_SPEED : -this.PLAYER_MAX_SPEED_BOOST, 1);
             }
             else if (direction.x > 0) {
-                vehicle.applyEngineForce(this.PLAYER_MAX_SPEED, 0);
-                vehicle.applyEngineForce(this.PLAYER_MAX_SPEED, 1);
+                vehicle.applyEngineForce(!this.getJson().hasBoost ? this.PLAYER_MAX_SPEED : this.PLAYER_MAX_SPEED_BOOST , 0);
+                vehicle.applyEngineForce(!this.getJson().hasBoost ? this.PLAYER_MAX_SPEED : this.PLAYER_MAX_SPEED_BOOST , 1);
             }
             else vehicle.applyEngineForce(0, 0), vehicle.applyEngineForce(0, 1);
 
@@ -349,6 +350,13 @@ export default class Player {
         this.player.json.ammo += ammo;
     }
     
+    applyBoost() {
+        this.player.json.hasBoost = true;
+        setTimeout(() => {
+            this.player.json.hasBoost = false;
+        }, 5000);
+    }
+
     getLastProjectile() {
         return this.projectiles[this.projectiles.length - 1];
     }
