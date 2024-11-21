@@ -51,10 +51,13 @@ export default class Shield extends PowerUp {
         this.mesh.shield.quaternion.copy(quaternion);
     }
 
+    setRotation(rotation = this.rotation) {
+        this.rotation = rotation;
+        this.mesh.shield.rotation.copy(rotation);
+    }
+
     update() {
-        this.setQuaternion();
-        this.setPos();
-        this.mesh.shield.rotation.y += 0.01;
-        this.mesh.shieldWireframe.rotation.y += 0.01;
+        super.update();
+        this.rotation.y += 0.01;
     }
 }

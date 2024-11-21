@@ -15,8 +15,8 @@ export default class Missile {
         this.body.velocity.copy(this.chassis.velocity);
         this.body.angularVelocity.copy(this.chassis.angularVelocity);
         this.body.quaternion.copy(this.chassis.quaternion);
-        this.body.position.vadd(new cannon.Vec3(0, 4, 0), this.body.position);
-        this.body.applyLocalForce(new cannon.Vec3(100000, 0, 0), new cannon.Vec3(0, 0, 0));
+        this.body.position.vadd(new cannon.Vec3(0, 3, 0), this.body.position);
+        this.body.applyLocalForce(new cannon.Vec3(50000, 500, 0), new cannon.Vec3(0, 0, 0));
         this.collided = false;
         this.collideListener = this.handleCollision.bind(this);
         this.remove = false;

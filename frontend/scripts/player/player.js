@@ -161,7 +161,7 @@ export default class Player {
         this.mesh.shield = new THREE.Mesh(sphereGeometry, sphereMaterial);
         this.mesh.chassis.add(this.mesh.shield);
         this.mesh.chassis.add(this.mesh.shieldWireframe);
-        const pointlight = new THREE.PointLight(0x00ffff, 5, 150, 4);
+        const pointlight = new THREE.PointLight(0x00ffff, 5, 75, 4);
         this.mesh.shield.add(pointlight);
         this.hideShield();
 
@@ -260,7 +260,7 @@ export default class Player {
         }
       }
 
-      if (data.ammo)
+      if (data.ammo != undefined)
         this.ammo = data.ammo;
 
       if (data.hasShield != undefined)

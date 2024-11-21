@@ -6,6 +6,7 @@ import Missile from "../player/missile.js"
 import Stats from 'three/addons/libs/stats.module.js'
 import PowerUp from "./powerUp.js"
 import Shield from "./shield.js"
+import Ammo from "./ammo.js"
 
 const FPS = localStorage.getItem('FPS') * 1.5 || 60 * 1.5;
 
@@ -44,7 +45,7 @@ export default class Level {
       name: this.#genRandomName(),
       id: null,
       health: this.playerInitHealth,
-      ammo: 999,
+      ammo: 0,
       hasShield: false,
       hasBoost: false,
       score: 0,
@@ -119,6 +120,10 @@ export default class Level {
 
     this.powerUps.forEach(powerUp => {
       powerUp.update();
+    });
+
+    this.projectiles.forEach(missile => { 
+      missile.update();
     });
 
   }
@@ -261,7 +266,7 @@ export default class Level {
       socket.on('newProjectile', (projectileData) => {
         if (this.gameEnded) return;
         // console.log("Recieved message from server: newProjectile\nRecieved new projectile from player: " + projectileData.id);
-        const newProjectile = new Missile(this.levelScene, this.players.find(player => player.id === projectileData.id), projectileData.id);
+        const newProjectile = new Missile(this.levelScene, this.players.find(player => player.id === projectileData.id), this.levelCamera, projectileData.id);
         newProjectile.updateMissileFromJSON(projectileData);
         this.projectiles.push(newProjectile);
       });
@@ -424,7 +429,7 @@ export default class Level {
     switch (powerUpData.type) {
       case 'ammo':
         //TODO: Implement ammo power up
-        powerUp = new PowerUp(powerUpData);
+        powerUp = new Ammo(powerUpData);
         break;
       case 'shield':
         powerUp = new Shield(powerUpData);

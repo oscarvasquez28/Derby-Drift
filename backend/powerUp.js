@@ -64,7 +64,8 @@ export default class PowerUp {
         return false;
     }
     
-    spawn() {
+    spawn(type) {
+        this.type = type ? type : (Math.random() > 0.7 ? 'shield' : 'ammo');        
         const randomX = Math.floor(Math.random() * 500) - 250;
         const randomZ = Math.floor(Math.random() * 500) - 250;
         this.position.set(randomX, 10, randomZ);
@@ -75,7 +76,6 @@ export default class PowerUp {
         for (const id in players) {
             if (players.hasOwnProperty(id)) {
                 if (this.collidedWith(players[id].getJson())) {
-                    // TODO apply power up and disable it
                     this.applyPowerUp(players[id]);
                     Socket.getIO().emit('powerUpCollected', { id: this.id, playerId: id });
                 }

@@ -8,6 +8,8 @@ export default class PowerUp {
         this.type = params.type;
         this.position = params.position || new THREE.Vector3(0, 0, 0);
         this.quaternion = params.quaternion || new THREE.Quaternion();
+        this.rotation = params.rotation || new THREE.Euler();
+        this.useEuler = params.useEuler || true;
         this.radius = params.radius || 1;
         this.mesh = this.createPowerUpMesh();
     }
@@ -43,17 +45,24 @@ export default class PowerUp {
 
     setPos(position = this.position) {  
         this.position = position;
-        this.mesh.position.copy(position);
+        if (this.mesh)
+            this.mesh.position.copy(position);
     }
 
     setQuaternion(quaternion = this.quaternion) {
         this.quaternion = quaternion;
-        this.mesh.quaternion.copy(quaternion);
+        if (this.mesh)
+            this.mesh.quaternion.copy(quaternion);
+    }
+
+    setRotation(rotation = this.rotation) {
+        this.rotation = rotation;
+        if (this.mesh)
+            this.mesh.rotation.copy(rotation);
     }
 
     update() {
-        this.setQuaternion();
+        this.useEuler ? this.setRotation() : this.setQuaternion();
         this.setPos();
-        this.mesh.rotation.y += 0.01;
     }
 }
