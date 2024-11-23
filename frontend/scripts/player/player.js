@@ -363,7 +363,7 @@ export default class Player {
       for (let i = 0; i < 2; i++) {
         if (this.trail[i]){
           this.trail[i].show();
-          this.trail[i].Step((1 / (localStorage.getItem('FPS')) || 60));
+          this.trail[i].Step((1 / ((localStorage.getItem('FPS')) || 60)));
         }
       }
     }else
@@ -373,7 +373,7 @@ export default class Player {
       }
 
     if (this.onFire && this.fire)
-      this.fire.Step((1 / (localStorage.getItem('FPS')) || 60));
+      this.fire.Step((1 / ((localStorage.getItem('FPS')) || 60)));
 
   }
 
