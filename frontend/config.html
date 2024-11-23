@@ -79,7 +79,7 @@
                 <h4>Sombras</h4>
               </div>
               <div class="col-xl-6 form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" name="show-shadows" checked>
+                <input class="form-check-input" type="checkbox" id="showShadows" name="show-shadows" checked>
               </div>
             </div>
             <div class="row config-container-video-height">
@@ -87,11 +87,9 @@
                 <h4>Fotogramas por segundo</h4>
               </div>
               <div class="col-xl-6">
-                <select class="config-fps" aria-label="Default select example">  <!--class = "form-select"-->
-                  <option selected>30</option>
-                  <option value="60">60</option>
-                  <option value="120">120</option>
-                  <option value="144">144</option>
+                <select id="fps" class="config-fps" aria-label="Default select example">  <!--class = "form-select"-->
+                  <option value="30">30</option>
+                  <option selected value="60">60</option>
                 </select>
               </div>
             </div>
@@ -100,13 +98,13 @@
                 <h4>Mostrar FPS</h4>
               </div>
               <div class="col-xl-6 show-fps form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" name="show-fps" checked>
+                <input class="form-check-input" type="checkbox" id="showFPS" name="show-fps">
               </div>
             </div>
           </div>
         </div>
         <div class="col-xl-12 config-container-controles d-none">
-          <div class="container-fluid h-100">
+          <div class="container-fluid" style="min-height: 100%;">
             <div class="row config-container-controles-height">
               <div class="col-xl-6">
                 <h4>Adelante</h4>

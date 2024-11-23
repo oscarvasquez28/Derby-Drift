@@ -12,7 +12,7 @@ export default class CannonWorld {
         this.world.defaultContactMaterial.friction = 0;
         this.world.solver.iterations = 10;
         this.terrain = new Terrain(this.world, heightmapPath, scale);
-        this.FPS = 144;
+        this.FPS = 200;
 
         this.groundMaterial = new cannon.Material("groundMaterial");
         this.wheelMaterial = new cannon.Material("wheelMaterial");
@@ -22,6 +22,32 @@ export default class CannonWorld {
             contactEquationStiffness: 1000
         });
         this.world.addContactMaterial(this.wheelGroundContactMaterial);
+    }
+
+    createCircularBoundary(radius, numSegments) {
+        const angleStep = (2 * Math.PI) / numSegments;
+        const wallHeight = 10;
+        const wallThickness = 3;
+        const wallLength = (2 * Math.PI * radius) / numSegments;
+
+        for (let i = 0; i < numSegments; i++) {
+            const angle = i * angleStep;
+            const x = radius * Math.cos(angle);
+            const z = radius * Math.sin(angle);
+
+            const shape = new cannon.Box(new cannon.Vec3(wallLength / 2, wallHeight / 2, wallThickness / 2));
+            const body = new cannon.Body({
+                mass: 0, // Static body
+                position: new cannon.Vec3(x, wallHeight / 2, z),
+                shape: shape
+            });
+
+            body.tag = "wall";
+
+            body.quaternion.setFromAxisAngle(new cannon.Vec3(0, 1, 0), -angle);
+
+            this.world.addBody(body);
+        }
     }
 
     step() {

@@ -1,58 +1,64 @@
 import ObjModel from "../model.js"
 import Level from './level.js';
 
-export default class Colisseum extends Level {
+export default class Colosseum extends Level {
 
     constructor() {
-        super('textures/heightmap.jpg', 0x796B5C);
+        super('textures/heightmap.jpg', 0x796B5C, 3);
         this.levelId = 0;
+        this.initHeight = 30;
     }
 
     async initLevel() {
         super.initLevel();
         
+        this.defaultPlayer.position.chassis.x = Math.random() * 300 - 150;
+        this.defaultPlayer.position.chassis.z = Math.random() * 300 - 150;
+
         // Inicializar con valores por defecto
         // this.dobeto = new ObjModel(this.levelScene, 'models/PORFAVOR.obj', 'models/PORFAVOR.mtl');
     
         // Inicializar con rotación y posición en personalizadas
         this.dobeto = new ObjModel(this.levelScene, 'models/PORFAVOR.obj', 'models/PORFAVOR.mtl', false);
         await this.dobeto.initModel().then((mesh) => {
-          mesh.position.y = 25;
-          mesh.position.x = -135;
-          mesh.position.z = -135;
-          mesh.scale.set(15, 15, 15);
+          mesh.position.y = 50;
+          mesh.position.x = -350;
+          mesh.position.z = -350;
+          mesh.scale.set(50, 50, 50);
           mesh.rotation.y = -125 * Math.PI / 180;
         });
     
-        this.colliseum = {
+        const scale = 10;        
+
+        this.colosseum = {
           rails: new ObjModel(this.levelScene, 'models/Colliseum/ColliseumRails.obj', 'models/Colliseum/ColliseumRails.mtl', false),
           seats: new ObjModel(this.levelScene, 'models/Colliseum/ColliseumSeats.obj', 'models/Colliseum/ColliseumSeats.mtl', false),
           walls: new ObjModel(this.levelScene, 'models/Colliseum/ColliseumWalls.obj', 'models/Colliseum/ColliseumWalls.mtl', false),
         }
     
-        this.colliseum.rails.initModel().then((mesh) => {
-          mesh.position.x = 10;
+        this.colosseum.rails.initModel().then((mesh) => {
+          mesh.position.x = 0;
           mesh.position.y = 13;
           mesh.position.z = 0;
-          mesh.scale.set(3.3, 3.3, 3.3);
+          mesh.scale.set(scale, scale, scale);
         });
-        this.colliseum.seats.initModel().then((mesh) => {
-          mesh.position.x = 10;
+        this.colosseum.seats.initModel().then((mesh) => {
+          mesh.position.x = 0;
           mesh.position.y = 13;
           mesh.position.z = 0;
-          mesh.scale.set(3.3, 3.3, 3.3);
+          mesh.scale.set(scale, scale, scale);
         });
-        this.colliseum.walls.initModel().then((mesh) => {
-          mesh.position.x = 10;
+        this.colosseum.walls.initModel().then((mesh) => {
+          mesh.position.x = 0;
           mesh.position.y = 13;
           mesh.position.z = 0;
-          mesh.scale.set(3.3, 3.3, 3.3);
+          mesh.scale.set(scale, scale, scale);
         });
     
         this.models.push(this.dobeto);
-        this.models.push(this.colliseum.rails);
-        this.models.push(this.colliseum.seats);
-        this.models.push(this.colliseum.walls);
+        this.models.push(this.colosseum.rails);
+        this.models.push(this.colosseum.seats);
+        this.models.push(this.colosseum.walls);
     }
 
     update() {

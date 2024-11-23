@@ -22,8 +22,8 @@
       </div>
       <div class="col-xl-6 scores-second-col">
         <div class="col-xl-12 scores-container">
-          <div class="container-fluid h-100">
-            <div class="row">
+          <div id="scoreTable" class="container-fluid h-100" style="overflow-y: scroll; max-height: 75vh;">
+            <div class="row sticky-top" style="padding-top: 10px; background-color: rgba(0, 0, 0, 0.8); border-top-left-radius: 10px; border-top-right-radius: 10px;">
               <div class="col-xl-6">
                 <h4>Jugador</h4>
               </div>
@@ -31,7 +31,7 @@
                 <h4>Demoliciones</h4>
               </div>
             </div>
-            <div class="row">
+            <!-- <div class="row">
               <div class="col-xl-6 mt-3">
                 <h5>Dobeto</h5>
               </div>
@@ -62,7 +62,7 @@
               <div class="col-xl-6 mt-3">
                 <h5>53</h5>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -70,4 +70,25 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
+<script>  
+  fetch('/players').then(response => response.json()).then(data => {
+    const scoreTable = document.getElementById('scoreTable');
+    data.forEach(player => {
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      const playerNameCol = document.createElement('div');
+      playerNameCol.className = 'col-xl-6 mt-3';
+      playerNameCol.innerHTML = `<h5>${player.name}</h5>`;
+
+      const playerScoreCol = document.createElement('div');
+      playerScoreCol.className = 'col-xl-6 mt-3';
+      playerScoreCol.innerHTML = `<h5>${player.highscore}</h5>`;
+
+      row.appendChild(playerNameCol);
+      row.appendChild(playerScoreCol);
+      scoreTable.appendChild(row);
+    });
+  });
+</script>
 </html>

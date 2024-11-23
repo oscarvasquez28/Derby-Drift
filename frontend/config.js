@@ -89,7 +89,7 @@ document.querySelectorAll('.config-controles input').forEach(input => {
         }
       });
       if (duplicate) {
-        input.value = JSON.parse(localStorage.getItem('controls'))[input.id] || defaultControls[input.id];
+        input.value = JSON.parse(localStorage.getItem('controls'))?.input.id || defaultControls[input.id];
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
@@ -99,6 +99,24 @@ document.querySelectorAll('.config-controles input').forEach(input => {
     }
   });
 });
+
+document.getElementById('showShadows').addEventListener('change', function() {  
+  localStorage.setItem('showShadows', this.checked);
+});
+
+document.getElementById('showShadows').checked = localStorage.getItem('showShadows') != undefined ? JSON.parse(localStorage.getItem('showShadows')) : true;
+
+document.getElementById('fps').addEventListener('change', function() {
+  localStorage.setItem('FPS', parseInt(this.value, 10));
+});
+
+document.getElementById('fps').value = localStorage.getItem('FPS') || 60;
+
+document.getElementById('showFPS').addEventListener('change', function() {
+  localStorage.setItem('showFPS', this.checked);
+});
+
+document.getElementById('showFPS').checked = JSON.parse(localStorage.getItem('showFPS')) || false;
 
 document.getElementById('btn-reset').addEventListener('click', function() {
   Swal.fire({
@@ -125,4 +143,3 @@ document.getElementById('btn-guardar').addEventListener('click', function() {
     title: 'Controles guardados',
   });
 });
-

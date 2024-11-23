@@ -9,14 +9,14 @@ export default class Missile {
         this.world = world;
         this.player = player;
         this.chassis = this.player.player.body.chassis;
-        this.damage = 100;
+        this.damage = 50;
         this.body = this.createMissile();
         this.body.position.copy(this.chassis.position);
         this.body.velocity.copy(this.chassis.velocity);
         this.body.angularVelocity.copy(this.chassis.angularVelocity);
         this.body.quaternion.copy(this.chassis.quaternion);
-        this.body.position.vadd(new cannon.Vec3(0, 4, 0), this.body.position);
-        this.body.applyLocalForce(new cannon.Vec3(100000, 0, 0), new cannon.Vec3(0, 0, 0));
+        this.body.position.vadd(new cannon.Vec3(0, 3, 0), this.body.position);
+        this.body.applyLocalForce(new cannon.Vec3(50000, 500, 0), new cannon.Vec3(0, 0, 0));
         this.collided = false;
         this.collideListener = this.handleCollision.bind(this);
         this.remove = false;
@@ -25,7 +25,7 @@ export default class Missile {
     }
 
     createMissile() {
-        const shape = new cannon.Sphere(0.5);
+        const shape = new cannon.Sphere(2);
         const body = new cannon.Body({
             mass: 1,
             position: new cannon.Vec3(),
@@ -60,16 +60,16 @@ export default class Missile {
     startTimer(duration) {
         setTimeout(() => {
             console.log(`Missile ${this.id} has been removed after ${duration}ms`);
-            Socket.getIO().emit('missileRemoved', {
-                id: this.id,
-                playerId: this.player.id
-            });
             this.remove = true;
         }, duration);
     }
 
     destroy() {
         this.world.removeBody(this.body);
+        Socket.getIO().emit('missileRemoved', {
+            id: this.id,
+            playerId: this.player.id
+        });
         this.level.levelProjectiles = this.level.levelProjectiles.filter(projectile => projectile.id !== this.id);
         this.player.projectiles = this.player.projectiles.filter(projectile => projectile.id !== this.id);
         delete this;

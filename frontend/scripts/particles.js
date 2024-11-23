@@ -1,4 +1,4 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js';
+import * as THREE from 'three';
 
 const _VS = `
 uniform float pointMultiplier;
@@ -70,7 +70,7 @@ export default class ParticleSystem {
   constructor(params) {
     const uniforms = {
         diffuseTexture: {
-            value: new THREE.TextureLoader().load('./resources/fire.png')
+            value: new THREE.TextureLoader().load(params.texturePath || '/textures/fire.png')
         },
         pointMultiplier: {
             value: window.innerHeight / (2.0 * Math.tan(0.5 * 60.0 * Math.PI / 180.0))
@@ -88,6 +88,8 @@ export default class ParticleSystem {
         vertexColors: true
     });
 
+    this.params = params;
+
     this._camera = params.camera;
     this._particles = [];
 
@@ -98,6 +100,8 @@ export default class ParticleSystem {
     this._geometry.setAttribute('angle', new THREE.Float32BufferAttribute([], 1));
 
     this._points = new THREE.Points(this._geometry, this._material);
+    if (params.alwaysRender)
+      this._points.frustumCulled = false;
 
     params.parent.add(this._points);
 
@@ -145,19 +149,19 @@ export default class ParticleSystem {
     this.gdfsghk -= n / 75.0;
 
     for (let i = 0; i < n; i++) {
-      const life = (Math.random() * 0.75 + 0.25) * 10.0;
+      const life = (Math.random() * 0.75 + 0.25) * (this.params.life || 10.0);
       this._particles.push({
-          position: new THREE.Vector3(
-              (Math.random() * 2 - 1) * 1.0,
-              (Math.random() * 2 - 1) * 1.0,
-              (Math.random() * 2 - 1) * 1.0),
-          size: (Math.random() * 0.5 + 0.5) * 4.0,
-          colour: new THREE.Color(),
-          alpha: 1.0,
+          position: this.params.spawnPosition.clone() || new THREE.Vector3(
+          (Math.random() * 2 - 1) * 1.0,
+          (Math.random() * 2 - 1) * 1.0,
+          (Math.random() * 2 - 1) * 1.0),
+          size: (Math.random() * 0.5 + 0.5) * (this.params.size || 10.0),
+          colour: (this.params.colour || new THREE.Color()),
+          alpha: (this.params.alpha || 1.0),
           life: life,
           maxLife: life,
           rotation: Math.random() * 2.0 * Math.PI,
-          velocity: new THREE.Vector3(0, -15, 0),
+          velocity: new THREE.Vector3(this.params.velocity?.x || 0, this.params.velocity?.y || 0, this.params.velocity?.z || 0),
       });
     }
   }
@@ -233,6 +237,18 @@ export default class ParticleSystem {
     });
   }
 
+  destroy() {
+    this.params.parent.remove(this._points);
+  }
+
+  show() {  
+    this._points.visible = true;
+  }
+
+  hide() {
+    this._points.visible = false;
+  }
+
   Step(timeElapsed) {
     this._AddParticles(timeElapsed);
     this._UpdateParticles(timeElapsed);
@@ -296,12 +312,12 @@ export default class ParticleSystem {
 
 //     const loader = new THREE.CubeTextureLoader();
 //     const texture = loader.load([
-//         './resources/posx.jpg',
+//         './/posx.jpg',
 //         './resources/negx.jpg',
 //         './resources/posy.jpg',
 //         './resources/negy.jpg',
 //         './resources/posz.jpg',
-//         './resources/negz.jpg',
+//         './resources/negz.jpg',resources
 //     ]);
 //     this._scene.background = texture;
 

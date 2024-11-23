@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import ObjModel from '../model.js'
 import NameTag from './nametag.js'
+import ParticleSystem from '../particles.js'
 
 export default class Player {
 
@@ -20,7 +21,7 @@ export default class Player {
       frontRight: { x: 0, y: 0, z: 0, w: 0 },
       backLeft: { x: 0, y: 0, z: 0, w: 0 },
       backRight: { x: 0, y: 0, z: 0, w: 0 }
-    },
+    }
   };
 
   lookAt = { x: 0, y: 0, z: 0 };
@@ -35,13 +36,17 @@ export default class Player {
   constructor(scene) {
 
     this.name = "Incógnito";
+    this.id = -1;
     this.initHealth = undefined;
     this.health = undefined;
     this.color = 0x000000;
-    this.id = -1;
+    this.score = 0;
     this.levelId = -1;
     this.mesh = {};
     this.scene = scene;
+    this.onFire = false;
+    this.trail = {};
+    this.fire = null;
 
   }
 
@@ -54,13 +59,31 @@ export default class Player {
       else
         throw "Cannot initialize player with an undefined id";
 
+      if (data.levelId)
+        this.levelId = data.levelId;
+
       if (data.name)
         this.name = data.name;
+
+      if (data.email)
+        this.email = data.email;
+
+      if (data.ammo)
+        this.ammo = data.ammo;
+
+      if (data.hasShield != undefined)
+        this.hasShield = data.hasShield;
+
+      if (data.hasBoost != undefined)
+        this.hasBoost = data.hasBoost;
+
+      if (data.score)
+        this.score = data.score;
 
       if (data.color)
         this.color = data.color;
 
-      if (data.health){
+      if (data.health) {
         this.initHealth = data.health;
         this.health = data.health;
       }
@@ -91,20 +114,20 @@ export default class Player {
       }
       console.log(data.mesh);
       // Si se proporciona un modelo será utilizado, de lo contrario se mostrará una vehículo básico por defecto
-      if (!data.mesh) {
+      if (data.mesh) {
         if (!this.debug) {
-          const carModel = new ObjModel(this.scene, 'models/Car2/Car2.obj', 'models/Car2/Car2.mtl', false)
+          const model = data.mesh === 1 ? 'Car1' : 'Car2';
+          const scale = data.mesh === 1 ? 1.5 : 2;
+          const carModel = new ObjModel(this.scene, 'models/' + model + '/' + model + '.obj', 'models/' + model + '/' + model + '.mtl', false)
           await carModel.initModel().then((mesh) => {
             this.mesh.chassis = mesh;
-            this.mesh.chassis.scale.set(2, 2, 2);
+            this.mesh.chassis.scale.set(scale, scale, scale);
           });
         } else {
           this.mesh.chassis = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
           this.mesh.chassis.scale.set(this.debugChassisScale.x, this.debugChassisScale.y, this.debugChassisScale.z);
         }
 
-        this.mesh.chassis.castShadow = true;
-        this.mesh.chassis.recieveShadow = true;
         this.mesh.wheels = {
           frontLeft: null,
           frontRight: null,
@@ -131,70 +154,26 @@ export default class Player {
           this.mesh.wheels.backRight = mesh;
           this.mesh.wheels.backRight.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
         });
-        this.mesh.wheels.frontLeft.castShadow = true;
-        this.mesh.wheels.frontLeft.recieveShadow = true;
-        this.mesh.wheels.frontLeft.rotation.isEuler = false;
-        this.mesh.wheels.frontRight.castShadow = true;
-        this.mesh.wheels.frontRight.recieveShadow = true;
-        this.mesh.wheels.frontRight.rotation.isEuler = false;
-        this.mesh.wheels.backLeft.castShadow = true;
-        this.mesh.wheels.backLeft.recieveShadow = true;
-        this.mesh.wheels.backLeft.rotation.isEuler = false;
-        this.mesh.wheels.backRight.castShadow = true;
-        this.mesh.wheels.backRight.recieveShadow = true;
-        this.mesh.wheels.backRight.rotation.isEuler = false;
-      } else {
-        if (!this.debug) {
-          const carModel = new ObjModel(this.scene, 'models/Car1/Car1.obj', 'models/Car1/Car1.mtl', false)
-          await carModel.initModel().then((mesh) => {
-            this.mesh.chassis = mesh;
-            this.mesh.chassis.scale.set(1.5, 1.5, 1.5);
-          });
-        } else {
-          this.mesh.chassis = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
-          this.mesh.chassis.scale.set(this.debugChassisScale.x, this.debugChassisScale.y, this.debugChassisScale.z);
-        }
 
-        this.mesh.chassis.castShadow = true;
-        this.mesh.chassis.recieveShadow = true;
-        this.mesh.wheels = {
-          frontLeft: null,
-          frontRight: null,
-          backLeft: null,
-          backRight: null,
-        };
-        const FrontLeft = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
-        await FrontLeft.initModel().then((mesh) => {
-          this.mesh.wheels.frontLeft = mesh;
-          this.mesh.wheels.frontLeft.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
-        });
-        const FrontRight = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
-        await FrontRight.initModel().then((mesh) => {
-          this.mesh.wheels.frontRight = mesh;
-          this.mesh.wheels.frontRight.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
-        });
-        const BackLeft = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
-        await BackLeft.initModel().then((mesh) => {
-          this.mesh.wheels.backLeft = mesh;
-          this.mesh.wheels.backLeft.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
-        });
-        const BackRight = new ObjModel(this.scene, 'models/Wheel/Wheel.obj', 'models/Wheel/Wheel.mtl', false)
-        await BackRight.initModel().then((mesh) => {
-          this.mesh.wheels.backRight = mesh;
-          this.mesh.wheels.backRight.scale.set(this.wheelScale, this.wheelScale, this.wheelScale);
-        });
-        this.mesh.wheels.frontLeft.castShadow = true;
-        this.mesh.wheels.frontLeft.recieveShadow = true;
-        this.mesh.wheels.frontLeft.rotation.isEuler = false;
-        this.mesh.wheels.frontRight.castShadow = true;
-        this.mesh.wheels.frontRight.recieveShadow = true;
-        this.mesh.wheels.frontRight.rotation.isEuler = false;
-        this.mesh.wheels.backLeft.castShadow = true;
-        this.mesh.wheels.backLeft.recieveShadow = true;
-        this.mesh.wheels.backLeft.rotation.isEuler = false;
-        this.mesh.wheels.backRight.castShadow = true;
-        this.mesh.wheels.backRight.recieveShadow = true;
-        this.mesh.wheels.backRight.rotation.isEuler = false;
+        // Añadir la esfera que muestra los jugadores con escudo
+        const sphereGeometry = new THREE.SphereGeometry(4.3, 8, 8);
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5, depthWrite: false });
+        const sphereWireframeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
+        this.mesh.shieldWireframe = new THREE.Mesh(sphereGeometry, sphereWireframeMaterial);
+        this.mesh.shield = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        this.mesh.chassis.add(this.mesh.shield);
+        this.mesh.chassis.add(this.mesh.shieldWireframe);
+        const pointlight = new THREE.PointLight(0x00ffff, 5, 75, 4);
+        this.mesh.shield.add(pointlight);
+        this.hideShield();
+
+        // this.mesh.wheels.frontLeft.rotation.isEuler = false;
+
+        // this.mesh.wheels.frontRight.rotation.isEuler = false;
+
+        // this.mesh.wheels.backLeft.rotation.isEuler = false;
+
+        // this.mesh.wheels.backRight.rotation.isEuler = false;
       }
 
       this.mesh.chassis.position.set(this.#position.chassis.x, this.#position.chassis.y, this.#position.chassis.z);
@@ -208,11 +187,54 @@ export default class Player {
       this.mesh.wheels.backRight.position.set(this.#position.wheels.backLeft.x, this.#position.wheels.backLeft.y, this.#position.wheels.backLeft.z);
       this.mesh.wheels.backRight.quaternion.copy(this.#rotation.wheels.backRight);
 
-      this.scene.add(this.mesh.chassis);
-      this.scene.add(this.mesh.wheels.frontLeft);
-      this.scene.add(this.mesh.wheels.frontRight);
-      this.scene.add(this.mesh.wheels.backLeft);
-      this.scene.add(this.mesh.wheels.backRight);
+      // Añadir un foco al frente del coche
+      let spotlight = new THREE.SpotLight(0xffffff, .2);
+      spotlight.position.set(3, 5, 3); // Ajustar la posición según sea necesario
+      spotlight.target.position.set(10, 0, 0); // Apuntando hacia adelante
+      spotlight.angle = Math.PI / 4; // Reducir el ángulo del cono de luz
+      spotlight.penumbra = 0.1; // Ajustar la penumbra si es necesario
+      spotlight.castShadow = true; // Activar las sombras
+      this.mesh.chassis.add(spotlight);
+      this.mesh.chassis.add(spotlight.target);
+      // Repetimos para el otro lado
+      spotlight = new THREE.SpotLight(0xffffff, .2);
+      spotlight.position.set(3, 5, -3);
+      spotlight.target.position.set(10, 0, 0);
+      spotlight.angle = Math.PI / 4;
+      spotlight.penumbra = 0.1;
+      spotlight.castShadow = true;
+      this.mesh.chassis.add(spotlight);
+      this.mesh.chassis.add(spotlight.target);
+
+      if (data.camera) {
+        this.fire = new ParticleSystem({
+          alwaysRender: true,
+          parent: this.scene,
+          spawnPosition: this.mesh.chassis.position,
+          camera: data.camera,
+          life: 2,
+          velocity: { x: 0, y: 30, z: 0 },
+          size: 5
+        });
+        this.trail[0] = new ParticleSystem({
+          alwaysRender: true,
+          parent: this.scene,
+          spawnPosition: this.mesh.wheels.backRight.position,
+          camera: data.camera,
+          life: 2,
+          velocity: { x: 0, y: 15, z: 0 },
+          size: 2.5
+        });
+        this.trail[1] = new ParticleSystem({
+          alwaysRender: true,
+          parent: this.scene,
+          spawnPosition: this.mesh.wheels.backLeft.position,
+          camera: data.camera,
+          life: 2,
+          velocity: { x: 0, y: 15, z: 0 },
+          size: 2.5
+        });
+      }
 
       this.nametag = new NameTag(this, this.scene);
       return true;
@@ -251,15 +273,27 @@ export default class Player {
       if (data.name)
         this.name = data.name;
 
-      if (data.health){
+      if (data.health) {
         this.health = data.health;
-        if (this.health <= this.initHealth / 2){
-          //TODO Make the on fire effect using particle system
+        if (this.health <= this.initHealth / 2) {
+          this.onFire = true;
         }
       }
 
+      if (data.ammo != undefined)
+        this.ammo = data.ammo;
+
+      if (data.hasShield != undefined)
+        this.hasShield = data.hasShield;
+
+      if (data.hasBoost != undefined)
+        this.hasBoost = data.hasBoost;
+
       if (data.color)
         this.color = data.color;
+
+      if (data.score)
+        this.score = data.score;
 
       if (data.position && typeof data.position === 'object') {
         if (data.position.chassis && typeof data.position.chassis === 'object')
@@ -309,7 +343,38 @@ export default class Player {
   update() {
     if (this.nametag)
       this.nametag.update();
+    if (this.hasShield === true) {
+      this.showShield();
+      if (this.mesh.shield && this.mesh.shieldWireframe) {
+        this.mesh.shield.rotation.y += 0.01;
+        this.mesh.shield.rotation.x += 0.02;
+        this.mesh.shield.rotation.z += 0.005;
+        this.mesh.shieldWireframe.rotation.y += 0.01;
+        this.mesh.shieldWireframe.rotation.x += 0.02;
+        this.mesh.shieldWireframe.rotation.z += 0.005;
+      }
+    }
+    else
+      this.hideShield();
+
     this.#generateLookAt();
+
+    if (this.hasBoost && this.trail) {
+      for (let i = 0; i < 2; i++) {
+        if (this.trail[i]){
+          this.trail[i].show();
+          this.trail[i].Step((1 / (localStorage.getItem('FPS')) || 60));
+        }
+      }
+    }else
+      for (let i = 0; i < 2; i++) {
+        if (this.trail[i])
+          this.trail[i].hide();
+      }
+
+    if (this.onFire && this.fire)
+      this.fire.Step((1 / (localStorage.getItem('FPS')) || 60));
+
   }
 
   setPlayerPosition(newPos = { x: 0, y: 0, z: 0 }) {
@@ -328,6 +393,20 @@ export default class Player {
     this.scene.remove(this.mesh.wheels.backLeft);
     this.scene.remove(this.mesh.wheels.backRight);
     this.nametag.remove();
+    if (this.fire)
+      this.fire.destroy();
+  }
+
+  showShield() {
+    if (!this.mesh.shield || !this.mesh.shieldWireframe) return;
+    this.mesh.shield.visible = true;
+    this.mesh.shieldWireframe.visible = true;
+  }
+
+  hideShield() {
+    if (!this.mesh.shield || !this.mesh.shieldWireframe) return;
+    this.mesh.shield.visible = false;
+    this.mesh.shieldWireframe.visible = false;
   }
 
   #generateLookAt() {

@@ -1,15 +1,18 @@
 import express from 'express';
+import bodyParser from 'body-parser';
+import Database from './backend/database.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import Socket from './backend/socket.js';
 import http from 'http';
 import Level from './backend/level.js';
+import Colosseum from './backend/colosseum.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
-const FPS = 144;
+const FPS = 400;
 
 const app = express();
 
@@ -17,11 +20,62 @@ const server = http.createServer(app);
 Socket.initSocket(server);
 const io = Socket.getIO();
 
+// Configuración de la base de datos MySQL
+const db = Database.initConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'derbyDrift',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
 app.use(express.static(path.join(__dirname, 'frontend')));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Definir ruta del servidor
 app.get('/redirect', (_, res) => {
   res.sendFile(path.join(process.cwd(), "frontend", "index.html"));
+});
+
+// Ruta para obtener datos desde MySQL
+app.get('/players', (req, res) => {
+  db.query('SELECT * FROM players ORDER BY highscore DESC', (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(results);
+  });
+});
+
+app.post('/setHighscore', async (req, res) => {
+  console.log(req);
+  const { email, name, highscore } = req.body;
+
+  if (!email || !name || !highscore) {
+    return res.status(400).json({ error: 'Email, name, and highscore are required' });
+  }
+
+  try {
+    const [results] = await pool.query('SELECT * FROM players WHERE email = ?', [email]);
+
+    if (results.length > 0) {
+      const player = results[0];
+      if (player.highscore >= parseInt(highscore)) {
+        return res.json({ message: 'Highscore not updated' });
+      } else {
+        await pool.query('UPDATE players SET highscore = ? WHERE email = ?', [highscore, email]);
+        res.json({ message: 'Highscore updated successfully' });
+      }
+    } else {
+      await pool.query('INSERT INTO players (email, name, highscore) VALUES (?, ?, ?)', [email, name, highscore]);
+      res.json({ message: 'Player created and highscore set successfully' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get('/*.jpg', (req, res) => {
@@ -61,7 +115,7 @@ const levelEnum = {
   1: 'track',
 }
 
-const levels = [new Level(), new Level('./public/models/Track/TrackHeightMap.png', 2)];
+const levels = [new Colosseum(), new Level('./public/models/Track/TrackHeightMap.png', 2)];
 
 // Manejar las conexiones de socket.io
 io.on('connection', (socket) => {
@@ -89,6 +143,16 @@ io.on('connection', (socket) => {
     socket.emit(
       'currentPlayers',
       levels[data.levelId].getPlayersJSON(),
+    )
+
+    socket.emit(
+      'currentProjectiles',
+      levels[data.levelId].getLevelProjectilesJSON(),
+    )
+
+    socket.emit(
+      'currentPowerUps',
+      levels[data.levelId].getActivePowerUpsJSON(),
     )
 
     socket.on('input', (inputData) => {

@@ -14,6 +14,7 @@ export default class InputSystem {
         const socket = this.socket;
 
         document.addEventListener('keydown', (event) => {
+
             if (event.key === 'Escape') {
                 const menu = document.getElementById('world-menu');
                 if (menu.style.display === 'none' || menu.style.display === '') {
@@ -22,19 +23,42 @@ export default class InputSystem {
                     menu.style.display = 'none';
                 }
             }
+
+            if (player.ammo > 0 && (event.key.toLowerCase() === (localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).shoot.toLowerCase() : 'r'))) {
+                var audio = document.getElementById('myAudio3');
+                audio.play().catch(function (error) {
+                    console.log('Error al intentar reproducir el audio:', error);
+                });
+                audio.volume = 1 * ((localStorage.getItem('effectsVolume') != undefined ? localStorage.getItem('effectsVolume') : 50) / 100);
+            }
+
+            if (event.key.toLowerCase() === (localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).forward.toLowerCase() : 'w')) {
+                let audio = document.getElementById('myAudio2');
+                audio.volume = 0.2 * ((localStorage.getItem('ambientVolume') != undefined ? localStorage.getItem('ambientVolume') : 50) / 100);
+            }
+
             if (event.key === 'm') {
                 if (this.collidedWithPlayer)
                     alert('Player Has Collided With Another Player');
                 else
                     console.error('Player Has Not Collided With Another Player');
             }
+
             this.pressedKeys.add(event.key);
             this.updateInput(player, socket);
+
         });
 
         document.addEventListener('keyup', (event) => {
+
+            if (event.key.toLowerCase() === (localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).forward.toLowerCase() : 'w')) {
+                var audio = document.getElementById('myAudio2');
+                audio.volume = 0.1 * ((localStorage.getItem('ambientVolume') != undefined ? localStorage.getItem('ambientVolume') : 50) / 100);
+            }
+
             this.pressedKeys.delete(event.key);
             this.updateInput(player, socket);
+
         });
 
         document.getElementById('world-resume-button').addEventListener('click', function () {
@@ -64,7 +88,7 @@ export default class InputSystem {
                 down: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).backward.toLowerCase() : 's'),
                 left: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).left.toLowerCase() : 'a'),
                 right: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).right.toLowerCase() : 'd'),
-                fire: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).shoot.toLowerCase() : 'r'),
+                fire: player.ammo > 0 ? (this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).shoot.toLowerCase() : 'r')) : false,
                 brake: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).drift.toLowerCase() : 'c'),
                 flip: this.pressedKeys.has(localStorage.getItem('controls') ? JSON.parse(localStorage.getItem('controls')).flip.toLowerCase() : 'f'),
             },
@@ -91,7 +115,7 @@ export default class InputSystem {
                         right: gamepad.buttons[15].pressed, // D-pad right
                         foward: gamepad.buttons[0].pressed, // A button
                         flip: gamepad.buttons[2].pressed, // X button
-                        fire: gamepad.buttons[4].pressed, // LB button
+                        fire: player.ammo <= 0 || gamepad.buttons[4].pressed, // LB button
                         axes: gamepad.axes, // Joystick axes
                     }
                 };
