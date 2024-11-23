@@ -63,8 +63,13 @@
   </div>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      var audio = document.getElementById('myAudio');
       if (localStorage.getItem('audioPlaying') === 'true') {
-        var audio = document.getElementById('myAudio');
+        audio.play().catch(function(error) {
+          console.log('Error al intentar reproducir el audio:', error);
+        });
+      } else {
+        localStorage.setItem('audioPlaying', 'true');
         audio.play().catch(function(error) {
           console.log('Error al intentar reproducir el audio:', error);
         });
