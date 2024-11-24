@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import PowerUp from './powerUp.js';
+import ObjModel from '../model.js';
 
 export default class Boost extends PowerUp {
 
@@ -8,22 +9,18 @@ export default class Boost extends PowerUp {
     }
 
     createPowerUpMesh() {
-        const sphereGeometry = new THREE.SphereGeometry(4.3, 8, 8);
-        const sphereMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
 
-        const dev = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        const gasTank = new ObjModel(this.scene, 'models/GasTank/GasTank.obj', 'models/GasTank/GasTank.mtl', false);
+        gasTank.initModel().then((mesh) => {
+            this.mesh = mesh;
+            this.mesh.scale.set(1.5, 1.5, 1.5);
+        });
 
-        dev.receiveShadow = true;
-
-        this.scene.add(dev);
-
-        dev.position.copy(this.position);
-        dev.quaternion.copy(this.quaternion);
-
-        return dev;
+        return null
     }
 
     update() {
         super.update();
+        this.rotation.y += 0.01;
     }
 }

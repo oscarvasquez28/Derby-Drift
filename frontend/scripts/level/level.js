@@ -351,7 +351,8 @@ export default class Level {
         console.log("Recieved message from server: debugInfo\nRecieved debug info: " + data);
         if (data.checkpoints) {
           data.checkpoints.forEach((checkpoint, index) => {
-            const geometry = new THREE.BoxGeometry(10, 10, 10);
+            const isPair = index % 2 === 0;
+            const geometry = new THREE.BoxGeometry(isPair ? 60 : 10, 10, isPair ? 10 : 60);
             const colorValue = 0xff0000 / (index);
             const material = new THREE.MeshBasicMaterial({ color: colorValue, transparent: true, opacity: 0.5 });
             const checkpointBox = new THREE.Mesh(geometry, material);

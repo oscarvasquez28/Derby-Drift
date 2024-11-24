@@ -169,6 +169,7 @@ export default class Level {
     }
 
     getPlayerJson(id) {
+        if (this.players[id] == null) return null;
         return this.players[id].getJson();
     }
 
