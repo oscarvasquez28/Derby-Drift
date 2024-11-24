@@ -353,7 +353,9 @@ export default class Player {
     applyBoost() {
         this.player.json.hasBoost = true;
         setTimeout(() => {
-            this.player.json.hasBoost = false;
+            if (this.player?.json) {
+                this.player.json.hasBoost = false;
+            }
         }, 5000);
     }
 
