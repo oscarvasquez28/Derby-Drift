@@ -43,7 +43,7 @@
         <div class="index-btn-container"><a href="./world.html"><button>Jugar Coliseo</button></a></div>
         <div class="index-btn-container"><a href="./config.html"><button>Configuración</button></a></div>
         <div class="index-btn-container"><a href="./scores.html"><button>Puntuaciones</button></a></div>
-        <div class="index-btn-container"><a href="#"><button>Salir</button></a></div>
+        <div class="index-btn-container"><button onclick="closeWindow()">Salir</button></div>
         <div class="index-btn-container">
           <div id="g_id_onload" data-client_id="" data-callback="handleCredentialResponse">
           </div>
@@ -74,6 +74,11 @@
           console.log('Error al intentar reproducir el audio:', error);
         });
       }
+      var masterVolume = localStorage.getItem('masterVolume');
+      if (masterVolume !== null) {
+        audio.volume = parseFloat(masterVolume);
+      }
+
       const userName = sessionStorage.getItem('userName');
       if (userName) {
         document.getElementById('greeting-btn').hidden = false;
@@ -82,9 +87,22 @@
 
     });
     
+    closeWindow = () => {
+      window.close();
+      if (!window.closed) {
+        Swal.fire({
+          title: '😥',
+          text: 'Tu navegador ha bloqueado la acción de cerrar la ventana.',
+          icon: 'error',
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    }
+
     document.getElementById('greeting').addEventListener('click', function() {
       Swal.fire({
-        title: '¿Quieres cerrar sesión?',
+        title: '🧐',
+        text: '¿Quieres cerrar sesión?',
         showCancelButton: true,
         confirmButtonText: 'Sí',
         cancelButtonText: 'No',
