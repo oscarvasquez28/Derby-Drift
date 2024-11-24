@@ -119,6 +119,8 @@ export default class Level {
       player.update();
     });
 
+    if (this.gameEnded) return;
+    
     this.powerUps.forEach(powerUp => {
       powerUp.update();
     });

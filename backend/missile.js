@@ -11,7 +11,7 @@ export default class Missile {
         this.chassis = this.player.getBody().chassis;
         this.damage = 50;
         this.body = this.createMissile();
-        const localOffset = new cannon.Vec3(6, 1, 0);
+        const localOffset = new cannon.Vec3(6, 2, 0);
         const worldOffset = this.chassis.pointToWorldFrame(localOffset);
         this.body.position.copy(worldOffset);
         this.body.velocity.copy(this.chassis.velocity);
