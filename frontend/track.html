@@ -14,9 +14,23 @@
         }
       }
     </script>
+    <link rel="icon" href="\images\Miniature.png" type="image/png">
     <title>Derby Drift Track</title>
 </head>
 <body>
+  <!-- Audio -->
+  <audio id="myAudio">
+    <source src="psychosocial.mp3" type="audio/mpeg">
+    Tu navegador no soporta la reproducción de audio.
+  </audio>
+  <audio id="myAudio2" loop>
+    <source src="carro-loop.mp3" type="audio/mpeg">
+    Tu navegador no soporta la reproducción de audio.
+  </audio>
+  <audio id="myAudio3">
+    <source src="disparo.mp3" type="audio/mpeg">
+    Tu navegador no soporta la reproducción de audio.
+  </audio>
     <div id="world-menu">
       <div class="container-fluid world-menu-container">
         <div class="row world-menu-rows">
@@ -34,6 +48,44 @@
         </div>
       </div>
     </div>
+    <div class="lost-screen" id="lost-screen">
+      <div>
+        <p id="lost-screen-message">!Fuiste Destruido!</p>
+        <p id="highscore" hidden>¡Nuevo récord!</p>
+        <p>Puntuación: <span id="score"></span></p>
+        <p id="cause"></p>
+        <button id="restart-button">Volver a jugar</button>
+        <button id="spectate-button">Espectar</button>
+        <div>
+          <button id="menu-button">Volver al menú principal</button>
+        </div>
+      </div>
+    </div>
+    <div class="wait-screen" id="wait-screen" hidden>
+      <div>
+        <span id="wait-screen-message">Esperando a otros jugadores</span>
+        <p id="connected-players">Jugadores conectados: 1</p>
+        <div>
+          <button id="wait-menu-button" onclick="backToMainMenu()">Volver al menú principal</button>
+        </div>
+      </div>
+    </div>
 </body>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    
+    var audioAmbient = document.getElementById('myAudio2');
+    audioAmbient.play().catch(function (error) {
+      console.log('Error al intentar reproducir el audio:', error);
+    });
+
+    audioAmbient.volume = 0.1 * (localStorage.getItem('ambientVolume') || 50) / 100;
+
+    backToMainMenu = function () {
+      window.location.href = './index.html';
+    }
+    
+  });
+</script>
 <script type="module" src="./scripts/track.js"></script>
 </html>

@@ -35,3 +35,44 @@ canvas {
   border: none;
   border-radius: 15px;
 }
+
+.lost-screen {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  color: white;
+  text-align: center;
+  font-size: 2em;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.lost-screen button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1em;
+}
+
+.wait-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  color: white;
+  text-align: center;
+  font-size: 2em;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.wait-screen button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1em;
+}

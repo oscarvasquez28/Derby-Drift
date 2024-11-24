@@ -54,6 +54,29 @@
   transition: transform 0.2s ease-in-out;
 }
 
+.index-btn-container .name-btn{
+  color: #333333;
+  width: 150px; /* Ajusta el tamaño según sea necesario */
+  height: 40px; /* Ajusta la altura según sea necesario */
+  font-weight: bold; /* Texto en negrita */
+  clip-path: polygon(
+    10% 0%, /* Vértice superior izquierdo */
+    90% 0%, /* Vértice superior derecho */
+    100% 50%, /* Vértice derecho */
+    90% 100%, /* Vértice inferior derecho */
+    10% 100%, /* Vértice inferior izquierdo */
+    0% 50% /* Vértice izquierdo */
+  ); /* Define la forma romboide */
+  border-radius: 50px; /* Opcional: Bordes redondeados para suavizar el romboide */
+  border: solid 1px #FFD700; /* Borde del botón */
+  background: linear-gradient(to right, #ffffff, #c9ba61); /* Estado normal */
+  transition: transform 0.2s ease-in-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
 .index-btn-container button:hover {
   background: linear-gradient(to right, #c9ba61, #ffffff); /* Estado hover */
   transform: scale(1.1); /* Aumenta el tamaño del botón al pasar el cursor */

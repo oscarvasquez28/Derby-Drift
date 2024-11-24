@@ -1,12 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./index.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <title>Derby Drift</title>
+  <link rel="icon" href="\images\Miniature.png" type="image/png">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="conf.js"></script>
 </head>
+
 <body>
   <div class="container-fluid index-container">
     <div class="row index-row-container">
@@ -16,17 +24,168 @@
         </div>
       </div>
     </div>
+
+
+    <!-- Audio -->
+    <audio id="myAudio">
+      <source src="psychosocial.mp3" type="audio/mpeg">
+      Tu navegador no soporta la reproducción de audio.
+    </audio>
+
+
+    <!-- Botones -->
     <div class="row">
       <div class="col-xl-12 mt-2">
-        <div class="index-btn-container"><a href="./track.html"><button>Jugar Carrera</button></a></div>
+        <div id="greeting-btn" class="index-btn-container" hidden>
+          <button id="greeting" class="name-btn"></button>
+        </div>
+        <div id="playAudioButton" class="index-btn-container"><a href="./track.html"><button>Jugar Carrera</button></a></div>
         <div class="index-btn-container"><a href="./world.html"><button>Jugar Coliseo</button></a></div>
         <div class="index-btn-container"><a href="./config.html"><button>Configuración</button></a></div>
         <div class="index-btn-container"><a href="./scores.html"><button>Puntuaciones</button></a></div>
-        <div class="index-btn-container"><a href="#"><button>Salir</button></a></div>
+        <div class="index-btn-container"><button onclick="closeWindow()">Salir</button></div>
+        <div class="index-btn-container">
+          <div id="g_id_onload" data-client_id="" data-callback="handleCredentialResponse">
+          </div>
+          <div class="g_id_signin" data-type="standard"></div>
+        </div>
       </div>
-      <!-- <div class="col-xl-8">alguna mamada</div> -->
+      <!-- Sección de Clima -->
+      <div class="row mt-4"></div>
+      <div class="col-xl-12 text-end">
+        <h2 style="color: white;">Clima Actual</h2>
+        <div id="weather-container">
+          <p id="weather-info">Cargando el clima...</p>
+        </div>
+      </div>
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var audio = document.getElementById('myAudio');
+      if (localStorage.getItem('audioPlaying') === 'true') {
+        audio.play().catch(function(error) {
+          console.log('Error al intentar reproducir el audio:', error);
+        });
+      } else {
+        localStorage.setItem('audioPlaying', 'true');
+        audio.play().catch(function(error) {
+          console.log('Error al intentar reproducir el audio:', error);
+        });
+      }
+      var masterVolume = localStorage.getItem('masterVolume');
+      if (masterVolume !== null) {
+        audio.volume = parseFloat(masterVolume);
+      }
+
+      const userName = sessionStorage.getItem('userName');
+      if (userName) {
+        document.getElementById('greeting-btn').hidden = false;
+        document.getElementById('greeting').innerText = `¡Hola ${userName}!`;
+      }
+
+    });
+    
+    closeWindow = () => {
+      window.close();
+      if (!window.closed) {
+        Swal.fire({
+          title: '😥',
+          text: 'Tu navegador ha bloqueado la acción de cerrar la ventana.',
+          icon: 'error',
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    }
+
+    document.getElementById('greeting').addEventListener('click', function() {
+      Swal.fire({
+        title: '🧐',
+        text: '¿Quieres cerrar sesión?',
+        showCancelButton: true,
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'No',
+        icon: 'warning'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          sessionStorage.removeItem('userName');
+          sessionStorage.removeItem('userEmail');
+          document.getElementById('greeting-btn').hidden = true;
+          Swal.fire('Sesión cerrada', '', 'success');
+        }
+      });
+    });
+
+    document.getElementById('g_id_onload').setAttribute('data-client_id', CONFIG.GOOGLE_CLIENT_ID);
+    async function handleCredentialResponse(response) {
+      console.log("Encoded JWT ID token: " + response.credential);
+
+      // Decodificar el JWT usando jwt-decode
+      const decodedToken = jwt_decode(response.credential);
+
+      // Imprimir el nombre y correo electrónico en la consola
+      console.log("Nombre del usuario:", decodedToken.name);
+      console.log("Correo electrónico:", decodedToken.email);
+
+      sessionStorage.setItem('userName', decodedToken.name);
+      sessionStorage.setItem('userEmail', decodedToken.email);
+      document.getElementById('greeting-btn').hidden = false;
+      document.getElementById('greeting').innerText = `¡Hola ${decodedToken.name}!`;
+
+      // Verificar que los datos fueron guardados correctamente
+      console.log('Nombre guardado en sessionStorage:', sessionStorage.getItem('userName'));
+      console.log('Correo electrónico guardado en sessionStorage:', sessionStorage.getItem('userEmail'));
+
+    }
+  </script>
+
+  <script>
+    // API Key de OpenWeatherMap
+    const apiKey = CONFIG.OPENWEATHERMAP_API_KEY;
+    const city = 'Monterrey'; // Cambia por la ciudad que desees
+
+    // Función para obtener el clima
+    async function getWeather() {
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&lang=es&units=metric`; // URL de la API con parámetros para la ciudad y la clave
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.cod === 200) {
+          const weather = data.weather[0].description;
+          const temperature = data.main.temp;
+          const humidity = data.main.humidity;
+
+          // Actualizar el contenido del clima
+          const weatherInfo = document.getElementById('weather-info');
+          weatherInfo.innerHTML = `
+            <strong>${city}</strong><br>
+            Condición: ${weather}<br>
+            Temperatura: ${temperature}°C<br>
+            Humedad: ${humidity}%`;
+
+          // Aplicar estilos al contenedor del clima
+          weatherInfo.style.fontSize = '18px';
+          weatherInfo.style.color = '#FFFFFF';
+        } else {
+          document.getElementById('weather-info').innerText = 'No se pudo obtener el clima.';
+        }
+      } catch (error) {
+        console.error('Error al obtener el clima:', error);
+        document.getElementById('weather-info').innerText = 'Error al cargar el clima.';
+      }
+
+    }
+
+    // Llamar a la función al cargar la página
+    window.onload = getWeather;
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
 </body>
+
 </html>
