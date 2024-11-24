@@ -37,6 +37,8 @@ export default class Player {
 
     this.name = "Incógnito";
     this.id = -1;
+    this.currentCheckpoint = 0;
+    this.currentLap = 0;
     this.initHealth = undefined;
     this.health = undefined;
     this.color = 0x000000;
@@ -67,6 +69,12 @@ export default class Player {
 
       if (data.email)
         this.email = data.email;
+
+      if (data.currentLap != undefined)
+        this.currentLap = data.currentLap;
+
+      if (data.currentCheckpoint != undefined)
+        this.currentCheckpoint = data.currentCheckpoint;
 
       if (data.ammo)
         this.ammo = data.ammo;
@@ -280,6 +288,12 @@ export default class Player {
         }
       }
 
+      if (data.currentLap != undefined)
+        this.currentLap = data.currentLap;
+
+      if (data.currentCheckpoint != undefined)
+        this.currentCheckpoint = data.currentCheckpoint;
+
       if (data.ammo != undefined)
         this.ammo = data.ammo;
 
@@ -361,12 +375,12 @@ export default class Player {
 
     if (this.hasBoost && this.trail) {
       for (let i = 0; i < 2; i++) {
-        if (this.trail[i]){
+        if (this.trail[i]) {
           this.trail[i].show();
           this.trail[i].Step((1 / ((localStorage.getItem('FPS')) || 60)));
         }
       }
-    }else
+    } else
       for (let i = 0; i < 2; i++) {
         if (this.trail[i])
           this.trail[i].hide();

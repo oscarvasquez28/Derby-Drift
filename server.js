@@ -5,8 +5,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Socket from './backend/socket.js';
 import http from 'http';
-import Level from './backend/level.js';
 import Colosseum from './backend/colosseum.js';
+import Track from './backend/track.js'; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -115,7 +115,7 @@ const levelEnum = {
   1: 'track',
 }
 
-const levels = [new Colosseum(), new Level('./public/models/Track/TrackHeightMap.png', 2)];
+const levels = [new Colosseum(), new Track()];
 
 // Manejar las conexiones de socket.io
 io.on('connection', (socket) => {
@@ -139,6 +139,13 @@ io.on('connection', (socket) => {
       'newPlayer',
       levels[data.levelId].getPlayerJson(socket.id),
     )
+
+    if(levels[data.levelId].debug){
+      socket.emit(
+        'debugInfo',
+        levels[data.levelId].getDebugInfo(),
+      )
+    }
 
     socket.emit(
       'currentPlayers',

@@ -121,16 +121,6 @@ export default class Player {
         });
 
         //TODO: Set the car's rotation to look towards the center of the level
-        const lookAt = new cannon.Vec3(0, 0, 0).vsub(carBody.position).unit();
-        console.log('lookAt:', lookAt);
-        const up = new cannon.Vec3(0, 1, 0);
-        const right = new cannon.Vec3();
-        up.cross(lookAt, right).unit();
-        lookAt.cross(right, up).unit();
-
-        carBody.quaternion.setFromVectors(new cannon.Vec3(1, 0, 0), right);
-        carBody.quaternion.setFromVectors(new cannon.Vec3(0, 1, 0), up);
-        carBody.quaternion.setFromVectors(new cannon.Vec3(0, 0, 1), lookAt);
 
         carBody.tag = 'player';
 

@@ -6,6 +6,7 @@ export default class Track extends Level {
     constructor() {
         super('models/Track/TrackHeightMap.png', 0x136D15, 2);
         this.levelId = 1;
+        this.showLap = true;
         // this.initHeight = 30;
     }
 
@@ -47,6 +48,27 @@ export default class Track extends Level {
           // this.dobeto.mesh.rotation.y += 0.01;
           // this.dobeto.mesh.position.y += 0.01;
         }
+    }
+
+    updateCountdown() {
+      const numPlayersElement = document.getElementById('connected-players');
+      const waitScreenElement = document.getElementById('wait-screen');
+      const waitScreenMessageElement = document.getElementById('wait-screen-message');
+      
+      if (numPlayersElement) {
+        numPlayersElement.textContent = "Jugadores conectados: " + this.players.length;
+      }
+      
+      if (waitScreenMessageElement) {
+        waitScreenMessageElement.textContent = this.countdown === null ? "Esperando a otros jugadores..." : "El juego empezará en " + this.countdown + " segundos";
+      }
+      
+      if (this.countdown != null && this.countdown <= 0 && waitScreenElement) {
+        waitScreenElement.hidden = true;
+      }else{
+        waitScreenElement.hidden = false
+      }
+
     }
 
 }
