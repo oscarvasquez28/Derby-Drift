@@ -91,7 +91,7 @@
       }
       var masterVolume = localStorage.getItem('masterVolume');
       if (masterVolume !== null) {
-        audio.volume = parseFloat(masterVolume);
+        audio.volume = parseFloat(masterVolume) / 100;
       }
 
       const userName = sessionStorage.getItem('userName');

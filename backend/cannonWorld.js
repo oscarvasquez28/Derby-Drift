@@ -28,7 +28,7 @@ export default class CannonWorld {
 
     createCircularBoundary(radius, numSegments) {
         const angleStep = (2 * Math.PI) / numSegments;
-        const wallHeight = 10;
+        const wallHeight = 40;
         const wallThickness = 3;
         const wallLength = (2 * Math.PI * radius) / numSegments;
 

@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
-const FPS = 400;
+const FPS = 500;
 
 const app = express();
 
@@ -202,6 +202,8 @@ function updateLevel() {
     levels.forEach(level => {
       level.step();
       io.emit('update', level.getPlayersJSON());
+      if(level.ai)
+        io.emit('updateAI', level.ai.getJsonData());
     });
   }, 1000 / FPS);
 }

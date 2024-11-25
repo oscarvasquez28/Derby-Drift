@@ -12,7 +12,7 @@ export default class Level {
         this.levelProjectiles = [];
         this.powerUps = [];
         this.powerUps = new Array(10).fill(null).map(() => new PowerUp({ position: { x: 0, y: 0, z: 0 }, world: this.world.getWorld() }));
-        this.TimeBetweenPowerUp = 15;
+        this.TimeBetweenPowerUp = 5;
         this.powerUpTimer = this.TimeBetweenPowerUp;
         this.doSpawnPowerUps = true;
         this.hasStarted = true;

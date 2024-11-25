@@ -76,7 +76,14 @@ export default class AI {
             this.body.velocity.set(randomForce.x, randomForce.y, randomForce.z);
             this.timeSinceLastArrival++;
         }
+    }
 
-        Socket.getIO().emit('updateAI', { id: this.body.id, position: this.body.position });
+    getJsonData() {
+        return {
+            id: this.body.id,
+            position: this.body.position,
+            velocity: this.body.velocity,
+            quaternion: this.body.quaternion
+        }
     }
 }

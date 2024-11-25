@@ -26,6 +26,10 @@
 
 <body>
   <!-- Audio -->
+  <audio id="myAudio">
+    <source src="psychosocial.mp3" type="audio/mpeg">
+    Tu navegador no soporta la reproducción de audio.
+  </audio>
   <audio id="myAudio2" loop>
     <source src="carro-loop.mp3" type="audio/mpeg">
     Tu navegador no soporta la reproducción de audio.
@@ -67,14 +71,30 @@
 </body>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    
+
+    var audio = document.getElementById('myAudio');
+    if (localStorage.getItem('audioPlaying') === 'true') {
+      audio.play().catch(function (error) {
+        console.log('Error al intentar reproducir el audio:', error);
+      });
+    } else {
+      localStorage.setItem('audioPlaying', 'true');
+      audio.play().catch(function (error) {
+        console.log('Error al intentar reproducir el audio:', error);
+      });
+    }
+    var masterVolume = localStorage.getItem('masterVolume');
+    if (masterVolume !== null) {
+      audio.volume = parseFloat(masterVolume) / 100;
+    }
+
     var audioAmbient = document.getElementById('myAudio2');
     audioAmbient.play().catch(function (error) {
       console.log('Error al intentar reproducir el audio:', error);
     });
 
     audioAmbient.volume = 0.1 * (localStorage.getItem('ambientVolume') || 50) / 100;
-    
+
   });
 </script>
 <script type="module" src="./scripts/index.js"></script>
