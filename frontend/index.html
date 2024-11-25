@@ -210,6 +210,14 @@
 
         if (data.cod === 200) {
           const weather = data.weather[0].description;
+          console.log(data.weather[0].id)
+          const weatherId = data.weather[0].id;
+          const min = 500;
+          const max = 599;
+          sessionStorage.setItem('weather', 'rain');
+          if(weatherId >= min && weatherId <= max){
+            sessionStorage.setItem('weather', 'rain');
+          }
           const temperature = data.main.temp;
           const humidity = data.main.humidity;
 

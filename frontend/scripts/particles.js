@@ -145,22 +145,28 @@ export default class ParticleSystem {
       this.gdfsghk = 0.0;
     }
     this.gdfsghk += timeElapsed;
-    const n = Math.floor(this.gdfsghk * 75.0);
-    this.gdfsghk -= n / 75.0;
+    const n = Math.floor(this.gdfsghk * (this.params.count ||75.0));
+    this.gdfsghk -= n / (this.params.count || 75.0);
+
+    let spawnPosition = this.params.spawnRadius ? new THREE.Vector3(
+      this.params.spawnPosition.x + (Math.random() * 2 - 1) * this.params.spawnRadius,
+      this.params.spawnPosition.y + (Math.random() * 2 - 1) * this.params.spawnRadius,
+      this.params.spawnPosition.z + (Math.random() * 2 - 1) * this.params.spawnRadius) : 
+      (this.params.spawnPosition.clone() || new THREE.Vector3(      
+      (Math.random() * 2 - 1) * 1.0,
+      (Math.random() * 2 - 1) * 1.0,
+      (Math.random() * 2 - 1) * 1.0));
 
     for (let i = 0; i < n; i++) {
       const life = (Math.random() * 0.75 + 0.25) * (this.params.life || 10.0);
       this._particles.push({
-          position: this.params.spawnPosition.clone() || new THREE.Vector3(
-          (Math.random() * 2 - 1) * 1.0,
-          (Math.random() * 2 - 1) * 1.0,
-          (Math.random() * 2 - 1) * 1.0),
+          position: spawnPosition,
           size: (Math.random() * 0.5 + 0.5) * (this.params.size || 10.0),
           colour: (this.params.colour || new THREE.Color()),
           alpha: (this.params.alpha || 1.0),
           life: life,
           maxLife: life,
-          rotation: Math.random() * 2.0 * Math.PI,
+          rotation: this.params.noRotation ? 0 : Math.random() * 2.0 * Math.PI,
           velocity: new THREE.Vector3(this.params.velocity?.x || 0, this.params.velocity?.y || 0, this.params.velocity?.z || 0),
       });
     }

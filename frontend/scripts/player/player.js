@@ -410,6 +410,12 @@ export default class Player {
     this.nametag.remove();
     if (this.fire)
       this.fire.destroy();
+    if (this.trail) {
+      for (let i = 0; i < 2; i++) {
+        if (this.trail[i])
+          this.trail[i].destroy();
+      }
+    }
   }
 
   showShield() {

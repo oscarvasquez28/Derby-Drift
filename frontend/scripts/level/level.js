@@ -9,6 +9,7 @@ import PowerUp from "./powerUp.js"
 import Shield from "./shield.js"
 import Ammo from "./ammo.js"
 import Boost from "./boost.js"
+import ParticleSystem from '../particles.js';
 
 const FPS = localStorage.getItem('FPS') * 1.5 || 60 * 1.5;
 
@@ -42,6 +43,10 @@ export default class Level {
     this.showLap = false;
 
     this.countdown = null;
+
+    this.isRainning = false;
+
+    this.rain = null;
   }
 
   async initLevel() {
@@ -86,6 +91,23 @@ export default class Level {
 
     this.levelRenderer = this.world.renderer;
 
+    if (sessionStorage.getItem('weather')) {
+      this.isRainning = true;
+      this.rain = new ParticleSystem({ 
+        alwaysRender: true,
+        parent: this.levelScene,
+        camera: this.levelCamera,
+        spawnPosition: new THREE.Vector3(0, 400, 0),
+        spawnRadius: 300,
+        size: 5,
+        velocity: {y: -50},
+        noRotation: true,
+        count: 1000,
+        colour: new THREE.Color(0x0000FF),
+        texturePath: '/textures/raindrop.png',
+      });
+    } 
+
     if (localStorage.getItem('showFPS') != undefined ? JSON.parse(localStorage.getItem('showFPS')) : false) {
       this.stats = new Stats();
       document.body.appendChild(this.stats.dom);
@@ -116,6 +138,8 @@ export default class Level {
 
     this.world.update();
     this.stats?.update();
+
+    this.rain?.Step((1 / ((localStorage.getItem('FPS')) || 60)));
 
     if (this.clientPlayer && this.clientPlayer.alive) {
       const playerPosition = this.clientPlayer.getPlayerPosition();
