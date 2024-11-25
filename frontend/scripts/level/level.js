@@ -360,6 +360,24 @@ export default class Level {
             this.levelScene.add(checkpointBox);
           });
         }
+        if (data.boxCollisions) {
+          data.boxCollisions.forEach((boxCollision, index) => {
+            const geometry = new THREE.BoxGeometry(boxCollision.size.x, boxCollision.size.y, boxCollision.size.z);
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
+            const box = new THREE.Mesh(geometry, material);
+            box.position.set(boxCollision.position.x, boxCollision.position.y, boxCollision.position.z);
+            this.levelScene.add(box);
+          });
+        }
+        if (data.sphereCollisions) {
+          data.sphereCollisions.forEach((sphereCollision, index) => {
+            const geometry = new THREE.SphereGeometry(sphereCollision.radius, 32, 32);
+            const material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.position.set(sphereCollision.position.x, sphereCollision.position.y, sphereCollision.position.z);
+            this.levelScene.add(sphere);
+          });
+        }
 
         console.log("Recieved message from server: newCheckpoint\nRecieved new checkpoint: " + data);
       });
