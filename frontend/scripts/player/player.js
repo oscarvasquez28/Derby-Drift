@@ -43,6 +43,7 @@ export default class Player {
     this.health = undefined;
     this.color = 0x000000;
     this.score = 0;
+    this.ammo = 0;
     this.levelId = -1;
     this.mesh = {};
     this.scene = scene;
