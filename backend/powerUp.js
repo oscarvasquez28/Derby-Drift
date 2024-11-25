@@ -66,11 +66,12 @@ export default class PowerUp {
     
     spawn(params) {
         this.type = params?.type ? params.type : (Math.random() < 0.1 ? 'shield' : (Math.random() < 0.4 ? 'boost' : 'ammo'));
+        const spawnCenter = params?.spawnCenter ? params.spawnCenter : {x:0, y:0, z:0};
         const spawnRadius = params?.spawnRadius ? params.spawnRadius : 500;
         const spawnHeight = params?.spawnHeight ? params.spawnHeight : 10;
-        const randomX = Math.floor(Math.random() * spawnRadius) - spawnRadius / 2;
-        const randomZ = Math.floor(Math.random() * spawnRadius) - spawnRadius / 2;
-        this.position.set(randomX, spawnHeight, randomZ);
+        const randomX = Math.floor(Math.random() * spawnRadius + (params?.deadZone ? params.deadZone : 0)) - spawnRadius / 2;
+        const randomZ = Math.floor(Math.random() * spawnRadius + (params?.deadZone ? params.deadZone : 0)) - spawnRadius / 2;
+        this.position.set(randomX + spawnCenter.x, spawnHeight + spawnCenter.y, randomZ + spawnCenter.z);
         this.spawned = true;
     }
 
