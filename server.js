@@ -7,6 +7,7 @@ import Socket from './backend/socket.js';
 import http from 'http';
 import Colosseum from './backend/colosseum.js';
 import Track from './backend/track.js';
+import Mountain from './backend/mountain.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -115,7 +116,7 @@ const levelEnum = {
   1: 'track',
 }
 
-const levels = [new Colosseum(), new Track()];
+const levels = [new Colosseum(), new Track(), new Mountain()];
 
 // Manejar las conexiones de socket.io
 io.on('connection', (socket) => {
