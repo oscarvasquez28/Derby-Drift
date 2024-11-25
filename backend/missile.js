@@ -38,6 +38,8 @@ export default class Missile {
     }
 
     handleCollision(event) {
+        if (event.body.tag === 'trigger')
+            return;
         this.body.removeEventListener('collide', this.collideListener);
         this.collided = true;
         this.level.handleMissileCollision(this.id, event);

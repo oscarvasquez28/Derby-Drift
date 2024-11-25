@@ -7,12 +7,13 @@ import Socket from './backend/socket.js';
 import http from 'http';
 import Colosseum from './backend/colosseum.js';
 import Track from './backend/track.js';
+import Mountain from './backend/mountain.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
-const FPS = 400;
+const FPS = 500;
 
 const app = express();
 
@@ -86,6 +87,14 @@ app.get('/*.jpg', (req, res) => {
   });
 });
 
+app.get('/*.glb', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".glb"), {
+    headers: {
+      'Content-Type': 'model/glb'
+    }
+  });
+});
+
 app.get('/*.png', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".png"), {
     headers: {
@@ -115,7 +124,7 @@ const levelEnum = {
   1: 'track',
 }
 
-const levels = [new Colosseum(), new Track()];
+const levels = [new Colosseum(), new Track(), new Mountain()];
 
 // Manejar las conexiones de socket.io
 io.on('connection', (socket) => {
@@ -124,7 +133,7 @@ io.on('connection', (socket) => {
     console.log('User ' + socket.id + ' disconnected');
     let levelId = -1;
     levels.forEach(level => {
-      levelId = level.getPlayerJson(socket.id)?.levelId;
+      levelId = level.getPlayerJson(socket.id)?.levelId??levelId;
       level.removePlayer(socket.id);
     });
     
@@ -193,6 +202,8 @@ function updateLevel() {
     levels.forEach(level => {
       level.step();
       io.emit('update', level.getPlayersJSON());
+      if(level.ai)
+        io.emit('updateAI', level.ai.getJsonData());
     });
   }, 1000 / FPS);
 }

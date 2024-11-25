@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -7,7 +8,7 @@ html, body {
 }
 
 canvas {
-    display: block;
+  display: block;
 }
 
 #world-menu {
@@ -25,15 +26,43 @@ canvas {
   text-align: center;
 }
 
-.world-menu-rows{
+.world-menu-rows {
   margin: 30px;
 }
 
-.world-menu-rows button{
-  min-width: 130px;
-  padding: 15px;
-  border: none;
-  border-radius: 15px;
+.world-menu-rows button {
+  color: #333333;
+  padding: 5px 40px;
+  font-weight: bold;
+  /* Texto en negrita */
+  clip-path: polygon(10% 0%,
+      /* Vértice superior izquierdo */
+      90% 0%,
+      /* Vértice superior derecho */
+      100% 50%,
+      /* Vértice derecho */
+      90% 100%,
+      /* Vértice inferior derecho */
+      10% 100%,
+      /* Vértice inferior izquierdo */
+      0% 50%
+      /* Vértice izquierdo */
+    );
+  /* Define la forma romboide */
+  border-radius: 50px;
+  /* Opcional: Bordes redondeados para suavizar el romboide */
+  border: solid 1px #FFD700;
+  /* Borde del botón */
+  background: linear-gradient(to right, #ffffff, #c9ba61);
+  /* Estado normal */
+  transition: transform 0.2s ease-in-out;
+}
+
+.world-menu-rows button:hover {
+  background: linear-gradient(to right, #c9ba61, #ffffff);
+  /* Estado hover */
+  transform: scale(1.1);
+  /* Aumenta el tamaño del botón al pasar el cursor */
 }
 
 .lost-screen {
@@ -51,14 +80,47 @@ canvas {
   align-items: center;
   z-index: 1000;
 }
+
 .lost-screen button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 1em;
+  color: #333333;
+  padding: 5px 40px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  /* Texto en negrita */
+  clip-path: polygon(10% 0%,
+      /* Vértice superior izquierdo */
+      90% 0%,
+      /* Vértice superior derecho */
+      100% 50%,
+      /* Vértice derecho */
+      90% 100%,
+      /* Vértice inferior derecho */
+      10% 100%,
+      /* Vértice inferior izquierdo */
+      0% 50%
+      /* Vértice izquierdo */
+    );
+  /* Define la forma romboide */
+  border-radius: 50px;
+  /* Opcional: Bordes redondeados para suavizar el romboide */
+  border: solid 1px #FFD700;
+  /* Borde del botón */
+  background: linear-gradient(to right, #ffffff, #c9ba61);
+  /* Estado normal */
+  transition: transform 0.2s ease-in-out;
+}
+
+.lost-screen button:hover {
+  background: linear-gradient(to right, #c9ba61, #ffffff);
+  /* Estado hover */
+  transform: scale(1.1);
+  /* Aumenta el tamaño del botón al pasar el cursor */
 }
 
 .wait-screen {
   position: fixed;
+  display: flex;
+  flex-direction: column;
   top: 0;
   left: 0;
   width: 100%;
@@ -71,8 +133,38 @@ canvas {
   align-items: center;
   z-index: 1000;
 }
+
 .wait-screen button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 1em;
+  color: #333333;
+  padding: 5px 40px;
+  font-weight: bold;
+  /* Texto en negrita */
+  clip-path: polygon(10% 0%,
+      /* Vértice superior izquierdo */
+      90% 0%,
+      /* Vértice superior derecho */
+      100% 50%,
+      /* Vértice derecho */
+      90% 100%,
+      /* Vértice inferior derecho */
+      10% 100%,
+      /* Vértice inferior izquierdo */
+      0% 50%
+      /* Vértice izquierdo */
+    );
+  /* Define la forma romboide */
+  border-radius: 50px;
+  /* Opcional: Bordes redondeados para suavizar el romboide */
+  border: solid 1px #FFD700;
+  /* Borde del botón */
+  background: linear-gradient(to right, #ffffff, #c9ba61);
+  /* Estado normal */
+  transition: transform 0.2s ease-in-out;
+}
+
+.wait-screen button:hover {
+  background: linear-gradient(to right, #c9ba61, #ffffff);
+  /* Estado hover */
+  transform: scale(1.1);
+  /* Aumenta el tamaño del botón al pasar el cursor */
 }

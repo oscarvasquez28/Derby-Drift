@@ -1,4 +1,5 @@
 import ObjModel from "../model.js"
+import { GlbModel } from "../model.js";
 import Level from './level.js';
 
 export default class Track extends Level {
@@ -15,13 +16,14 @@ export default class Track extends Level {
     super.initLevel();
     
     // Inicializar con rotación y posición en personalizadas
-    this.dobeto = new ObjModel(this.levelScene, 'models/PORFAVOR.obj', 'models/PORFAVOR.mtl', false);
+    this.dobeto = new GlbModel (this.levelScene, 'models/Dobeto/DobetoAnimations.glb', false);
     await this.dobeto.initModel().then((mesh) => {
-      mesh.position.y = 25;
-      mesh.position.x = -135;
-      mesh.position.z = -135;
-      mesh.scale.set(15, 15, 15);
-      mesh.rotation.y = -125 * Math.PI / 180;
+      mesh.position.x = 0;
+      mesh.position.y = 0;
+      mesh.position.z = 50;
+      mesh.scale.set(2.3, 2.3, 2.3);
+      mesh.prevPosition = mesh.position.clone();
+      this.dobeto.actions[0].play();
     });
 
     this.Track = new ObjModel(this.levelScene, 'models/CityWorld/CityWorld.obj', 'models/CityWorld/CityWorld.mtl', false);
@@ -33,17 +35,35 @@ export default class Track extends Level {
       mesh.scale.set(1.5, 1.5, 1.5);
     });
 
-    this.models.push(this.dobeto);
+    this.glbModels.push(this.dobeto);
     this.models.push(this.Track);
   }
 
   update() {
     super.update();
-
-    // Manejar modelos
+    
     if (this.dobeto.isLoaded()) {
-      // this.dobeto.mesh.rotation.y += 0.01;
-      // this.dobeto.mesh.position.y += 0.01;
+      this.dobeto.update(1 / 60);
+    }
+  }
+
+  updateAI(aiData) {
+    if (this.dobeto?.isLoaded()) {
+      this.dobeto.mesh.prevPosition = this.dobeto.mesh.position.clone();
+      this.dobeto.mesh.position.set(aiData.position.x, aiData.position.y - 1.5, aiData.position.z);
+      if (this.dobeto.mesh.prevPosition.distanceTo(this.dobeto.mesh.position) > 4) {
+        this.dobeto.actions[0].stop();
+        this.dobeto.actions[1].play();
+      } else {
+        this.dobeto.actions[1].stop();
+        this.dobeto.actions[0].play();
+        this.dobeto.mesh.lookAt(
+          this.dobeto.mesh.position.x + (this.dobeto.mesh.position.x - this.dobeto.mesh.prevPosition.x),
+          this.dobeto.mesh.position.y + (this.dobeto.mesh.position.y - this.dobeto.mesh.prevPosition.y),
+          this.dobeto.mesh.position.z + (this.dobeto.mesh.position.z - this.dobeto.mesh.prevPosition.z)
+        );
+        this.dobeto.mesh.rotateY(-Math.PI / 2);
+      } 
     }
   }
 

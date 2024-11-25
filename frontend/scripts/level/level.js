@@ -21,6 +21,8 @@ export default class Level {
 
     this.models = new Array().fill(0);
 
+    this.glbModels = new Array().fill(0);
+
     this.socket = Connection.getConnection();
 
     this.clientPlayer = null;
@@ -50,31 +52,31 @@ export default class Level {
       email: sessionStorage.getItem('userEmail') || undefined,
       name: this.#genRandomName(),
       id: null,
-      health: this.playerInitHealth,
+      health: this.playerInitHealth * (sessionStorage.getItem("selectedDifficulty") === "hard" ? 0.5 : 1),
       currentCheckpoint: 0,
       currentLap: 0,
       ammo: 0,
       hasShield: false,
       hasBoost: false,
       score: 0,
-      mesh: Math.random() < 0.5 ? 1 : 2,
+      mesh: sessionStorage.getItem("selectedDifficulty") === "hard" ? 1 : 2,
       position: {
-        chassis: { x: 0, y: this.initHeight, z: 0 },
-        wheels: {
-          frontLeft: { x: 0, y: 0, z: 0 },
-          frontRight: { x: 0, y: 0, z: 0 },
-          backLeft: { x: 0, y: 0, z: 0 },
-          backRight: { x: 0, y: 0, z: 0 }
-        }
+      chassis: { x: 0, y: this.initHeight, z: 0 },
+      wheels: {
+        frontLeft: { x: 0, y: 0, z: 0 },
+        frontRight: { x: 0, y: 0, z: 0 },
+        backLeft: { x: 0, y: 0, z: 0 },
+        backRight: { x: 0, y: 0, z: 0 }
+      }
       },
       rotation: {
-        chassis: { x: 0, y: 0, z: 0, w: 0 },
-        wheels: {
-          frontLeft: { x: 0, y: 0, z: 0, w: 0 },
-          frontRight: { x: 0, y: 0, z: 0, w: 0 },
-          backLeft: { x: 0, y: 0, z: 0, w: 0 },
-          backRight: { x: 0, y: 0, z: 0, w: 0 }
-        }
+      chassis: { x: 0, y: 0, z: 0, w: 0 },
+      wheels: {
+        frontLeft: { x: 0, y: 0, z: 0, w: 0 },
+        frontRight: { x: 0, y: 0, z: 0, w: 0 },
+        backLeft: { x: 0, y: 0, z: 0, w: 0 },
+        backRight: { x: 0, y: 0, z: 0, w: 0 }
+      }
       }
     };
 
@@ -208,7 +210,7 @@ export default class Level {
       socket.emit('playerInfo', playerInfo);
 
       socket.on('newPlayer', (player) => {
-        console.log("Recieved message from server: newPlayer\nPlayer: " + player.name + " ID:" + player.id + ' connected');
+        // console.log("Recieved message from server: newPlayer\nPlayer: " + player.name + " ID:" + player.id + ' connected');
         if (this.gameEnded) return;
         this.addPlayer(player);
       });
@@ -218,17 +220,17 @@ export default class Level {
         Object.keys(playersData).forEach((id) => {
           if (!this.players.find(obj => obj.id === id)) {
             this.addPlayer(playersData[id]);
-            console.log("Recieved message from server: currentPlayers\nRecieved new player: " + id);
+            // console.log("Recieved message from server: currentPlayers\nRecieved new player: " + id);
           }
           else {
-            console.error("Recieved message from server: currentPlayers\nPlayer: " + playersData[id].name + " ID:" + id + " is already in the scene");
+            // console.error("Recieved message from server: currentPlayers\nPlayer: " + playersData[id].name + " ID:" + id + " is already in the scene");
           }
         });
       });
 
       socket.on('playerDestroyed', (data) => {
         if (this.gameEnded) return;
-        console.log("Recieved message from server: playerDestroyed\nPlayer: " + data.id + " was destroyed");
+        // console.log("Recieved message from server: playerDestroyed\nPlayer: " + data.id + " was destroyed");
         const destroyedPlayer = this.players.find(obj => obj.id === data.id);
         if (destroyedPlayer) {
           if (destroyedPlayer.id === this.clientPlayer.player.id) {
@@ -238,13 +240,13 @@ export default class Level {
           }
           destroyedPlayer.removePlayer();
           this.players = this.players.filter(obj => obj.id !== destroyedPlayer.id);
-          console.log("Player: " + destroyedPlayer.name + " ID:" + destroyedPlayer.id + " was removed from the scene");
+          // console.log("Player: " + destroyedPlayer.name + " ID:" + destroyedPlayer.id + " was removed from the scene");
         }
       });
 
       socket.on('playerWon', (data) => {
         if (this.gameEnded) return;
-        console.log("Recieved message from server: playerWon\nPlayer: " + data.id + " won the game");
+        // console.log("Recieved message from server: playerWon\nPlayer: " + data.id + " won the game");
         const winningPlayer = this.players.find(obj => obj.id === data.id);
         if (winningPlayer.id === this.clientPlayer.getPlayer().id) {
           // alert("Player: " + winningPlayer.name + " ID:" + winningPlayer.id + " won the game");
@@ -255,7 +257,7 @@ export default class Level {
 
       socket.on('playerDisconnected', (id) => {
         if (this.gameEnded) return;
-        console.log("Recieved message from server: playerDisconnected");
+        // console.log("Recieved message from server: playerDisconnected");
         const disconnectedPlayer = this.players.find(obj => obj.id === id);
         if (disconnectedPlayer) {
           disconnectedPlayer.removePlayer();
@@ -271,9 +273,15 @@ export default class Level {
             updatedPlayer.updatePlayerFromJSON(playersData[id]);
           }
           else {
-            console.error("Recieved message from server: update\nPlayer " + id + " is not in the scene");
+            // console.error("Recieved message from server: update\nPlayer " + id + " is not in the scene");
           }
         });
+      });
+
+      socket.on('updateAI', (aiData) => {
+        if (this.gameEnded) return;
+        // console.log("Recieved message from server: updateAI\nRecieved updated AI: " + aiData.id);
+        this.updateAI(aiData);
       });
 
       socket.on('newProjectile', (projectileData) => {
@@ -291,27 +299,27 @@ export default class Level {
 
       socket.on('missileRemoved', (data) => {
         if (this.gameEnded) return;
-        console.log("Recieved message from server: missileRemoved\nRecieved removed missile: " + data.id);
+        // console.log("Recieved message from server: missileRemoved\nRecieved removed missile: " + data.id);
         this.removeMissile(data);
       });
 
       socket.on('updateMissiles', (missilesData) => {
         if (this.gameEnded) return;
-        console.log("Recieved message from server: updateMissiles\nRecieved updated missiles: " + missilesData.id);
+        // console.log("Recieved message from server: updateMissiles\nRecieved updated missiles: " + missilesData.id);
         this.updateMissiles(missilesData);
       });
 
       socket.on('playerCollision', (data) => {
         if (this.gameEnded) return;
         if (this.clientPlayer) {
-          console.log("Recieved message from server: playerCollision\nRecieved player collision: " + data.id);
+          // console.log("Recieved message from server: playerCollision\nRecieved player collision: " + data.id);
           this.clientPlayer.collided();
         }
       });
 
       socket.on('currentPowerUps', (data) => {
         if (this.gameEnded) return;
-        console.log("Recieved message from server: currentPowerUps\nRecieved power ups: " + data);
+        // console.log("Recieved message from server: currentPowerUps\nRecieved power ups: " + data);
         Object.keys(data).forEach(id => {
           if (!this.powerUps.find(powerUp => powerUp.id === id)) {
             const powerUp = data[id];
@@ -323,7 +331,7 @@ export default class Level {
 
       socket.on('powerUpSpawned', (data) => {
         if (this.gameEnded) return;
-        console.log("Recieved message from server: powerUpSpawned\nRecieved power up: " + data.id);
+        // console.log("Recieved message from server: powerUpSpawned\nRecieved power up: " + data.id);
         data.scene = this.levelScene;
         this.spawnPowerUp(data);
       });
@@ -335,20 +343,20 @@ export default class Level {
           collectedPowerUp.destroy();
           this.powerUps = this.powerUps.filter(powerUp => powerUp.id !== data.id);
         } else {
-          console.error("PowerUp with ID " + data.id + " not found in the scene");
+          // console.error("PowerUp with ID " + data.id + " not found in the scene");
         }
       });
 
       socket.on('countdown', (countdown) => {
         if (this.gameEnded) return;
-        console.log("Recieved message from server: countdown\nCountdown: " + countdown);
+        // console.log("Recieved message from server: countdown\nCountdown: " + countdown);
         this.countdown = countdown;
         this.updateCountdown();
       });
 
       socket.on('debugInfo', (data) => {
         if (this.gameEnded) return;
-        console.log("Recieved message from server: debugInfo\nRecieved debug info: " + data);
+        // console.log("Recieved message from server: debugInfo\nRecieved debug info: " + data);
         if (data.checkpoints) {
           data.checkpoints.forEach((checkpoint, index) => {
             const isPair = index % 2 === 0;
@@ -379,7 +387,7 @@ export default class Level {
           });
         }
 
-        console.log("Recieved message from server: newCheckpoint\nRecieved new checkpoint: " + data);
+        // console.log("Recieved message from server: newCheckpoint\nRecieved new checkpoint: " + data);
       });
 
       socket.on('disconnect', () => {
@@ -515,6 +523,10 @@ export default class Level {
         console.error("Recieved message from server: updateMissiles\nMissile " + missileData.id + " is not in the scene");
       }
     });
+  }
+
+  updateAI(aiData) {
+    return true;
   }
 
   removeMissile(data) {
