@@ -1,4 +1,5 @@
 import ObjModel from "../model.js"
+import { GlbModel } from "../model.js";
 import Level from './level.js';
 
 export default class Colosseum extends Level {
@@ -19,13 +20,14 @@ export default class Colosseum extends Level {
         // this.dobeto = new ObjModel(this.levelScene, 'models/PORFAVOR.obj', 'models/PORFAVOR.mtl');
     
         // Inicializar con rotación y posición en personalizadas
-        this.dobeto = new ObjModel(this.levelScene, 'models/PORFAVOR.obj', 'models/PORFAVOR.mtl', false);
+        this.dobeto = new GlbModel(this.levelScene, 'models/Dobeto/DobetoAnimations2.glb', false);
         await this.dobeto.initModel().then((mesh) => {
-          mesh.position.y = 50;
-          mesh.position.x = -350;
-          mesh.position.z = -350;
-          mesh.scale.set(50, 50, 50);
-          mesh.rotation.y = -125 * Math.PI / 180;
+          mesh.position.y = 25;
+          mesh.position.x = -310;
+          mesh.position.z = -310;
+          mesh.scale.set(75, 75, 75);
+          // mesh.rotation.y = -125 * Math.PI / 180;
+          this.dobeto.actions[2].play();
         });
     
         const scale = 10;        
@@ -55,7 +57,7 @@ export default class Colosseum extends Level {
           mesh.scale.set(scale, scale, scale);
         });
     
-        this.models.push(this.dobeto);
+        this.glbModels.push(this.dobeto);
         this.models.push(this.colosseum.rails);
         this.models.push(this.colosseum.seats);
         this.models.push(this.colosseum.walls);
@@ -66,8 +68,7 @@ export default class Colosseum extends Level {
 
         // Manejar modelos
         if (this.dobeto.isLoaded()){
-          // this.dobeto.mesh.rotation.y += 0.01;
-          // this.dobeto.mesh.position.y += 0.01;
+            this.dobeto.update(1 / 60);
         }
     }
 
