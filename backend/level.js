@@ -11,8 +11,9 @@ export default class Level {
         this.players = {};
         this.levelProjectiles = [];
         this.powerUps = [];
-        this.powerUps = new Array(5).fill(null).map(() => new PowerUp({ position: { x: 0, y: 0, z: 0 }, world: this.world.getWorld() }));
-        this.powerUpTimer = 60;
+        this.powerUps = new Array(10).fill(null).map(() => new PowerUp({ position: { x: 0, y: 0, z: 0 }, world: this.world.getWorld() }));
+        this.TimeBetweenPowerUp = 15;
+        this.powerUpTimer = this.TimeBetweenPowerUp;
         this.doSpawnPowerUps = true;
         this.hasStarted = true;
         this.db = Database.getDb();
@@ -108,10 +109,12 @@ export default class Level {
                 powerUp.step(this.players);
             }
         });
-        this.powerUpTimer -= 1 / 60;
+
+        this.powerUpTimer -= 1 / 200;
+        
         if (this.powerUpTimer <= 0) {
             this.spawnPowerUp();
-            this.powerUpTimer = 15;
+            this.powerUpTimer = this.TimeBetweenPowerUp;
         }
     }
     
