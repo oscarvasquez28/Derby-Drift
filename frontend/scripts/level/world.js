@@ -18,7 +18,7 @@ export default class World {
     this.heightmapPath = heightmapPath;
 
     // Creamos la cámara desde la que se verá el mundo
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
     
     // Creamos el renderizador que graficará toda la lógica de three.js en nuestra página
     this.renderer = new THREE.WebGLRenderer();

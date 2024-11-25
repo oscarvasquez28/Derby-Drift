@@ -13,10 +13,13 @@ export default class Level {
         this.powerUps = [];
         this.powerUps = new Array(5).fill(null).map(() => new PowerUp({ position: { x: 0, y: 0, z: 0 }, world: this.world.getWorld() }));
         this.powerUpTimer = 60;
+        this.doSpawnPowerUps = true;
+        this.hasStarted = true;
         this.db = Database.getDb();
     }
 
     step() {
+        if (!this.hasStarted) return;
         this.world.step();
         for (const id in this.players) {
             if (this.players.hasOwnProperty(id)) {
@@ -81,7 +84,6 @@ export default class Level {
                     if (collidedPlayer.takeDamage(missile.damage, "El jugador fue alcanzado por un misil del jugador: " + missile.player.getJson().name)){
                         missile.player.addScore();                        
                     }
-
                 }
             }
         }
@@ -99,6 +101,8 @@ export default class Level {
     }
 
     updateLevelPowerUps() {
+        if (!this.doSpawnPowerUps) return;
+
         this.powerUps.forEach(powerUp => {
             if (powerUp.spawned) {
                 powerUp.step(this.players);
@@ -165,6 +169,7 @@ export default class Level {
     }
 
     getPlayerJson(id) {
+        if (this.players[id] == null) return null;
         return this.players[id].getJson();
     }
 

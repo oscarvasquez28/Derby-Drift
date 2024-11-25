@@ -8,14 +8,14 @@ export default class Missile {
         this.level = level;
         this.world = world;
         this.player = player;
-        this.chassis = this.player.player.body.chassis;
+        this.chassis = this.player.getBody().chassis;
         this.damage = 50;
         this.body = this.createMissile();
-        this.body.position.copy(this.chassis.position);
+        const localOffset = new cannon.Vec3(6, 2, 0);
+        const worldOffset = this.chassis.pointToWorldFrame(localOffset);
+        this.body.position.copy(worldOffset);
         this.body.velocity.copy(this.chassis.velocity);
-        this.body.angularVelocity.copy(this.chassis.angularVelocity);
         this.body.quaternion.copy(this.chassis.quaternion);
-        this.body.position.vadd(new cannon.Vec3(0, 3, 0), this.body.position);
         this.body.applyLocalForce(new cannon.Vec3(50000, 500, 0), new cannon.Vec3(0, 0, 0));
         this.collided = false;
         this.collideListener = this.handleCollision.bind(this);

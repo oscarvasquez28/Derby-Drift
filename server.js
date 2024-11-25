@@ -5,8 +5,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Socket from './backend/socket.js';
 import http from 'http';
-import Level from './backend/level.js';
 import Colosseum from './backend/colosseum.js';
+import Track from './backend/track.js';
+import Mountain from './backend/mountain.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -115,23 +116,34 @@ const levelEnum = {
   1: 'track',
 }
 
-const levels = [new Colosseum(), new Level('./public/models/Track/TrackHeightMap.png', 2)];
+const levels = [new Colosseum(), new Track(), new Mountain()];
 
 // Manejar las conexiones de socket.io
 io.on('connection', (socket) => {
   console.log('User ' + socket.id + ' connected');
   socket.on('disconnect', () => {
     console.log('User ' + socket.id + ' disconnected');
+    let levelId = -1;
     levels.forEach(level => {
+      levelId = level.getPlayerJson(socket.id)?.levelId;
       level.removePlayer(socket.id);
     });
+    
     io.emit('playerDisconnected', socket.id);
+    
+    if (levelId == 1) {
+      io.emit(
+        'countdown',
+        null,
+      )
+    }
+
   });
 
   socket.on('playerInfo', (data) => {
-    if(data.id == socket.id){
+    if (data.id == socket.id) {
       levels[data.levelId].addPlayer(data);
-    }else{
+    } else {
       console.log('Error: id mismatch');
     }
 
@@ -139,6 +151,20 @@ io.on('connection', (socket) => {
       'newPlayer',
       levels[data.levelId].getPlayerJson(socket.id),
     )
+
+    if (levels[data.levelId].debug) {
+      socket.emit(
+        'debugInfo',
+        levels[data.levelId].getDebugInfo(),
+      )
+    }
+
+    if (data.levelId == 1) {
+      socket.emit(
+        'countdown',
+        levels[data.levelId].countdown,
+      )
+    }
 
     socket.emit(
       'currentPlayers',
@@ -163,13 +189,13 @@ io.on('connection', (socket) => {
 
 });
 
-function updateLevel(){
-    setInterval(() => {
-        levels.forEach(level => {
-            level.step();
-            io.emit('update', level.getPlayersJSON());
-        });
-    }, 1000 / FPS);
+function updateLevel() {
+  setInterval(() => {
+    levels.forEach(level => {
+      level.step();
+      io.emit('update', level.getPlayersJSON());
+    });
+  }, 1000 / FPS);
 }
 
 updateLevel();

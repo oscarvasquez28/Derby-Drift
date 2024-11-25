@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import World from "./world.js"
 import Player from "../player/player.js"
 import ClientPlayer from "../player/clientPlayer.js"
@@ -35,6 +36,10 @@ export default class Level {
     this.powerUps = [];
 
     this.gameEnded = false;
+
+    this.showLap = false;
+
+    this.countdown = null;
   }
 
   async initLevel() {
@@ -46,6 +51,8 @@ export default class Level {
       name: this.#genRandomName(),
       id: null,
       health: this.playerInitHealth,
+      currentCheckpoint: 0,
+      currentLap: 0,
       ammo: 0,
       hasShield: false,
       hasBoost: false,
@@ -113,17 +120,20 @@ export default class Level {
       const lookAtNorm = this.clientPlayer.getPlayerNormalizedLookAt();
       this.levelCamera.position.set(playerPosition.x - (lookAtNorm.x * 2), playerPosition.y + 12, playerPosition.z - (lookAtNorm.z * 2));
       this.levelCamera.lookAt(playerPosition.x, playerPosition.y + 10, playerPosition.z);
+      this.clientPlayer.update();
     }
 
     this.players.forEach(player => {
       player.update();
     });
 
+    if (this.gameEnded) return;
+
     this.powerUps.forEach(powerUp => {
       powerUp.update();
     });
 
-    this.projectiles.forEach(missile => { 
+    this.projectiles.forEach(missile => {
       missile.update();
     });
 
@@ -180,6 +190,8 @@ export default class Level {
     const clientPlayer = this.players.find(obj => obj.id === this.socket.id);
     if (clientPlayer) {
       this.clientPlayer = new ClientPlayer(clientPlayer);
+      this.clientPlayer.showLap = this.showLap;
+      this.clientPlayer.init();
       this.world.setClientPlayer(this.clientPlayer);
     }
   }
@@ -327,6 +339,49 @@ export default class Level {
         }
       });
 
+      socket.on('countdown', (countdown) => {
+        if (this.gameEnded) return;
+        console.log("Recieved message from server: countdown\nCountdown: " + countdown);
+        this.countdown = countdown;
+        this.updateCountdown();
+      });
+
+      socket.on('debugInfo', (data) => {
+        if (this.gameEnded) return;
+        console.log("Recieved message from server: debugInfo\nRecieved debug info: " + data);
+        if (data.checkpoints) {
+          data.checkpoints.forEach((checkpoint, index) => {
+            const isPair = index % 2 === 0;
+            const geometry = new THREE.BoxGeometry(isPair ? 60 : 10, 10, isPair ? 10 : 60);
+            const colorValue = 0xff0000 / (index);
+            const material = new THREE.MeshBasicMaterial({ color: colorValue, transparent: true, opacity: 0.5 });
+            const checkpointBox = new THREE.Mesh(geometry, material);
+            checkpointBox.position.set(checkpoint.position.x, checkpoint.position.y, checkpoint.position.z);
+            this.levelScene.add(checkpointBox);
+          });
+        }
+        if (data.boxCollisions) {
+          data.boxCollisions.forEach((boxCollision, index) => {
+            const geometry = new THREE.BoxGeometry(boxCollision.size.x, boxCollision.size.y, boxCollision.size.z);
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
+            const box = new THREE.Mesh(geometry, material);
+            box.position.set(boxCollision.position.x, boxCollision.position.y, boxCollision.position.z);
+            this.levelScene.add(box);
+          });
+        }
+        if (data.sphereCollisions) {
+          data.sphereCollisions.forEach((sphereCollision, index) => {
+            const geometry = new THREE.SphereGeometry(sphereCollision.radius, 32, 32);
+            const material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.position.set(sphereCollision.position.x, sphereCollision.position.y, sphereCollision.position.z);
+            this.levelScene.add(sphere);
+          });
+        }
+
+        console.log("Recieved message from server: newCheckpoint\nRecieved new checkpoint: " + data);
+      });
+
       socket.on('disconnect', () => {
         console.error('Disconnected from server');
         window.location.reload();
@@ -335,6 +390,10 @@ export default class Level {
 
     });
 
+  }
+
+  updateCountdown() {
+    return true;
   }
 
   showLostScreen(cause = "Banned") {

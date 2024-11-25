@@ -11,6 +11,7 @@
   <link rel="icon" href="\images\Miniature.png" type="image/png">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="conf.js"></script>
 </head>
 
@@ -35,11 +36,14 @@
     <!-- Botones -->
     <div class="row">
       <div class="col-xl-12 mt-2">
+        <div id="greeting-btn" class="index-btn-container" hidden>
+          <button id="greeting" class="name-btn"></button>
+        </div>
         <div id="playAudioButton" class="index-btn-container"><a href="./track.html"><button>Jugar Carrera</button></a></div>
-        <div class="index-btn-container"><a href="./world.html"><button>Jugar Coliseo</button></a></div>
+        <div class="index-btn-container"><a href="./world.html"><button>Jugar Coliseo</button></a><a href="./mountain.html"><button>Jugar Montañas</button></a></div>
         <div class="index-btn-container"><a href="./config.html"><button>Configuración</button></a></div>
         <div class="index-btn-container"><a href="./scores.html"><button>Puntuaciones</button></a></div>
-        <div class="index-btn-container"><a href="#"><button>Salir</button></a></div>
+        <div class="index-btn-container"><button onclick="closeWindow()">Salir</button></div>
         <div class="index-btn-container">
           <div id="g_id_onload" data-client_id="" data-callback="handleCredentialResponse">
           </div>
@@ -57,7 +61,6 @@
     </div>
   </div>
   </div>
-
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       var audio = document.getElementById('myAudio');
@@ -71,10 +74,49 @@
           console.log('Error al intentar reproducir el audio:', error);
         });
       }
-    });
-  </script>
+      var masterVolume = localStorage.getItem('masterVolume');
+      if (masterVolume !== null) {
+        audio.volume = parseFloat(masterVolume);
+      }
 
-  <script>
+      const userName = sessionStorage.getItem('userName');
+      if (userName) {
+        document.getElementById('greeting-btn').hidden = false;
+        document.getElementById('greeting').innerText = `¡Hola ${userName}!`;
+      }
+
+    });
+    
+    closeWindow = () => {
+      window.close();
+      if (!window.closed) {
+        Swal.fire({
+          title: '😥',
+          text: 'Tu navegador ha bloqueado la acción de cerrar la ventana.',
+          icon: 'error',
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    }
+
+    document.getElementById('greeting').addEventListener('click', function() {
+      Swal.fire({
+        title: '🧐',
+        text: '¿Quieres cerrar sesión?',
+        showCancelButton: true,
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'No',
+        icon: 'warning'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          sessionStorage.removeItem('userName');
+          sessionStorage.removeItem('userEmail');
+          document.getElementById('greeting-btn').hidden = true;
+          Swal.fire('Sesión cerrada', '', 'success');
+        }
+      });
+    });
+
     document.getElementById('g_id_onload').setAttribute('data-client_id', CONFIG.GOOGLE_CLIENT_ID);
     async function handleCredentialResponse(response) {
       console.log("Encoded JWT ID token: " + response.credential);
@@ -88,6 +130,8 @@
 
       sessionStorage.setItem('userName', decodedToken.name);
       sessionStorage.setItem('userEmail', decodedToken.email);
+      document.getElementById('greeting-btn').hidden = false;
+      document.getElementById('greeting').innerText = `¡Hola ${decodedToken.name}!`;
 
       // Verificar que los datos fueron guardados correctamente
       console.log('Nombre guardado en sessionStorage:', sessionStorage.getItem('userName'));

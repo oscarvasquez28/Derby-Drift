@@ -38,10 +38,11 @@ export default class InputSystem {
             }
 
             if (event.key === 'm') {
-                if (this.collidedWithPlayer)
-                    alert('Player Has Collided With Another Player');
-                else
-                    console.error('Player Has Not Collided With Another Player');
+                // if (this.collidedWithPlayer)
+                //     alert('Player Has Collided With Another Player');
+                // else
+                //     console.error('Player Has Not Collided With Another Player');
+                console.log(player.getPlayerPosition());
             }
 
             this.pressedKeys.add(event.key);
