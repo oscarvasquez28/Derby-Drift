@@ -8,9 +8,10 @@ export default class Track extends Level {
         this.checkpoints = [];
         this.boxCollisions = [];
         this.sphereCollisions = [];
-        this.debug = true;
+        this.debug = false;
         this.laps = 3;
-        this.hasStarted = true;
+        this.hasStarted = false;
+        this.TimeBetweenPowerUp = 5;
         this.lastNumPlayers = 0;
         this.initCountdown = 10;
         this.init();
@@ -33,11 +34,11 @@ export default class Track extends Level {
                 this.countdown = this.initCountdown;
             }
         }
-        // else if (Object.keys(this.players).length < 2) {
-        //     this.hasStarted = false;
-        //     clearInterval(this.countdownInterval);
-        //     this.countdown = null;
-        // }
+        else if (Object.keys(this.players).length < 2) {
+            this.hasStarted = false;
+            clearInterval(this.countdownInterval);
+            this.countdown = null;
+        }
         super.step();
     }
 
@@ -54,8 +55,141 @@ export default class Track extends Level {
     }
 
     createCollisions() {
-        this.boxCollisions.push(this.world.createCollisionBox({ x: 0, y: 0, z: 0 }, { x: 20, y: 1, z: 20 }));
-        this.sphereCollisions.push(this.world.createCollisionSphere({ x: -227.28408848883032, y: 1.9336560325685157, z: 11.197025432804969 }, 5));
+        this.boxCollisions.push(this.world.createCollisionBox({ x: -5, y: 0, z: 4 }, { x: 60, y: 10, z: 50}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: 150.79805503052074,
+            y: 1.9277551449282462,
+            z: 4.469723338616328
+        }, { x: 80, y: 20, z: 50}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: -161.82016756852627,
+            y: 1.9285579288985872,
+            z: -0.8528500025085852
+        }, { x: 80, y: 20, z: 60}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: 14.306935941748135,
+            y: 1.9361880916840117,
+            z: 112.06447552269364
+        }, { x: 750, y: 20, z: 1}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: -2.765689678679029,
+            y: 1.9442294043224613,
+            z: -116.00879150452091
+        }, { x: 750, y: 20, z: 1}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: 377.7650181799714,
+            y: 1.9556531996241338,
+            z: -6.883227161710862
+        }, { x:1, y: 20, z: 225}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: -375.22885446718794,
+            y: 1.9468755638128266,
+            z: 2.1248737767451638
+        }, { x:1, y: 20, z: 225}));
+
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: 320.6657487284849,
+            y: 1.9334692438027425,
+            z: 105.47632131982284
+        }, { x:50, y: 20, z: 10}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: 366.8435615696857,
+            y: 1.9296575744795632,
+            z: 74.9487894552122
+        }, { x:20, y: 20, z: 50}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: 347.68567206745576,
+            y: 1.9441256902434172,
+            z: 91.71008190795466
+        }, { x:20, y: 20, z: 20}));
+        
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: 320.6657487284849,
+            y: 1.9334692438027425,
+            z: -108.47632131982284
+        }, { x:50, y: 20, z: 10}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: 366.8435615696857,
+            y: 1.9296575744795632,
+            z: -75.9487894552122
+        }, { x:20, y: 20, z: 50}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: 347.68567206745576,
+            y: 1.9441256902434172,
+            z: -97.71008190795466
+        }, { x:20, y: 20, z: 20}));
+        
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: -320.6657487284849,
+            y: 1.9334692438027425,
+            z: 105.47632131982284
+        }, { x:50, y: 20, z: 10}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: -366.8435615696857,
+            y: 1.9296575744795632,
+            z: 74.9487894552122
+        }, { x:20, y: 20, z: 30}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: -347.68567206745576,
+            y: 1.9441256902434172,
+            z: 91.71008190795466
+        }, { x:20, y: 20, z: 20}));
+
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: -320.6657487284849,
+            y: 1.9334692438027425,
+            z: -108.47632131982284
+        }, { x:50, y: 20, z: 10}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: -366.8435615696857,
+            y: 1.9296575744795632,
+            z: -75.9487894552122
+        }, { x:20, y: 20, z: 30}));
+        this.boxCollisions.push(this.world.createCollisionBox({
+            x: -347.68567206745576,
+            y: 1.9441256902434172,
+            z: -97.71008190795466
+        }, { x:20, y: 20, z: 20}));
+
+        this.sphereCollisions.push(this.world.createCollisionSphere({ x: -225.28408848883032, y: 1.9336560325685157, z: 11.197025432804969 }, 13));
+        this.sphereCollisions.push(this.world.createCollisionSphere({
+            x: -92.3619014719745,
+            y: 1.9318125543009435,
+            z: 13.155188202022526
+        }, 13));
+        this.sphereCollisions.push(this.world.createCollisionSphere({
+            x: 55.320681774690705,
+            y: 1.942554700486868,
+            z: 13.110627058416075
+        }, 13));
+        this.sphereCollisions.push(this.world.createCollisionSphere({
+            x: 240.9249711683649,
+            y: 1.9248764311524063,
+            z: 12.651747510424928
+        }, 13));
+    }
+
+    spawnPowerUp() {
+        const powerUp = this.powerUps.find(powerUp => !powerUp.spawned);
+        const SpawnCenter = Math.random() < 0.5 ? { x: -240.28408848883032, y: 1.9336560325685157, z: 11.197025432804969 } : 
+        {
+            x: 260.9249711683649,
+            y: 1.9248764311524063,
+            z: 12.651747510424928
+        };
+
+        console.log("SpawnCenter selected: ", SpawnCenter);
+        if (powerUp) {
+            powerUp.spawn({
+                spawnCenter:{
+                 x: SpawnCenter.x
+                ,y: SpawnCenter.y
+                ,z: SpawnCenter.z},
+                spawnRadius: 100,
+                deadZone: 50,
+            spawnHeight: 5});
+            Socket.getIO().emit('powerUpSpawned', powerUp.getJson());
+        }
     }
 
     createCheckpoints() {

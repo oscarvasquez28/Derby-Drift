@@ -63,6 +63,8 @@ export default class CannonWorld {
         // Set collision response to false to make it a trigger
         body.collisionResponse = false;
 
+        body.tag = "trigger";
+
         // Add event listener for overlaps
         body.addEventListener('collide', (event) => {
             console.log('Trigger overlapped with body:', event.body.tag);

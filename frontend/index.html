@@ -39,8 +39,23 @@
         <div id="greeting-btn" class="index-btn-container" hidden>
           <button id="greeting" class="name-btn"></button>
         </div>
-        <div id="playAudioButton" class="index-btn-container"><a href="./track.html"><button>Jugar Carrera</button></a></div>
-        <div class="index-btn-container"><a href="./world.html"><button>Jugar Coliseo</button></a><a href="./mountain.html"><button>Jugar Montañas</button></a></div>
+        <div id="play" class="index-btn-container"><button>Jugar</button></div>
+        <div id="play-options" hidden>
+          <div class="index-btn-container">
+              <button id="easy" class="difficulty-btn">Fácil</button>
+              <button id="hard" class="difficulty-btn">Difícil</button>
+          </div>
+          <div class="index-btn-container">
+              <button id="play-options-back">Regresar</button>
+          </div>
+        </div>
+        <div id="play-level" hidden>
+          <div id="playAudioButton" class="index-btn-container"><a href="./track.html"><button>Jugar Carrera</button></a></div>
+          <div class="index-btn-container"><a href="./world.html"><button>Jugar Coliseo</button></a><a href="./mountain.html"><button>Jugar Montañas</button></a></div>
+          <div class="index-btn-container">
+              <button id="play-level-back">Regresar</button>
+          </div>
+        </div>
         <div class="index-btn-container"><a href="./config.html"><button>Configuración</button></a></div>
         <div class="index-btn-container"><a href="./scores.html"><button>Puntuaciones</button></a></div>
         <div class="index-btn-container"><button onclick="closeWindow()">Salir</button></div>
@@ -84,6 +99,46 @@
         document.getElementById('greeting-btn').hidden = false;
         document.getElementById('greeting').innerText = `¡Hola ${userName}!`;
       }
+
+      const playBtn = document.getElementById('play');
+      
+      const playOptions = document.getElementById('play-options');
+      const playDifficultyBtns = document.querySelectorAll('.difficulty-btn');
+      const playOptionsBackBtn = document.getElementById('play-options-back');
+
+      const playLevel = document.getElementById('play-level');
+      const playLevelBackBtn = document.getElementById('play-level-back');
+
+      playBtn.addEventListener('click', () => {
+        playOptions.hidden = false;
+        playBtn.hidden = true;
+      });
+
+      playDifficultyBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          playLevel.hidden = false;
+          playOptions.hidden = true;
+        });
+      });
+
+      playOptionsBackBtn.addEventListener('click', () => {
+        playOptions.hidden = true;
+        playBtn.hidden = false;
+      });
+
+      playLevelBackBtn.addEventListener('click', () => {
+        playLevel.hidden = true;
+        playOptions.hidden = false;
+      });
+
+      playDifficultyBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const difficulty = btn.id === 'easy' ? 'easy' : 'hard';
+          sessionStorage.setItem('selectedDifficulty', difficulty);
+          playLevel.hidden = false;
+          playOptions.hidden = true;
+        });
+      });
 
     });
     

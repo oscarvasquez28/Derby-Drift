@@ -125,7 +125,7 @@ io.on('connection', (socket) => {
     console.log('User ' + socket.id + ' disconnected');
     let levelId = -1;
     levels.forEach(level => {
-      levelId = level.getPlayerJson(socket.id)?.levelId;
+      levelId = level.getPlayerJson(socket.id)?.levelId??levelId;
       level.removePlayer(socket.id);
     });
     
