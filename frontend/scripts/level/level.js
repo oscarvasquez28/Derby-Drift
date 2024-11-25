@@ -50,31 +50,31 @@ export default class Level {
       email: sessionStorage.getItem('userEmail') || undefined,
       name: this.#genRandomName(),
       id: null,
-      health: this.playerInitHealth,
+      health: this.playerInitHealth * (sessionStorage.getItem("selectedDifficulty") === "hard" ? 0.5 : 1),
       currentCheckpoint: 0,
       currentLap: 0,
       ammo: 0,
       hasShield: false,
       hasBoost: false,
       score: 0,
-      mesh: Math.random() < 0.5 ? 1 : 2,
+      mesh: sessionStorage.getItem("selectedDifficulty") === "hard" ? 1 : 2,
       position: {
-        chassis: { x: 0, y: this.initHeight, z: 0 },
-        wheels: {
-          frontLeft: { x: 0, y: 0, z: 0 },
-          frontRight: { x: 0, y: 0, z: 0 },
-          backLeft: { x: 0, y: 0, z: 0 },
-          backRight: { x: 0, y: 0, z: 0 }
-        }
+      chassis: { x: 0, y: this.initHeight, z: 0 },
+      wheels: {
+        frontLeft: { x: 0, y: 0, z: 0 },
+        frontRight: { x: 0, y: 0, z: 0 },
+        backLeft: { x: 0, y: 0, z: 0 },
+        backRight: { x: 0, y: 0, z: 0 }
+      }
       },
       rotation: {
-        chassis: { x: 0, y: 0, z: 0, w: 0 },
-        wheels: {
-          frontLeft: { x: 0, y: 0, z: 0, w: 0 },
-          frontRight: { x: 0, y: 0, z: 0, w: 0 },
-          backLeft: { x: 0, y: 0, z: 0, w: 0 },
-          backRight: { x: 0, y: 0, z: 0, w: 0 }
-        }
+      chassis: { x: 0, y: 0, z: 0, w: 0 },
+      wheels: {
+        frontLeft: { x: 0, y: 0, z: 0, w: 0 },
+        frontRight: { x: 0, y: 0, z: 0, w: 0 },
+        backLeft: { x: 0, y: 0, z: 0, w: 0 },
+        backRight: { x: 0, y: 0, z: 0, w: 0 }
+      }
       }
     };
 
