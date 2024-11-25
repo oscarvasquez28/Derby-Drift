@@ -6,6 +6,8 @@ export default class Track extends Level {
         // super('./public/models/Track/TrackHeightMap.png', 2);
         super('./public/textures/TrackHeightmap.png', 6);
         this.checkpoints = [];
+        this.boxCollisions = [];
+        this.sphereCollisions = [];
         this.debug = true;
         this.laps = 3;
         this.hasStarted = true;
@@ -52,8 +54,8 @@ export default class Track extends Level {
     }
 
     createCollisions() {
-        this.world.createCollisionBox({ x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 });
-        this.world.createCollisionSphere({ x: -227.28408848883032, y: 1.9336560325685157, z: 11.197025432804969 }, 5);
+        this.boxCollisions.push(this.world.createCollisionBox({ x: 0, y: 0, z: 0 }, { x: 20, y: 1, z: 20 }));
+        this.sphereCollisions.push(this.world.createCollisionSphere({ x: -227.28408848883032, y: 1.9336560325685157, z: 11.197025432804969 }, 5));
     }
 
     createCheckpoints() {
@@ -95,6 +97,24 @@ export default class Track extends Level {
         });
     }
 
+    getBoxCollisionsJson() {
+        return this.boxCollisions.map((boxCollision) => {
+            return {
+                position: boxCollision.position,
+                size: {x: boxCollision.shapes[0].halfExtents.x * 2, y: boxCollision.shapes[0].halfExtents.y * 2, z: boxCollision.shapes[0].halfExtents.z * 2} 
+            }
+        });
+    }
+
+    getSphereCollisionsJson() {
+        return this.sphereCollisions.map((sphereCollision) => {
+            return {
+                position: sphereCollision.position,
+                radius: sphereCollision.shapes[0].radius
+            }
+        });
+    }
+
     checkpointCallback(event) {
         if (Object.values(this.players).length === 0) return;
         const player = Object.values(this.players).find(player => player.getBody().chassis === event.body);
@@ -119,7 +139,9 @@ export default class Track extends Level {
 
     getDebugInfo() {
         return {
-            checkpoints: this.getCheckpointsJson()
+            checkpoints: this.getCheckpointsJson(),
+            boxCollisions: this.getBoxCollisionsJson(),
+            sphereCollisions: this.getSphereCollisionsJson()
         }
     }
 
