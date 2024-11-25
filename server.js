@@ -87,6 +87,14 @@ app.get('/*.jpg', (req, res) => {
   });
 });
 
+app.get('/*.glb', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".glb"), {
+    headers: {
+      'Content-Type': 'model/glb'
+    }
+  });
+});
+
 app.get('/*.png', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', req.params['0'].split('/').slice(0, -1).join('/'), req.params['0'].split('/')[req.params['0'].split('/').length - 1] + ".png"), {
     headers: {

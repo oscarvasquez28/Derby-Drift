@@ -21,6 +21,8 @@ export default class Level {
 
     this.models = new Array().fill(0);
 
+    this.glbModels = new Array().fill(0);
+
     this.socket = Connection.getConnection();
 
     this.clientPlayer = null;
@@ -276,6 +278,12 @@ export default class Level {
         });
       });
 
+      socket.on('updateAI', (aiData) => {
+        if (this.gameEnded) return;
+        console.log("Recieved message from server: updateAI\nRecieved updated AI: " + aiData.id);
+        this.updateAI(aiData);
+      });
+
       socket.on('newProjectile', (projectileData) => {
         if (this.gameEnded) return;
         // console.log("Recieved message from server: newProjectile\nRecieved new projectile from player: " + projectileData.id);
@@ -515,6 +523,10 @@ export default class Level {
         console.error("Recieved message from server: updateMissiles\nMissile " + missileData.id + " is not in the scene");
       }
     });
+  }
+
+  updateAI(aiData) {
+    return true;
   }
 
   removeMissile(data) {

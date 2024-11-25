@@ -79,10 +79,10 @@ export default class CannonWorld {
         return body;
     }
 
-    createCollisionBox(position, size) {
+    createCollisionBox(position, size, mass = 0) {
         const shape = new cannon.Box(new cannon.Vec3(size.x / 2, size.y / 2, size.z / 2));
         const body = new cannon.Body({
-            mass: 0, // Static body
+            mass: mass,
             position: new cannon.Vec3(position.x, position.y, position.z),
             shape: shape
         });
