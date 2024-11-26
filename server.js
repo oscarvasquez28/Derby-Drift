@@ -214,6 +214,6 @@ const blue = '\x1b[34m'; // Código de color azul
 const reset = '\x1b[37m'; // Código para restablecer el color a blanco
 
 //Inciar servidor
-server.listen(3000, () => {
+server.listen(PORT, () => {
   console.log(`listening on ${blue}http://localhost:${PORT}${reset}`);
 });

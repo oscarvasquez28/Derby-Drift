@@ -39,7 +39,7 @@
         <div id="greeting-btn" class="index-btn-container" hidden>
           <button id="greeting" class="name-btn"></button>
         </div>
-        <div id="play" class="index-btn-container"><button>Jugar</button></div>
+        <div class="index-btn-container"><button id="play">Jugar</button></div>
         <div id="play-options" hidden>
           <div class="index-btn-container">
               <button id="easy" class="difficulty-btn">Fácil</button>
@@ -198,7 +198,8 @@
   <script>
     // API Key de OpenWeatherMap
     const apiKey = CONFIG.OPENWEATHERMAP_API_KEY;
-    const city = 'Monterrey'; // Cambia por la ciudad que desees
+    const city = 'Monterrey';
+    // const city = 'Kalkaska';
 
     // Función para obtener el clima
     async function getWeather() {
