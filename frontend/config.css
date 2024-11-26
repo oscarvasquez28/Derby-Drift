@@ -1,0 +1,116 @@
+.config-container{
+  min-height: 100vh;
+  margin: 0px;
+  width: 100%;
+  background-image: url('./images/coliseo.jpg');
+  background-size: cover; /* Ajusta la imagen para cubrir todo el contenedor */
+  background-position: center; /* Centra la imagen en el contenedor */
+  background-repeat: no-repeat; /* Evita que la imagen se repita */
+}
+
+.config-row-container div{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+
+.config-container-title h1{
+  font-size: 90px;
+  /* background: linear-gradient(0deg, #3300ff, #ff9900); */
+  background: linear-gradient(0deg, #fcfcfc, rgb(176, 152, 66));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.config-btn-container{
+  margin: 30px 20px;
+}
+
+.config-btn-container button{
+  color: #333333;
+  width: 150px; /* Ajusta el tamaño según sea necesario */
+  height: 40px; /* Ajusta la altura según sea necesario */
+  font-weight: bold; /* Texto en negrita */
+  clip-path: polygon(
+    10% 0%, /* Vértice superior izquierdo */
+    90% 0%, /* Vértice superior derecho */
+    100% 50%, /* Vértice derecho */
+    90% 100%, /* Vértice inferior derecho */
+    10% 100%, /* Vértice inferior izquierdo */
+    0% 50% /* Vértice izquierdo */
+  ); /* Define la forma romboide */
+  border-radius: 50px; /* Opcional: Bordes redondeados para suavizar el romboide */
+  border: solid 1px #FFD700; /* Borde del botón */
+  background: linear-gradient(to right, #ffffff, #c9ba61); /* Estado normal */
+  transition: transform 0.2s ease-in-out;
+}
+
+.config-btn-container button:hover {
+  background: linear-gradient(to right, #c9ba61, #ffffff); /* Estado hover */
+  transform: scale(1.1); /* Aumenta el tamaño del botón al pasar el cursor */
+}
+
+.config-container-audio, .config-container-video, .config-container-controles{
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  color: white;
+  text-align: center;
+}
+
+.config-container-audio-height, .config-container-video-height{
+  height: 33%;
+}
+
+.config-container-controles-height{
+  height: 16%;
+}
+
+.config-container-audio-height div, .config-container-video-height div, .config-container-controles-height div{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.config-controles input{
+  width: 40px;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  background: rgb(176, 152, 66);
+}
+
+.config-fps{
+  width: 70px;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.d-none {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .config-container-title h1 {
+    font-size: 70px;
+  }
+
+  .config-btn-container button {
+    width: 120px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 576px) {
+  .config-container-title h1 {
+    font-size: 40px;
+  }
+
+  .config-btn-container button {
+    width: 100px;
+    height: 25px;
+  }
+}
