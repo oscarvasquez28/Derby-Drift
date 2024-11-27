@@ -39,10 +39,10 @@ Select your preferred difficulty before entering any gamemode:
 To install and run Derby Drift, follow these steps:
 1. Clone the repository:
    ```bash
-   git clone https://github.com/oscarvasquez28/derbydrift.git
+   git clone https://github.com/oscarvasquez28/Derby-Drift.git
 2. Install dependencies
    ```bash
-   cd derbydrift
+   cd Derby-Drift
    npm install
 3. Start the server
    ```bash
